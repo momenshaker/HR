@@ -110,6 +110,11 @@ public sealed class HrPlatformOptions
                 ///     Represents PostgreSQL provider.
                 /// </summary>
                 public const string PostgreSql = "PostgreSql";
+
+                /// <summary>
+                ///     Represents the SQLite provider.
+                /// </summary>
+                public const string Sqlite = "Sqlite";
             }
 
             /// <summary>
