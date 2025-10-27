@@ -39,4 +39,27 @@ public sealed class EmployeeService : IEmployeeService
 
         return createdEmployee.ToDto();
     }
+
+    /// <inheritdoc />
+    public async Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var existingEmployee = await _employeeRepository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        if (existingEmployee is null)
+        {
+            return null;
+        }
+
+        var updatedEntity = request.ApplyUpdates(existingEmployee);
+        var persistedEmployee = await _employeeRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
+
+        return persistedEmployee?.ToDto();
+    }
+
+    /// <inheritdoc />
+    public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return _employeeRepository.RemoveAsync(id, cancellationToken);
+    }
 }

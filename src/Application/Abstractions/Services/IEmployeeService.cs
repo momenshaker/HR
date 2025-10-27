@@ -21,4 +21,14 @@ public interface IEmployeeService
     ///     Creates a new employee and returns the created representation.
     /// </summary>
     Task<EmployeeDto> CreateAsync(CreateEmployeeRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Updates an existing employee and returns the updated representation.
+    /// </summary>
+    Task<EmployeeDto?> UpdateAsync(Guid id, UpdateEmployeeRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes an employee by identifier.
+    /// </summary>
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

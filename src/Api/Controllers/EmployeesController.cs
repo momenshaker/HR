@@ -58,4 +58,34 @@ public sealed class EmployeesController : ControllerBase
 
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdEmployee.Id }, createdEmployee);
     }
+
+    /// <summary>
+    ///     Updates an existing employee record.
+    /// </summary>
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateEmployeeRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var updatedEmployee = await _employeeService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
+        return updatedEmployee is null ? NotFound() : Ok(updatedEmployee);
+    }
+
+    /// <summary>
+    ///     Deletes an employee by identifier.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var deleted = await _employeeService.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
+        return deleted ? NoContent() : NotFound();
+    }
 }

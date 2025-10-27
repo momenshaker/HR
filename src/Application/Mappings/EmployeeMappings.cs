@@ -41,4 +41,23 @@ public static class EmployeeMappings
             DateOfBirth = request.DateOfBirth
         };
     }
+
+    public static Employee ApplyUpdates(this UpdateEmployeeRequest request, Employee existingEmployee)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(existingEmployee);
+
+        return new Employee
+        {
+            Id = existingEmployee.Id,
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
+            Email = request.Email.Trim(),
+            JobTitle = request.JobTitle.Trim(),
+            DepartmentId = request.DepartmentId,
+            EmploymentStartDate = request.EmploymentStartDate,
+            EmploymentEndDate = request.EmploymentEndDate,
+            DateOfBirth = request.DateOfBirth
+        };
+    }
 }

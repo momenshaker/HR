@@ -34,4 +34,23 @@ public sealed class InMemoryEmployeeRepository : IEmployeeRepository
 
         return Task.FromResult(employee);
     }
+
+    public Task<Employee?> UpdateAsync(Employee employee, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(employee);
+
+        if (!_employees.ContainsKey(employee.Id))
+        {
+            return Task.FromResult<Employee?>(null);
+        }
+
+        _employees[employee.Id] = employee;
+
+        return Task.FromResult<Employee?>(employee);
+    }
+
+    public Task<bool> RemoveAsync(Guid employeeId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_employees.TryRemove(employeeId, out _));
+    }
 }
