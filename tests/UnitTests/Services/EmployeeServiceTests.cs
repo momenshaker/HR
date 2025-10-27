@@ -10,11 +10,12 @@ namespace HR.UnitTests.Services;
 public sealed class EmployeeServiceTests
 {
     private readonly Mock<IEmployeeRepository> _repositoryMock = new();
+    private readonly Mock<IDepartmentRepository> _departmentRepositoryMock = new();
     private readonly EmployeeService _sut;
 
     public EmployeeServiceTests()
     {
-        _sut = new EmployeeService(_repositoryMock.Object);
+        _sut = new EmployeeService(_repositoryMock.Object, _departmentRepositoryMock.Object);
     }
 
     [Fact]
@@ -186,5 +187,156 @@ public sealed class EmployeeServiceTests
         // Assert
         Assert.True(result);
         _repositoryMock.Verify(repo => repo.RemoveAsync(employeeId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAsync_FiltersSortsAndPaginatesEmployees()
+    {
+        // Arrange
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var departmentId = Guid.NewGuid();
+        var employees = new List<Employee>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Alice",
+                LastName = "Johnson",
+                Email = "alice.johnson@example.com",
+                DepartmentId = departmentId,
+                JobTitle = "HR Manager",
+                EmploymentStartDate = today.AddDays(-400),
+                EmploymentEndDate = null
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Bob",
+                LastName = "Smith",
+                Email = "bob.smith@example.com",
+                DepartmentId = departmentId,
+                JobTitle = "HR Associate",
+                EmploymentStartDate = today.AddDays(-200),
+                EmploymentEndDate = null
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Charlie",
+                LastName = "Adams",
+                Email = "charlie.adams@example.com",
+                DepartmentId = Guid.NewGuid(),
+                JobTitle = "Finance Analyst",
+                EmploymentStartDate = today.AddDays(-100),
+                EmploymentEndDate = today.AddDays(-10)
+            }
+        };
+
+        _repositoryMock.Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(employees);
+
+        var request = new EmployeeSearchRequest
+        {
+            Query = "HR",
+            DepartmentId = departmentId,
+            IsActive = true,
+            SortBy = EmployeeSortField.EmploymentStartDate,
+            SortDirection = SortDirection.Descending,
+            PageNumber = 1,
+            PageSize = 1
+        };
+
+        // Act
+        var result = await _sut.SearchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Bob", result.Items.First().FirstName);
+        Assert.False(result.IsLastPage);
+    }
+
+    [Fact]
+    public async Task GetWorkforceSnapshotAsync_ComputesAnalytics()
+    {
+        // Arrange
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var departmentA = Guid.NewGuid();
+        var departmentB = Guid.NewGuid();
+
+        var employees = new List<Employee>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Active",
+                LastName = "One",
+                Email = "active.one@example.com",
+                DepartmentId = departmentA,
+                JobTitle = "Consultant",
+                EmploymentStartDate = today.AddDays(-15)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Active",
+                LastName = "Two",
+                Email = "active.two@example.com",
+                DepartmentId = departmentA,
+                JobTitle = "Consultant",
+                EmploymentStartDate = today.AddDays(-200),
+                EmploymentEndDate = today.AddDays(10)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Active",
+                LastName = "Three",
+                Email = "active.three@example.com",
+                DepartmentId = departmentB,
+                JobTitle = "Lead",
+                EmploymentStartDate = today.AddDays(-800)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Former",
+                LastName = "Employee",
+                Email = "former.employee@example.com",
+                DepartmentId = departmentB,
+                JobTitle = "Lead",
+                EmploymentStartDate = today.AddDays(-500),
+                EmploymentEndDate = today.AddDays(-5)
+            }
+        };
+
+        var departments = new List<Department>
+        {
+            new() { Id = departmentA, Name = "People Ops" },
+            new() { Id = departmentB, Name = "Finance" }
+        };
+
+        _repositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(employees);
+        _departmentRepositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(departments);
+
+        // Act
+        var snapshot = await _sut.GetWorkforceSnapshotAsync(CancellationToken.None);
+
+        // Assert
+        Assert.Equal(4, snapshot.TotalEmployees);
+        Assert.Equal(3, snapshot.ActiveEmployees);
+        Assert.Equal(1, snapshot.InactiveEmployees);
+        Assert.Equal(1, snapshot.DeparturesLast30Days);
+        Assert.Equal(1, snapshot.UpcomingDeparturesNext30Days);
+        Assert.True(snapshot.AverageTenureInYears > 0);
+        Assert.Equal(2, snapshot.DepartmentHeadcounts.Count);
+
+        var peopleOps = snapshot.DepartmentHeadcounts.Single(dto => dto.DepartmentName == "People Ops");
+        Assert.Equal(2, peopleOps.ActiveEmployees);
+        Assert.Equal(2, peopleOps.TotalEmployees);
     }
 }

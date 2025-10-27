@@ -87,6 +87,185 @@ paths:
           description: Department deleted
         '404':
           description: Department not found
+  /api/employees:
+    get:
+      summary: Retrieve all employees
+      tags: [Employees]
+      responses:
+        '200':
+          description: A list of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeDto'
+    post:
+      summary: Create an employee
+      tags: [Employees]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmployeeRequest'
+      responses:
+        '201':
+          description: Newly created employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDto'
+        '400':
+          description: Validation failure
+  /api/employees/{id}:
+    get:
+      summary: Retrieve an employee by id
+      tags: [Employees]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Employee details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDto'
+        '404':
+          description: Employee not found
+    put:
+      summary: Update an employee
+      tags: [Employees]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmployeeRequest'
+      responses:
+        '200':
+          description: Updated employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Employee not found
+    delete:
+      summary: Delete an employee
+      tags: [Employees]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Employee deleted
+        '404':
+          description: Employee not found
+  /api/employees/search:
+    get:
+      summary: Search employees with filters and pagination
+      tags: [Employees]
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+            maxLength: 200
+          description: Free-text search across name, email, and job title
+        - in: query
+          name: departmentId
+          schema:
+            type: string
+            format: uuid
+          description: Limit results to a specific department
+        - in: query
+          name: jobTitle
+          schema:
+            type: string
+            maxLength: 150
+          description: Restrict results to a given job title fragment
+        - in: query
+          name: isActive
+          schema:
+            type: boolean
+          description: Filter by active (true) or inactive (false) employees
+        - in: query
+          name: hiredFrom
+          schema:
+            type: string
+            format: date
+          description: Only include employees hired on or after this date
+        - in: query
+          name: hiredTo
+          schema:
+            type: string
+            format: date
+          description: Only include employees hired on or before this date
+        - in: query
+          name: employmentEndFrom
+          schema:
+            type: string
+            format: date
+          description: Include employees whose employment ended on or after this date
+        - in: query
+          name: employmentEndTo
+          schema:
+            type: string
+            format: date
+          description: Include employees whose employment ended on or before this date
+        - in: query
+          name: pageNumber
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 1-based page index
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+          description: Number of records to return per page
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [lastName, employmentStartDate, employmentEndDate, jobTitle, tenure]
+            default: lastName
+          description: Field used to sort results
+        - in: query
+          name: sortDirection
+          schema:
+            type: string
+            enum: [ascending, descending]
+            default: ascending
+          description: Direction to apply when ordering results
+      responses:
+        '200':
+          description: Paged employees matching the supplied filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeResponse'
+        '400':
+          description: Validation failure
+  /api/employees/insights/workforce:
+    get:
+      summary: Retrieve workforce analytics snapshot metrics
+      tags: [Employees]
+      responses:
+        '200':
+          description: Aggregated workforce insights
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeWorkforceSnapshotDto'
   /api/attendancerecords:
     get:
       summary: Retrieve all attendance records
@@ -777,6 +956,122 @@ components:
         isActive:
           type: boolean
       required: [name, code, isActive]
+    EmployeeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        jobTitle:
+          type: string
+        departmentId:
+          type: string
+          format: uuid
+        employmentStartDate:
+          type: string
+          format: date
+        employmentEndDate:
+          type: string
+          format: date
+          nullable: true
+        dateOfBirth:
+          type: string
+          format: date
+          nullable: true
+      required: [id, firstName, lastName, email, jobTitle, departmentId, employmentStartDate]
+    CreateEmployeeRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        departmentId:
+          type: string
+          format: uuid
+        employmentStartDate:
+          type: string
+          format: date
+        jobTitle:
+          type: string
+        employmentEndDate:
+          type: string
+          format: date
+          nullable: true
+        dateOfBirth:
+          type: string
+          format: date
+          nullable: true
+      required: [firstName, lastName, email, departmentId, employmentStartDate, jobTitle]
+    UpdateEmployeeRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateEmployeeRequest'
+    EmployeeDepartmentHeadcountDto:
+      type: object
+      properties:
+        departmentId:
+          type: string
+          format: uuid
+        departmentName:
+          type: string
+        activeEmployees:
+          type: integer
+        totalEmployees:
+          type: integer
+      required: [departmentId, departmentName, activeEmployees, totalEmployees]
+    EmployeeWorkforceSnapshotDto:
+      type: object
+      properties:
+        totalEmployees:
+          type: integer
+        activeEmployees:
+          type: integer
+        inactiveEmployees:
+          type: integer
+        newHiresLast30Days:
+          type: integer
+        departuresLast30Days:
+          type: integer
+        upcomingDeparturesNext30Days:
+          type: integer
+        averageTenureInYears:
+          type: number
+          format: double
+        departmentHeadcounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDepartmentHeadcountDto'
+      required:
+        [totalEmployees, activeEmployees, inactiveEmployees, newHiresLast30Days, departuresLast30Days,
+         upcomingDeparturesNext30Days, averageTenureInYears, departmentHeadcounts]
+    PaginatedEmployeeResponse:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        isLastPage:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDto'
+      required: [pageNumber, pageSize, totalCount, totalPages, isLastPage, items]
     AttendanceRecordDto:
       type: object
       properties:
