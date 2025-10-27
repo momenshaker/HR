@@ -23,12 +23,18 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         var options = new HrPlatformOptions();
-        configuration.GetSection(HrPlatformOptions.SectionName).Bind(options);
+        var hrPlatformSection = configuration.GetSection(HrPlatformOptions.SectionName);
+        hrPlatformSection.Bind(options);
 
-        services.Configure<HrPlatformOptions>(configuration.GetSection(HrPlatformOptions.SectionName));
+        services.Configure<HrPlatformOptions>(hrPlatformSection);
 
-        if (!string.Equals(options.Data.RepositoryProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(
+                options.Data.RepositoryProvider,
+                HrPlatformOptions.DataOptions.RepositoryProviders.InMemory,
+                StringComparison.OrdinalIgnoreCase))
         {
+            _ = DatabaseConfiguration.From(options.Data.Database, configuration);
+
             throw new NotSupportedException(
                 $"The configured repository provider '{options.Data.RepositoryProvider}' is not supported."
             );

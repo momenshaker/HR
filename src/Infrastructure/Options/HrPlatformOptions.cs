@@ -65,6 +65,79 @@ public sealed class HrPlatformOptions
     /// </summary>
     public sealed class DataOptions
     {
-        public string RepositoryProvider { get; set; } = "InMemory";
+        /// <summary>
+        ///     Defines supported repository provider identifiers.
+        /// </summary>
+        public static class RepositoryProviders
+        {
+            /// <summary>
+            ///     Represents the in-memory repository provider used for local development and testing.
+            /// </summary>
+            public const string InMemory = "InMemory";
+
+            /// <summary>
+            ///     Represents the Entity Framework Core provider backed by a relational database.
+            /// </summary>
+            public const string EntityFrameworkCore = "EntityFrameworkCore";
+        }
+
+        /// <summary>
+        ///     Gets or sets the repository provider identifier.
+        /// </summary>
+        public string RepositoryProvider { get; set; } = RepositoryProviders.InMemory;
+
+        /// <summary>
+        ///     Gets or sets relational database specific configuration.
+        /// </summary>
+        public DatabaseOptions Database { get; set; } = new();
+
+        /// <summary>
+        ///     Describes relational database configuration.
+        /// </summary>
+        public sealed class DatabaseOptions
+        {
+            /// <summary>
+            ///     Defines supported database provider identifiers.
+            /// </summary>
+            public static class Providers
+            {
+                /// <summary>
+                ///     Represents Microsoft SQL Server provider.
+                /// </summary>
+                public const string SqlServer = "SqlServer";
+
+                /// <summary>
+                ///     Represents PostgreSQL provider.
+                /// </summary>
+                public const string PostgreSql = "PostgreSql";
+            }
+
+            /// <summary>
+            ///     Gets or sets the database provider identifier.
+            /// </summary>
+            public string Provider { get; set; } = Providers.SqlServer;
+
+            /// <summary>
+            ///     Gets or sets the connection string used to connect to the database. When left empty,
+            ///     <see cref="ConnectionStringName" /> will be used to resolve the value from the root
+            ///     <c>ConnectionStrings</c> configuration section.
+            /// </summary>
+            public string ConnectionString { get; set; } = string.Empty;
+
+            /// <summary>
+            ///     Gets or sets the name of the connection string stored in the root configuration section.
+            /// </summary>
+            public string ConnectionStringName { get; set; } = string.Empty;
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether detailed errors should be enabled for the database provider.
+            /// </summary>
+            public bool EnableDetailedErrors { get; set; }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether sensitive data logging should be enabled.
+            /// </summary>
+            public bool EnableSensitiveDataLogging { get; set; }
+        }
     }
 }
