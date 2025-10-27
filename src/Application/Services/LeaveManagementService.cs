@@ -6,14 +6,9 @@ using HR.Application.Mappings;
 namespace HR.Application.Services;
 
 /// <inheritdoc />
-public sealed class LeaveManagementService : ILeaveManagementService
+public sealed class LeaveManagementService(ILeaveRequestRepository leaveRepository) : ILeaveManagementService
 {
-    private readonly ILeaveRequestRepository _leaveRepository;
-
-    public LeaveManagementService(ILeaveRequestRepository leaveRepository)
-    {
-        _leaveRepository = leaveRepository;
-    }
+    private readonly ILeaveRequestRepository _leaveRepository = leaveRepository;
 
     /// <inheritdoc />
     public async Task<IReadOnlyCollection<LeaveRequestDto>> GetAsync(CancellationToken cancellationToken = default)
