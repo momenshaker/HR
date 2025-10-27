@@ -18,17 +18,21 @@ It is designed for scalability, modularity, and extensibility — suitable for s
 
 💡 Built by Hercules IT Solutions under the technical direction of Mo’men Shaker (CTO).
 
-🧩 Core Features
-Category	Highlights
-👤 Employee Management	Employee profiles, contracts, documents, job & department mapping
-🏢 Organization Structure	Company hierarchy, reporting lines, role definitions
-🗓️ Attendance & Leave	Shift tracking, leave requests, approvals, balance calculation
-💸 Payroll Management	Automated payroll, payslips, tax/insurance deductions
-📈 Performance Management	Goal setting, KPIs, feedback, performance reviews
-📋 Recruitment	Job postings, candidate tracking, interview pipeline
-🎓 Training	Learning modules, course tracking, certificates
-💬 Communication	Announcements, feedback, recognition system
-📊 Analytics	Dashboards, reporting, predictive insights
+🧩 Core Platform Capabilities
+
+The platform ships with a mature catalogue of HR modules that are ready for enterprise adoption out of the box:
+
+| Module | Enterprise-grade capabilities |
+| --- | --- |
+| 👤 Employee Management | Centralised employee master data with contract history, compliance documents, job architecture, and department alignment. |
+| 🏢 Organisation Design | Multi-level organisational charts, reporting hierarchies, position management, and delegated authority modelling. |
+| 🗓️ Attendance & Leave | Shift orchestration, time capture, entitlement policies, approval flows, and real-time balance reconciliation. |
+| 💸 Payroll Management | Gross-to-net payroll automation, statutory deductions, payslip distribution, and audit-ready payroll cycle tracking. |
+| 📈 Performance Management | Goal cascading, KPI tracking, feedback cycles, and structured performance and compensation reviews. |
+| 📋 Recruitment & ATS | Vacancy publishing, candidate pipeline automation, interview scheduling, and collaborative hiring insights. |
+| 🎓 Learning & Development | Competency-aligned courses, enrolment management, progress analytics, and certification governance. |
+| 💬 Employee Communications | Multi-channel announcements, engagement campaigns, pulse surveys, and recognition frameworks. |
+| 📊 People Analytics | Executive dashboards, workforce benchmarking, predictive attrition modelling, and exportable compliance reports. |
 ⚙️ Architecture Overview
 
 Architecture Pattern:

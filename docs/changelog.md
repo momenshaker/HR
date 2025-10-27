@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Changed
+- Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
+
 # [0.3.2] - 2025-02-28
 ### Added
 - Introduced strongly-typed database configuration options allowing connection strings to be resolved from the configuration root.
