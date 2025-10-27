@@ -21,4 +21,14 @@ public interface IEmployeeRepository
     ///     Persists a new employee entity.
     /// </summary>
     Task<Employee> AddAsync(Employee employee, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Updates an existing employee entity.
+    /// </summary>
+    Task<Employee?> UpdateAsync(Employee employee, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Removes an employee from the system.
+    /// </summary>
+    Task<bool> RemoveAsync(Guid employeeId, CancellationToken cancellationToken = default);
 }
