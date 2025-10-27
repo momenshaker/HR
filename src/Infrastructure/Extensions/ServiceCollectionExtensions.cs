@@ -97,6 +97,12 @@ public static class ServiceCollectionExtensions
                         npgsqlOptions.MigrationsAssembly(typeof(HrDbContext).Assembly.FullName);
                     });
                     break;
+                case DataOptions.DatabaseOptions.Providers.Sqlite:
+                    optionsBuilder.UseSqlite(databaseConfiguration.ConnectionString, sqliteOptions =>
+                    {
+                        sqliteOptions.MigrationsAssembly(typeof(HrDbContext).Assembly.FullName);
+                    });
+                    break;
                 default:
                     throw new NotSupportedException(
                         $"The configured database provider '{databaseConfiguration.Provider}' is not supported."
