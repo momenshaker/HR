@@ -105,6 +105,17 @@ Create a .env file (for frontend) and appsettings.Development.json (for backend)
   "ConnectionStrings": {
     "DefaultConnection": "Server=localhost;Database=HRProject;Trusted_Connection=True;"
   },
+  "HrPlatform": {
+    "Data": {
+      "RepositoryProvider": "SqlServer",
+      "Database": {
+        "ConnectionStringName": "DefaultConnection",
+        "Provider": "SqlServer",
+        "EnableDetailedErrors": false,
+        "EnableSensitiveDataLogging": false
+      }
+    }
+  },
   "Jwt": {
     "Issuer": "https://yourdomain.com",
     "Audience": "https://yourdomain.com",

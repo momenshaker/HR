@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.3.2] - 2025-02-28
+### Added
+- Introduced strongly-typed database configuration options allowing connection strings to be resolved from the configuration root.
+- Extended default configuration to include relational database settings and documented usage in the README.
+
 ## [0.3.1] - 2025-02-20
 ### Added
 - Introduced centralised configuration via <code>appsettings.json</code>, exposing feature toggles and repository provider settings.
