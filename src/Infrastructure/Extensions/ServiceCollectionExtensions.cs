@@ -5,6 +5,7 @@ using HR.Infrastructure.Options;
 using HR.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using DataOptions = HR.Infrastructure.Options.HrPlatformOptions.DataOptions;
 
 namespace HR.Infrastructure.Extensions;
 
@@ -27,15 +28,19 @@ public static class ServiceCollectionExtensions
 
         services.Configure<HrPlatformOptions>(hrPlatformSection);
 
+        var dataOptions = options.Data ?? new DataOptions();
+
         if (!string.Equals(
-                options.Data.RepositoryProvider,
-                HrPlatformOptions.DataOptions.RepositoryProviders.InMemory,
+                dataOptions.RepositoryProvider,
+                DataOptions.RepositoryProviders.InMemory,
                 StringComparison.OrdinalIgnoreCase))
         {
-            _ = DatabaseConfiguration.From(options.Data.Database, configuration);
+            var databaseOptions = dataOptions.Database ?? new DataOptions.DatabaseOptions();
+
+            _ = DatabaseConfiguration.From(databaseOptions, configuration);
 
             throw new NotSupportedException(
-                $"The configured repository provider '{options.Data.RepositoryProvider}' is not supported."
+                $"The configured repository provider '{dataOptions.RepositoryProvider}' is not supported."
             );
         }
 
