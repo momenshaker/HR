@@ -3,6 +3,7 @@ using HR.Application.DTOs;
 using HR.Application.Services;
 using HR.Domain.Entities;
 using Moq;
+using Xunit;
 
 namespace HR.UnitTests.Services;
 
