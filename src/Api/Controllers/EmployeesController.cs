@@ -12,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.EmployeeManagement)]
-public sealed class EmployeesController : ControllerBase
+public sealed class EmployeesController(IEmployeeService employeeService) : ControllerBase
 {
-    private readonly IEmployeeService _employeeService;
-
-    public EmployeesController(IEmployeeService employeeService)
-    {
-        _employeeService = employeeService;
-    }
+    private readonly IEmployeeService _employeeService = employeeService;
 
     /// <summary>
     ///     Retrieves all employees registered in the platform.

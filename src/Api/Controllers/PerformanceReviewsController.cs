@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.PerformanceManagement)]
-public sealed class PerformanceReviewsController : ControllerBase
+public sealed class PerformanceReviewsController(IPerformanceManagementService performanceService) : ControllerBase
 {
-    private readonly IPerformanceManagementService _performanceService;
-
-    public PerformanceReviewsController(IPerformanceManagementService performanceService)
-    {
-        _performanceService = performanceService;
-    }
+    private readonly IPerformanceManagementService _performanceService = performanceService;
 
     /// <summary>
     ///     Retrieves all performance reviews.

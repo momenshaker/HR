@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using HR.Api.Filters;
 using HR.Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Xunit;
 
 namespace HR.UnitTests.Filters;
 
@@ -67,27 +65,22 @@ public sealed class FeatureRequirementAttributeTests
         var httpContext = new DefaultHttpContext { RequestServices = serviceProvider };
 
         var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
-        var executingContext = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), new object());
+        var executingContext = new ActionExecutingContext(actionContext, [], new Dictionary<string, object?>(), new object());
 
         var testContext = new FeatureRequirementTestContext(executingContext);
         return testContext;
     }
 
-    private sealed class FeatureRequirementTestContext
+    private sealed class FeatureRequirementTestContext(ActionExecutingContext executingContext)
     {
-        public FeatureRequirementTestContext(ActionExecutingContext executingContext)
-        {
-            ExecutingContext = executingContext;
-        }
-
-        public ActionExecutingContext ExecutingContext { get; }
+        public ActionExecutingContext ExecutingContext { get; } = executingContext;
 
         public bool ActionInvoked { get; private set; }
 
         public ActionExecutionDelegate Next => async () =>
         {
             ActionInvoked = true;
-            var executedContext = new ActionExecutedContext(ExecutingContext, new List<IFilterMetadata>(), ExecutingContext.Controller)
+            var executedContext = new ActionExecutedContext(ExecutingContext, [], ExecutingContext.Controller)
             {
                 Result = ExecutingContext.Result
             };
@@ -97,14 +90,9 @@ public sealed class FeatureRequirementAttributeTests
         };
     }
 
-    private sealed class TestOptionsSnapshot : IOptionsSnapshot<HrPlatformOptions>
+    private sealed class TestOptionsSnapshot(HrPlatformOptions value) : IOptionsSnapshot<HrPlatformOptions>
     {
-        public TestOptionsSnapshot(HrPlatformOptions value)
-        {
-            Value = value;
-        }
-
-        public HrPlatformOptions Value { get; }
+        public HrPlatformOptions Value { get; } = value;
 
         public HrPlatformOptions Get(string? name) => Value;
     }

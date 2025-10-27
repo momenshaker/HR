@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.HrAnalytics)]
-public sealed class AnalyticsSnapshotsController : ControllerBase
+public sealed class AnalyticsSnapshotsController(IAnalyticsService analyticsService) : ControllerBase
 {
-    private readonly IAnalyticsService _analyticsService;
-
-    public AnalyticsSnapshotsController(IAnalyticsService analyticsService)
-    {
-        _analyticsService = analyticsService;
-    }
+    private readonly IAnalyticsService _analyticsService = analyticsService;
 
     /// <summary>
     ///     Retrieves all analytics snapshots.

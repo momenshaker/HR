@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.LeaveManagement)]
-public sealed class LeaveRequestsController : ControllerBase
+public sealed class LeaveRequestsController(ILeaveManagementService leaveService) : ControllerBase
 {
-    private readonly ILeaveManagementService _leaveService;
-
-    public LeaveRequestsController(ILeaveManagementService leaveService)
-    {
-        _leaveService = leaveService;
-    }
+    private readonly ILeaveManagementService _leaveService = leaveService;
 
     /// <summary>
     ///     Retrieves all leave requests.

@@ -11,27 +11,16 @@ namespace HR.Api.Filters;
 ///     Ensures a requested endpoint is only accessible when the associated feature is enabled.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-public sealed class FeatureRequirementAttribute : Attribute, IAsyncActionFilter
+public sealed class FeatureRequirementAttribute(HrFeature feature) : Attribute, IAsyncActionFilter
 {
-    private readonly HrFeature _feature;
-
-    public FeatureRequirementAttribute(HrFeature feature)
-    {
-        _feature = feature;
-    }
+    private readonly HrFeature _feature = feature;
 
     /// <inheritdoc />
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
-        if (next is null)
-        {
-            throw new ArgumentNullException(nameof(next));
-        }
+        ArgumentNullException.ThrowIfNull(next);
 
         var options = context.HttpContext.RequestServices.GetRequiredService<IOptionsSnapshot<HrPlatformOptions>>();
 

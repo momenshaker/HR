@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.OrganizationStructure)]
-public sealed class DepartmentsController : ControllerBase
+public sealed class DepartmentsController(IDepartmentService departmentService) : ControllerBase
 {
-    private readonly IDepartmentService _departmentService;
-
-    public DepartmentsController(IDepartmentService departmentService)
-    {
-        _departmentService = departmentService;
-    }
+    private readonly IDepartmentService _departmentService = departmentService;
 
     /// <summary>
     ///     Retrieves all departments registered in the platform.

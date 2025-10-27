@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
-public sealed class AnnouncementsController : ControllerBase
+public sealed class AnnouncementsController(ICommunicationService communicationService) : ControllerBase
 {
-    private readonly ICommunicationService _communicationService;
-
-    public AnnouncementsController(ICommunicationService communicationService)
-    {
-        _communicationService = communicationService;
-    }
+    private readonly ICommunicationService _communicationService = communicationService;
 
     /// <summary>
     ///     Retrieves all announcements.

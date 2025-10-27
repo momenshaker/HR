@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.TrainingAndDevelopment)]
-public sealed class TrainingCoursesController : ControllerBase
+public sealed class TrainingCoursesController(ITrainingService trainingService) : ControllerBase
 {
-    private readonly ITrainingService _trainingService;
-
-    public TrainingCoursesController(ITrainingService trainingService)
-    {
-        _trainingService = trainingService;
-    }
+    private readonly ITrainingService _trainingService = trainingService;
 
     /// <summary>
     ///     Retrieves all training courses.

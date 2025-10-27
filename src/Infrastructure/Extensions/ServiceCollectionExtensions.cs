@@ -1,4 +1,3 @@
-using System;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
 using HR.Application.Services;

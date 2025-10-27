@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
-public sealed class AttendanceRecordsController : ControllerBase
+public sealed class AttendanceRecordsController(IAttendanceService attendanceService) : ControllerBase
 {
-    private readonly IAttendanceService _attendanceService;
-
-    public AttendanceRecordsController(IAttendanceService attendanceService)
-    {
-        _attendanceService = attendanceService;
-    }
+    private readonly IAttendanceService _attendanceService = attendanceService;
 
     /// <summary>
     ///     Retrieves all attendance records in the platform.

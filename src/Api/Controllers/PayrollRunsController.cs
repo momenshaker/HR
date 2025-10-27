@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.PayrollManagement)]
-public sealed class PayrollRunsController : ControllerBase
+public sealed class PayrollRunsController(IPayrollService payrollService) : ControllerBase
 {
-    private readonly IPayrollService _payrollService;
-
-    public PayrollRunsController(IPayrollService payrollService)
-    {
-        _payrollService = payrollService;
-    }
+    private readonly IPayrollService _payrollService = payrollService;
 
     /// <summary>
     ///     Retrieves all payroll runs.

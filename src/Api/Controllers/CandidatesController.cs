@@ -2,8 +2,6 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Infrastructure.Options;
-using HR.Application.Abstractions.Services;
-using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -14,14 +12,9 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.RecruitmentAndAts)]
-public sealed class CandidatesController : ControllerBase
+public sealed class CandidatesController(IRecruitmentService recruitmentService) : ControllerBase
 {
-    private readonly IRecruitmentService _recruitmentService;
-
-    public CandidatesController(IRecruitmentService recruitmentService)
-    {
-        _recruitmentService = recruitmentService;
-    }
+    private readonly IRecruitmentService _recruitmentService = recruitmentService;
 
     /// <summary>
     ///     Retrieves all candidates in the applicant tracking pipeline.
