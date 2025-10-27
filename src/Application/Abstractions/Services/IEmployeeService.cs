@@ -18,6 +18,13 @@ public interface IEmployeeService
     Task<EmployeeDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Performs an advanced employee search using filtering, sorting, and paging semantics.
+    /// </summary>
+    Task<PaginatedResponse<EmployeeDto>> SearchAsync(
+        EmployeeSearchRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Creates a new employee and returns the created representation.
     /// </summary>
     Task<EmployeeDto> CreateAsync(CreateEmployeeRequest request, CancellationToken cancellationToken = default);
@@ -31,4 +38,10 @@ public interface IEmployeeService
     ///     Deletes an employee by identifier.
     /// </summary>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Calculates workforce analytics metrics including headcount, movement, and tenure trends.
+    /// </summary>
+    Task<EmployeeWorkforceSnapshotDto> GetWorkforceSnapshotAsync(
+        CancellationToken cancellationToken = default);
 }

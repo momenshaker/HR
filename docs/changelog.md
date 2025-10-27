@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Delivered advanced employee search API supporting filtering, sorting, and pagination for operational reporting.
+- Introduced workforce analytics snapshot endpoint exposing headcount, movement, and department-level insights.
 ### Changed
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 

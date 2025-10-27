@@ -40,6 +40,34 @@ public sealed class EmployeesController(IEmployeeService employeeService) : Cont
     }
 
     /// <summary>
+    ///     Performs an advanced employee search using filters, sorting, and pagination.
+    /// </summary>
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(PaginatedResponse<EmployeeDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SearchAsync([FromQuery] EmployeeSearchRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var result = await _employeeService.SearchAsync(request, cancellationToken).ConfigureAwait(false);
+        return Ok(result);
+    }
+
+    /// <summary>
+    ///     Retrieves workforce analytics snapshot metrics for leadership dashboards.
+    /// </summary>
+    [HttpGet("insights/workforce")]
+    [ProducesResponseType(typeof(EmployeeWorkforceSnapshotDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetWorkforceSnapshotAsync(CancellationToken cancellationToken)
+    {
+        var snapshot = await _employeeService.GetWorkforceSnapshotAsync(cancellationToken).ConfigureAwait(false);
+        return Ok(snapshot);
+    }
+
+    /// <summary>
     ///     Creates a new employee record.
     /// </summary>
     [HttpPost]
