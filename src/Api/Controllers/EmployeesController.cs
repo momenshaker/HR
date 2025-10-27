@@ -1,5 +1,7 @@
+using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
+using HR.Infrastructure.Options;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -9,6 +11,7 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[FeatureRequirement(HrFeature.EmployeeManagement)]
 public sealed class EmployeesController : ControllerBase
 {
     private readonly IEmployeeService _employeeService;
