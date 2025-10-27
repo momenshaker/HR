@@ -1,0 +1,1209 @@
+openapi: 3.0.3
+info:
+  title: HR Platform Core Services API
+  version: 0.3.0
+  description: >-
+    RESTful endpoints powering the core HR platform modules including organization
+    structure, time management, leave, payroll, performance, recruitment,
+    training, communications, and analytics.
+servers:
+  - url: https://localhost:5001
+paths:
+  /api/departments:
+    get:
+      summary: Retrieve all departments
+      tags: [Organization]
+      responses:
+        '200':
+          description: A list of departments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DepartmentDto'
+    post:
+      summary: Create a department
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDepartmentRequest'
+      responses:
+        '201':
+          description: Newly created department
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentDto'
+        '400':
+          description: Validation failure
+  /api/departments/{id}:
+    get:
+      summary: Retrieve a department by id
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Department details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentDto'
+        '404':
+          description: Department not found
+    put:
+      summary: Update a department
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDepartmentRequest'
+      responses:
+        '200':
+          description: Updated department
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Department not found
+    delete:
+      summary: Delete a department
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Department deleted
+        '404':
+          description: Department not found
+  /api/attendancerecords:
+    get:
+      summary: Retrieve all attendance records
+      tags: [Attendance]
+      responses:
+        '200':
+          description: A list of attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttendanceRecordDto'
+    post:
+      summary: Create an attendance record
+      tags: [Attendance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendanceRecordRequest'
+      responses:
+        '201':
+          description: Newly created attendance record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDto'
+        '400':
+          description: Validation failure
+  /api/attendancerecords/{id}:
+    get:
+      summary: Retrieve an attendance record by id
+      tags: [Attendance]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Attendance record details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDto'
+        '404':
+          description: Record not found
+    put:
+      summary: Update an attendance record
+      tags: [Attendance]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttendanceRecordRequest'
+      responses:
+        '200':
+          description: Updated attendance record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Record not found
+    delete:
+      summary: Delete an attendance record
+      tags: [Attendance]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Attendance record deleted
+        '404':
+          description: Record not found
+  /api/leaverequests:
+    get:
+      summary: Retrieve all leave requests
+      tags: [Leave]
+      responses:
+        '200':
+          description: A list of leave requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveRequestDto'
+    post:
+      summary: Create a leave request
+      tags: [Leave]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeaveRequest'
+      responses:
+        '201':
+          description: Newly created leave request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '400':
+          description: Validation failure
+  /api/leaverequests/{id}:
+    get:
+      summary: Retrieve a leave request by id
+      tags: [Leave]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Leave request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '404':
+          description: Leave request not found
+    put:
+      summary: Update a leave request
+      tags: [Leave]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLeaveRequest'
+      responses:
+        '200':
+          description: Updated leave request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Leave request not found
+    delete:
+      summary: Delete a leave request
+      tags: [Leave]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Leave request deleted
+        '404':
+          description: Leave request not found
+  /api/payrollruns:
+    get:
+      summary: Retrieve all payroll runs
+      tags: [Payroll]
+      responses:
+        '200':
+          description: A list of payroll runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PayrollRunDto'
+    post:
+      summary: Create a payroll run
+      tags: [Payroll]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePayrollRunRequest'
+      responses:
+        '201':
+          description: Newly created payroll run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollRunDto'
+        '400':
+          description: Validation failure
+  /api/payrollruns/{id}:
+    get:
+      summary: Retrieve a payroll run by id
+      tags: [Payroll]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Payroll run details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollRunDto'
+        '404':
+          description: Payroll run not found
+    put:
+      summary: Update a payroll run
+      tags: [Payroll]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePayrollRunRequest'
+      responses:
+        '200':
+          description: Updated payroll run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollRunDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Payroll run not found
+    delete:
+      summary: Delete a payroll run
+      tags: [Payroll]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Payroll run deleted
+        '404':
+          description: Payroll run not found
+  /api/performancereviews:
+    get:
+      summary: Retrieve all performance reviews
+      tags: [Performance]
+      responses:
+        '200':
+          description: A list of performance reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PerformanceReviewDto'
+    post:
+      summary: Create a performance review
+      tags: [Performance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePerformanceReviewRequest'
+      responses:
+        '201':
+          description: Newly created performance review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceReviewDto'
+        '400':
+          description: Validation failure
+  /api/performancereviews/{id}:
+    get:
+      summary: Retrieve a performance review by id
+      tags: [Performance]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Performance review details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceReviewDto'
+        '404':
+          description: Review not found
+    put:
+      summary: Update a performance review
+      tags: [Performance]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePerformanceReviewRequest'
+      responses:
+        '200':
+          description: Updated performance review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceReviewDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Review not found
+    delete:
+      summary: Delete a performance review
+      tags: [Performance]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Performance review deleted
+        '404':
+          description: Review not found
+  /api/candidates:
+    get:
+      summary: Retrieve all candidates
+      tags: [Recruitment]
+      responses:
+        '200':
+          description: A list of candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CandidateDto'
+    post:
+      summary: Create a candidate
+      tags: [Recruitment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCandidateRequest'
+      responses:
+        '201':
+          description: Newly created candidate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateDto'
+        '400':
+          description: Validation failure
+  /api/candidates/{id}:
+    get:
+      summary: Retrieve a candidate by id
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Candidate details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateDto'
+        '404':
+          description: Candidate not found
+    put:
+      summary: Update a candidate
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCandidateRequest'
+      responses:
+        '200':
+          description: Updated candidate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Candidate not found
+    delete:
+      summary: Delete a candidate
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Candidate deleted
+        '404':
+          description: Candidate not found
+  /api/trainingcourses:
+    get:
+      summary: Retrieve all training courses
+      tags: [Training]
+      responses:
+        '200':
+          description: A list of training courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingCourseDto'
+    post:
+      summary: Create a training course
+      tags: [Training]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrainingCourseRequest'
+      responses:
+        '201':
+          description: Newly created training course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingCourseDto'
+        '400':
+          description: Validation failure
+  /api/trainingcourses/{id}:
+    get:
+      summary: Retrieve a training course by id
+      tags: [Training]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Training course details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingCourseDto'
+        '404':
+          description: Course not found
+    put:
+      summary: Update a training course
+      tags: [Training]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTrainingCourseRequest'
+      responses:
+        '200':
+          description: Updated training course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingCourseDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Course not found
+    delete:
+      summary: Delete a training course
+      tags: [Training]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Training course deleted
+        '404':
+          description: Course not found
+  /api/announcements:
+    get:
+      summary: Retrieve all announcements
+      tags: [Communications]
+      responses:
+        '200':
+          description: A list of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnnouncementDto'
+    post:
+      summary: Create an announcement
+      tags: [Communications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnnouncementRequest'
+      responses:
+        '201':
+          description: Newly created announcement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementDto'
+        '400':
+          description: Validation failure
+  /api/announcements/{id}:
+    get:
+      summary: Retrieve an announcement by id
+      tags: [Communications]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Announcement details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementDto'
+        '404':
+          description: Announcement not found
+    put:
+      summary: Update an announcement
+      tags: [Communications]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAnnouncementRequest'
+      responses:
+        '200':
+          description: Updated announcement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Announcement not found
+    delete:
+      summary: Delete an announcement
+      tags: [Communications]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Announcement deleted
+        '404':
+          description: Announcement not found
+  /api/analyticssnapshots:
+    get:
+      summary: Retrieve all analytics snapshots
+      tags: [Analytics]
+      responses:
+        '200':
+          description: A list of analytics snapshots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnalyticsSnapshotDto'
+    post:
+      summary: Create an analytics snapshot
+      tags: [Analytics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnalyticsSnapshotRequest'
+      responses:
+        '201':
+          description: Newly created analytics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSnapshotDto'
+        '400':
+          description: Validation failure
+  /api/analyticssnapshots/{id}:
+    get:
+      summary: Retrieve an analytics snapshot by id
+      tags: [Analytics]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Analytics snapshot details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSnapshotDto'
+        '404':
+          description: Snapshot not found
+    put:
+      summary: Update an analytics snapshot
+      tags: [Analytics]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAnalyticsSnapshotRequest'
+      responses:
+        '200':
+          description: Updated analytics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSnapshotDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Snapshot not found
+    delete:
+      summary: Delete an analytics snapshot
+      tags: [Analytics]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Analytics snapshot deleted
+        '404':
+          description: Snapshot not found
+components:
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Unique identifier of the resource
+  schemas:
+    DepartmentDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        parentDepartmentId:
+          type: string
+          format: uuid
+          nullable: true
+        managerId:
+          type: string
+          format: uuid
+          nullable: true
+        branch:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [id, name, code, isActive]
+    CreateDepartmentRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateDepartmentRequest'
+      required: [name, code]
+    UpdateDepartmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        parentDepartmentId:
+          type: string
+          format: uuid
+          nullable: true
+        managerId:
+          type: string
+          format: uuid
+          nullable: true
+        branch:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [name, code, isActive]
+    AttendanceRecordDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        workDate:
+          type: string
+          format: date
+        shiftName:
+          type: string
+        clockInUtc:
+          type: string
+          format: date-time
+          nullable: true
+        clockOutUtc:
+          type: string
+          format: date-time
+          nullable: true
+        overtimeMinutes:
+          type: integer
+        status:
+          type: string
+        notes:
+          type: string
+      required: [id, employeeId, workDate]
+    CreateAttendanceRecordRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateAttendanceRecordRequest'
+      required: [employeeId, workDate]
+    UpdateAttendanceRecordRequest:
+      type: object
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        workDate:
+          type: string
+          format: date
+        shiftName:
+          type: string
+        clockInUtc:
+          type: string
+          format: date-time
+          nullable: true
+        clockOutUtc:
+          type: string
+          format: date-time
+          nullable: true
+        overtimeMinutes:
+          type: integer
+        status:
+          type: string
+        notes:
+          type: string
+      required: [employeeId, workDate]
+    LeaveRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        leaveType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          type: string
+        approverId:
+          type: string
+          format: uuid
+          nullable: true
+        reason:
+          type: string
+        requestedAtUtc:
+          type: string
+          format: date-time
+        decisionAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, employeeId, leaveType, startDate, endDate, status, requestedAtUtc]
+    CreateLeaveRequest:
+      type: object
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        leaveType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+      required: [employeeId, leaveType, startDate, endDate]
+    UpdateLeaveRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateLeaveRequest'
+      properties:
+        status:
+          type: string
+        approverId:
+          type: string
+          format: uuid
+          nullable: true
+        decisionAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+      required: [leaveType, startDate, endDate]
+    PayrollRunDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        processedAtUtc:
+          type: string
+          format: date-time
+        status:
+          type: string
+        totalGrossPay:
+          type: number
+          format: decimal
+        totalNetPay:
+          type: number
+          format: decimal
+        notes:
+          type: string
+      required: [id, periodStart, periodEnd, processedAtUtc, status, totalGrossPay, totalNetPay]
+    CreatePayrollRunRequest:
+      type: object
+      properties:
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        status:
+          type: string
+        totalGrossPay:
+          type: number
+          format: decimal
+        totalNetPay:
+          type: number
+          format: decimal
+        notes:
+          type: string
+      required: [periodStart, periodEnd]
+    UpdatePayrollRunRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayrollRunRequest'
+      properties:
+        processedAtUtc:
+          type: string
+          format: date-time
+      required: [periodStart, periodEnd, processedAtUtc]
+    PerformanceReviewDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        cycleName:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        overallScore:
+          type: number
+        managerComments:
+          type: string
+        goalsSummary:
+          type: string
+        submittedAtUtc:
+          type: string
+          format: date-time
+      required: [id, employeeId, cycleName, periodStart, periodEnd, overallScore, submittedAtUtc]
+    CreatePerformanceReviewRequest:
+      type: object
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        cycleName:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        overallScore:
+          type: number
+        managerComments:
+          type: string
+        goalsSummary:
+          type: string
+      required: [employeeId, cycleName, periodStart, periodEnd]
+    UpdatePerformanceReviewRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreatePerformanceReviewRequest'
+      properties:
+        submittedAtUtc:
+          type: string
+          format: date-time
+      required: [cycleName, periodStart, periodEnd, submittedAtUtc]
+    CandidateDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        appliedRole:
+          type: string
+        stage:
+          type: string
+        source:
+          type: string
+        appliedAtUtc:
+          type: string
+          format: date-time
+        nextInterviewAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        resumeUrl:
+          type: string
+          format: uri
+        notes:
+          type: string
+      required: [id, fullName, email, appliedRole, appliedAtUtc]
+    CreateCandidateRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        appliedRole:
+          type: string
+        stage:
+          type: string
+        source:
+          type: string
+        resumeUrl:
+          type: string
+          format: uri
+          nullable: true
+        notes:
+          type: string
+        nextInterviewAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+      required: [fullName, email, appliedRole]
+    UpdateCandidateRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateCandidateRequest'
+    TrainingCourseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        instructor:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        deliveryMode:
+          type: string
+      required: [id, title, startDate, endDate]
+    CreateTrainingCourseRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        instructor:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        deliveryMode:
+          type: string
+      required: [title, startDate, endDate]
+    UpdateTrainingCourseRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateTrainingCourseRequest'
+    AnnouncementDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        message:
+          type: string
+        audience:
+          type: string
+        createdBy:
+          type: string
+          format: uuid
+        publishedAtUtc:
+          type: string
+          format: date-time
+        requiresAcknowledgement:
+          type: boolean
+      required: [id, title, message, createdBy, publishedAtUtc, requiresAcknowledgement]
+    CreateAnnouncementRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        message:
+          type: string
+        audience:
+          type: string
+        createdBy:
+          type: string
+          format: uuid
+        requiresAcknowledgement:
+          type: boolean
+      required: [title, message, createdBy]
+    UpdateAnnouncementRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateAnnouncementRequest'
+      properties:
+        publishedAtUtc:
+          type: string
+          format: date-time
+      required: [title, message, createdBy, publishedAtUtc]
+    AnalyticsSnapshotDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        capturedAtUtc:
+          type: string
+          format: date-time
+        headcount:
+          type: integer
+        turnoverRate:
+          type: number
+        averageTenureMonths:
+          type: number
+        hiringVelocity:
+          type: number
+        engagementScore:
+          type: number
+        commentary:
+          type: string
+      required: [id, capturedAtUtc, headcount, turnoverRate, averageTenureMonths, hiringVelocity, engagementScore]
+    CreateAnalyticsSnapshotRequest:
+      type: object
+      properties:
+        capturedAtUtc:
+          type: string
+          format: date-time
+        headcount:
+          type: integer
+        turnoverRate:
+          type: number
+        averageTenureMonths:
+          type: number
+        hiringVelocity:
+          type: number
+        engagementScore:
+          type: number
+        commentary:
+          type: string
+      required: [capturedAtUtc, headcount, turnoverRate, averageTenureMonths, hiringVelocity, engagementScore]
+    UpdateAnalyticsSnapshotRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateAnalyticsSnapshotRequest'
