@@ -126,6 +126,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPerformanceReviewRepository, EntityFrameworkPerformanceReviewRepository>();
         services.AddScoped<ICandidateRepository, EntityFrameworkCandidateRepository>();
         services.AddScoped<ITrainingCourseRepository, EntityFrameworkTrainingCourseRepository>();
+        services.AddScoped<ICourseEnrollmentRepository, EntityFrameworkCourseEnrollmentRepository>();
+        services.AddScoped<ICourseCertificationRepository, EntityFrameworkCourseCertificationRepository>();
         services.AddScoped<IAnnouncementRepository, EntityFrameworkAnnouncementRepository>();
         services.AddScoped<IAnalyticsSnapshotRepository, EntityFrameworkAnalyticsSnapshotRepository>();
         services.AddScoped<IVacancyRepository, EntityFrameworkVacancyRepository>();
@@ -142,6 +144,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPerformanceReviewRepository, InMemoryPerformanceReviewRepository>();
         services.AddSingleton<ICandidateRepository, InMemoryCandidateRepository>();
         services.AddSingleton<ITrainingCourseRepository, InMemoryTrainingCourseRepository>();
+        services.AddSingleton<ICourseEnrollmentRepository, InMemoryCourseEnrollmentRepository>();
+        services.AddSingleton<ICourseCertificationRepository, InMemoryCourseCertificationRepository>();
         services.AddSingleton<IAnnouncementRepository, InMemoryAnnouncementRepository>();
         services.AddSingleton<IAnalyticsSnapshotRepository, InMemoryAnalyticsSnapshotRepository>();
         services.AddSingleton<IVacancyRepository, InMemoryVacancyRepository>();

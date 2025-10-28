@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -22,4 +25,14 @@ public sealed class TrainingCourse
     public int Capacity { get; init; }
 
     public string DeliveryMode { get; init; } = string.Empty;
+
+    public IReadOnlyCollection<string> CompetencyCodes { get; init; } = Array.Empty<string>();
+
+    public string SkillLevel { get; init; } = string.Empty;
+
+    public bool OffersCertification { get; init; }
+
+    public string CertificationCriteria { get; init; } = string.Empty;
+
+    public int DurationHours { get; init; }
 }

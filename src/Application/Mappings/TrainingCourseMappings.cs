@@ -1,5 +1,8 @@
 using HR.Application.DTOs;
 using HR.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HR.Application.Mappings;
 
@@ -21,24 +24,36 @@ public static class TrainingCourseMappings
             course.StartDate,
             course.EndDate,
             course.Capacity,
-            course.DeliveryMode);
+            course.DeliveryMode,
+            course.CompetencyCodes,
+            course.SkillLevel,
+            course.OffersCertification,
+            course.CertificationCriteria,
+            course.DurationHours);
     }
 
     public static TrainingCourse ToEntity(this CreateTrainingCourseRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        var title = request.Title?.Trim() ?? throw new ArgumentException("Title is required.", nameof(request.Title));
+
         return new TrainingCourse
         {
             Id = Guid.NewGuid(),
-            Title = request.Title.Trim(),
-            Category = request.Category.Trim(),
-            Description = request.Description.Trim(),
-            Instructor = request.Instructor.Trim(),
+            Title = title,
+            Category = request.Category?.Trim() ?? string.Empty,
+            Description = request.Description?.Trim() ?? string.Empty,
+            Instructor = request.Instructor?.Trim() ?? string.Empty,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             Capacity = request.Capacity,
-            DeliveryMode = request.DeliveryMode.Trim()
+            DeliveryMode = request.DeliveryMode?.Trim() ?? string.Empty,
+            CompetencyCodes = NormalizeCompetencyCodes(request.CompetencyCodes),
+            SkillLevel = request.SkillLevel?.Trim() ?? string.Empty,
+            OffersCertification = request.OffersCertification,
+            CertificationCriteria = request.CertificationCriteria?.Trim() ?? string.Empty,
+            DurationHours = request.DurationHours
         };
     }
 
@@ -47,17 +62,39 @@ public static class TrainingCourseMappings
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(existing);
 
+        var title = request.Title?.Trim() ?? throw new ArgumentException("Title is required.", nameof(request.Title));
+
         return new TrainingCourse
         {
             Id = existing.Id,
-            Title = request.Title.Trim(),
-            Category = request.Category.Trim(),
-            Description = request.Description.Trim(),
-            Instructor = request.Instructor.Trim(),
+            Title = title,
+            Category = request.Category?.Trim() ?? string.Empty,
+            Description = request.Description?.Trim() ?? string.Empty,
+            Instructor = request.Instructor?.Trim() ?? string.Empty,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             Capacity = request.Capacity,
-            DeliveryMode = request.DeliveryMode.Trim()
+            DeliveryMode = request.DeliveryMode?.Trim() ?? string.Empty,
+            CompetencyCodes = NormalizeCompetencyCodes(request.CompetencyCodes),
+            SkillLevel = request.SkillLevel?.Trim() ?? string.Empty,
+            OffersCertification = request.OffersCertification,
+            CertificationCriteria = request.CertificationCriteria?.Trim() ?? string.Empty,
+            DurationHours = request.DurationHours
         };
+    }
+
+    private static IReadOnlyCollection<string> NormalizeCompetencyCodes(IEnumerable<string> codes)
+    {
+        if (codes is null)
+        {
+            return Array.Empty<string>();
+        }
+
+        return codes
+            .Where(code => !string.IsNullOrWhiteSpace(code))
+            .Select(code => code.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(code => code, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
     }
 }
