@@ -28,6 +28,8 @@ public sealed class HrDbContext : DbContext
     public DbSet<TrainingCourse> TrainingCourses => Set<TrainingCourse>();
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<AnalyticsSnapshot> AnalyticsSnapshots => Set<AnalyticsSnapshot>();
+    public DbSet<Vacancy> Vacancies => Set<Vacancy>();
+    public DbSet<InterviewSchedule> InterviewSchedules => Set<InterviewSchedule>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
