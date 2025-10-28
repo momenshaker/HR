@@ -33,6 +33,14 @@ The platform ships with a mature catalogue of HR modules that are ready for ente
 | 🎓 Learning & Development | Competency-aligned courses, enrolment management, progress analytics, and certification governance. |
 | 💬 Employee Communications | Multi-channel announcements, engagement campaigns, pulse surveys, and recognition frameworks. |
 | 📊 People Analytics | Executive dashboards, workforce benchmarking, predictive attrition modelling, and exportable compliance reports. |
+
+### Capability deep dives
+
+- **Employee communications.** Campaign managers can plan and deliver multi-channel announcements (email, in-app, SMS), automate engagement campaigns, launch quick pulse surveys, and drive culture programmes with built-in recognition frameworks.
+- **Attendance, time, and leave.** Shift orchestration, real-time time capture (web, kiosk, mobile), configurable entitlement policies, routed approval flows, and instant balance reconciliation give managers total visibility of workforce availability.
+- **Organisation design.** Visual, multi-level organisational charts, flexible reporting hierarchies, position management, and delegated authority modelling provide accurate insight into reporting structures.
+- **Employee master data.** Maintain a centralised employee master record with full contract history, compliance document storage, job architecture mapping, and department alignment for downstream systems.
+- **Payroll management.** Automate gross-to-net payroll runs, calculate statutory deductions, distribute payslips securely, and maintain audit-ready payroll cycle tracking for compliance reviews.
 ⚙️ Architecture Overview
 
 Architecture Pattern:

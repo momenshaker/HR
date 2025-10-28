@@ -11,6 +11,7 @@
 - Enriched performance management with cascaded goals, KPI tracking, structured feedback, and compensation review modelling for end-to-end appraisal cycles.
 - Delivered recruitment enhancements covering vacancy publishing APIs, pipeline automation with interview scheduling, and collaborative hiring insights for hiring teams.
 - Expanded training and development with competency-aligned course metadata, enrollment management workflows, progress analytics, and certification governance endpoints.
+- Documented capability deep dives in the README to highlight communications, time and attendance, organisation design, master data, and payroll coverage.
 ### Changed
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 
