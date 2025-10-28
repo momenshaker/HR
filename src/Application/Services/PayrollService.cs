@@ -62,4 +62,27 @@ public sealed class PayrollService : IPayrollService
     {
         return _payrollRepository.RemoveAsync(id, cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyCollection<SalarySlipDto>> GetSalarySlipsAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var payrollRuns = await _payrollRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return payrollRuns
+            .OrderByDescending(run => run.PeriodEnd)
+            .ThenByDescending(run => run.ProcessedAtUtc)
+            .Select(run => new SalarySlipDto(
+                run.Id,
+                employeeId,
+                run.PeriodStart,
+                run.PeriodEnd,
+                run.ProcessedAtUtc,
+                run.Status,
+                run.TotalGrossPay,
+                run.TotalNetPay,
+                run.Notes))
+            .ToArray();
+    }
 }

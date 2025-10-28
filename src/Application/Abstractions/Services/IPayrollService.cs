@@ -16,4 +16,8 @@ public interface IPayrollService
     Task<PayrollRunDto?> UpdateAsync(Guid id, UpdatePayrollRunRequest request, CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<SalarySlipDto>> GetSalarySlipsAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default);
 }

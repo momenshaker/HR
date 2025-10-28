@@ -36,6 +36,39 @@ public sealed class TrainingService : ITrainingService
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyCollection<TrainingCourseDto>> GetTrainingCoursesAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var enrollments = await _enrollmentRepository.GetByEmployeeAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (enrollments.Count == 0)
+        {
+            return Array.Empty<TrainingCourseDto>();
+        }
+
+        var enrolledCourseIds = enrollments
+            .Where(enrollment => enrollment.Status != CourseEnrollmentStatus.Withdrawn)
+            .Select(enrollment => enrollment.CourseId)
+            .Distinct()
+            .ToHashSet();
+
+        if (enrolledCourseIds.Count == 0)
+        {
+            return Array.Empty<TrainingCourseDto>();
+        }
+
+        var courses = await _courseRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return courses
+            .Where(course => enrolledCourseIds.Contains(course.Id))
+            .Select(course => course.ToDto())
+            .OrderBy(course => course.Title, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyCollection<TrainingCourseDto>> GetByCompetencyAsync(string competencyCode, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(competencyCode);

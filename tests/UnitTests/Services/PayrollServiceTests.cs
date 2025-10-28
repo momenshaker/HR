@@ -1,3 +1,4 @@
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.DTOs;
 using HR.Application.Services;
@@ -71,5 +72,49 @@ public sealed class PayrollServiceTests
         // Assert
         Assert.Null(result);
         _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<PayrollRun>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetSalarySlipsAsync_ProjectsRunsToSlips()
+    {
+        // Arrange
+        var employeeId = Guid.NewGuid();
+        var payrollRuns = new[]
+        {
+            new PayrollRun
+            {
+                Id = Guid.NewGuid(),
+                PeriodStart = new DateOnly(2025, 1, 1),
+                PeriodEnd = new DateOnly(2025, 1, 31),
+                ProcessedAtUtc = DateTime.UtcNow.AddDays(-10),
+                Status = "Completed",
+                TotalGrossPay = 10_000m,
+                TotalNetPay = 8_000m,
+                Notes = "Run A"
+            },
+            new PayrollRun
+            {
+                Id = Guid.NewGuid(),
+                PeriodStart = new DateOnly(2024, 12, 1),
+                PeriodEnd = new DateOnly(2024, 12, 31),
+                ProcessedAtUtc = DateTime.UtcNow.AddDays(-40),
+                Status = "Completed",
+                TotalGrossPay = 9_500m,
+                TotalNetPay = 7_600m,
+                Notes = "Run B"
+            }
+        };
+
+        _repositoryMock
+            .Setup(repository => repository.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(payrollRuns);
+
+        // Act
+        var result = await _sut.GetSalarySlipsAsync(employeeId, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(payrollRuns.Length, result.Count);
+        Assert.All(result, slip => Assert.Equal(employeeId, slip.EmployeeId));
+        Assert.Equal(payrollRuns[0].Id, result.First().PayrollRunId);
     }
 }
