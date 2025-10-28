@@ -1,4 +1,5 @@
 using HR.Domain.Entities;
+using HR.Infrastructure.Persistence.EntityFramework.Seeders;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Infrastructure.Persistence.EntityFramework;
@@ -40,6 +41,12 @@ public sealed class HrDbContext : DbContext
     public DbSet<AnalyticsSnapshot> AnalyticsSnapshots => Set<AnalyticsSnapshot>();
     public DbSet<Vacancy> Vacancies => Set<Vacancy>();
     public DbSet<InterviewSchedule> InterviewSchedules => Set<InterviewSchedule>();
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+    public DbSet<SubscriptionEntitlement> SubscriptionEntitlements => Set<SubscriptionEntitlement>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<UsageCounter> UsageCounters => Set<UsageCounter>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +54,8 @@ public sealed class HrDbContext : DbContext
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrDbContext).Assembly);
+
+        PlanCatalogSeeder.Seed(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
