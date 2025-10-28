@@ -255,6 +255,116 @@ paths:
                 $ref: '#/components/schemas/PaginatedEmployeeResponse'
         '400':
           description: Validation failure
+  /api/employees/{employeeId}/self-service/leave-requests:
+    get:
+      summary: Retrieve leave requests submitted by an employee
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: A list of leave requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveRequestDto'
+    post:
+      summary: Submit a leave request for an employee
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeaveRequest'
+      responses:
+        '201':
+          description: Newly created leave request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '400':
+          description: Validation failure
+  /api/employees/{employeeId}/self-service/attendance/clock-in:
+    post:
+      summary: Clock the employee into a shift
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClockInRequest'
+      responses:
+        '201':
+          description: Attendance record capturing the clock-in event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDto'
+        '400':
+          description: Validation failure
+  /api/employees/{employeeId}/self-service/attendance/{attendanceRecordId}/clock-out:
+    post:
+      summary: Clock the employee out of an attendance record
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+        - $ref: '#/components/parameters/AttendanceRecordId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClockOutRequest'
+      responses:
+        '200':
+          description: Updated attendance record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Attendance record not found
+  /api/employees/{employeeId}/self-service/salary-slips:
+    get:
+      summary: Retrieve salary slips for an employee
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: A list of salary slips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalarySlipDto'
+  /api/employees/{employeeId}/self-service/training-courses:
+    get:
+      summary: Retrieve training courses relevant to an employee
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: A list of training courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingCourseDto'
   /api/employees/insights/workforce:
     get:
       summary: Retrieve workforce analytics snapshot metrics
@@ -911,6 +1021,22 @@ components:
         type: string
         format: uuid
       description: Unique identifier of the resource
+    EmployeeId:
+      name: employeeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Unique identifier of the employee invoking the self-service endpoint
+    AttendanceRecordId:
+      name: attendanceRecordId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Unique identifier of the attendance record
   schemas:
     DepartmentDto:
       type: object
@@ -1116,6 +1242,28 @@ components:
       allOf:
         - $ref: '#/components/schemas/UpdateAttendanceRecordRequest'
       required: [employeeId, workDate]
+    ClockInRequest:
+      type: object
+      properties:
+        timestampUtc:
+          type: string
+          format: date-time
+          nullable: true
+        shiftName:
+          type: string
+        notes:
+          type: string
+      description: Optional metadata describing the clock-in event
+    ClockOutRequest:
+      type: object
+      properties:
+        timestampUtc:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+      description: Optional metadata describing the clock-out event
     UpdateAttendanceRecordRequest:
       type: object
       properties:
@@ -1233,6 +1381,35 @@ components:
         notes:
           type: string
       required: [id, periodStart, periodEnd, processedAtUtc, status, totalGrossPay, totalNetPay]
+    SalarySlipDto:
+      type: object
+      properties:
+        payrollRunId:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        processedAtUtc:
+          type: string
+          format: date-time
+        status:
+          type: string
+        grossPay:
+          type: number
+          format: decimal
+        netPay:
+          type: number
+          format: decimal
+        notes:
+          type: string
+      required: [payrollRunId, employeeId, periodStart, periodEnd, processedAtUtc, status, grossPay, netPay]
     CreatePayrollRunRequest:
       type: object
       properties:

@@ -57,6 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPerformanceManagementService, PerformanceManagementService>();
         services.AddScoped<IRecruitmentService, RecruitmentService>();
         services.AddScoped<ITrainingService, TrainingService>();
+        services.AddScoped<IEmployeeSelfService, EmployeeSelfService>();
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
