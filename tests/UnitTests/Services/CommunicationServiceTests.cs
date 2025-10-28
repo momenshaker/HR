@@ -9,16 +9,23 @@ namespace HR.UnitTests.Services;
 
 public sealed class CommunicationServiceTests
 {
-    private readonly Mock<IAnnouncementRepository> _repositoryMock = new();
+    private readonly Mock<IAnnouncementRepository> _announcementRepositoryMock = new();
+    private readonly Mock<IEngagementCampaignRepository> _engagementCampaignRepositoryMock = new();
+    private readonly Mock<IPulseSurveyRepository> _pulseSurveyRepositoryMock = new();
+    private readonly Mock<IRecognitionProgramRepository> _recognitionProgramRepositoryMock = new();
     private readonly CommunicationService _sut;
 
     public CommunicationServiceTests()
     {
-        _sut = new CommunicationService(_repositoryMock.Object);
+        _sut = new CommunicationService(
+            _announcementRepositoryMock.Object,
+            _engagementCampaignRepositoryMock.Object,
+            _pulseSurveyRepositoryMock.Object,
+            _recognitionProgramRepositoryMock.Object);
     }
 
     [Fact]
-    public async Task CreateAsync_PersistsAnnouncement()
+    public async Task CreateAnnouncementAsync_PersistsAnnouncement()
     {
         // Arrange
         var request = new CreateAnnouncementRequest
@@ -30,13 +37,13 @@ public sealed class CommunicationServiceTests
 
         Announcement? persisted = null;
 
-        _repositoryMock
+        _announcementRepositoryMock
             .Setup(repo => repo.AddAsync(It.IsAny<Announcement>(), It.IsAny<CancellationToken>()))
             .Callback<Announcement, CancellationToken>((announcement, _) => persisted = announcement)
             .ReturnsAsync(() => persisted!);
 
         // Act
-        var result = await _sut.CreateAsync(request, CancellationToken.None);
+        var result = await _sut.CreateAnnouncementAsync(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(persisted);
@@ -45,7 +52,7 @@ public sealed class CommunicationServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenMissing_ReturnsNull()
+    public async Task UpdateAnnouncementAsync_WhenMissing_ReturnsNull()
     {
         // Arrange
         var request = new UpdateAnnouncementRequest
@@ -58,15 +65,103 @@ public sealed class CommunicationServiceTests
             PublishedAtUtc = DateTime.UtcNow
         };
 
-        _repositoryMock
+        _announcementRepositoryMock
             .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Announcement?)null);
 
         // Act
-        var result = await _sut.UpdateAsync(Guid.NewGuid(), request, CancellationToken.None);
+        var result = await _sut.UpdateAnnouncementAsync(Guid.NewGuid(), request, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
-        _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Announcement>(), It.IsAny<CancellationToken>()), Times.Never);
+        _announcementRepositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Announcement>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateEngagementCampaignAsync_PersistsCampaign()
+    {
+        // Arrange
+        var request = new CreateEngagementCampaignRequest
+        {
+            Name = " Culture Week ",
+            Description = "Company-wide engagement",
+            Channels = "email,app",
+            TargetAudience = "Everyone",
+            OwnerId = Guid.NewGuid(),
+            LaunchDateUtc = DateTime.UtcNow.AddDays(1)
+        };
+
+        EngagementCampaign? persisted = null;
+
+        _engagementCampaignRepositoryMock
+            .Setup(repo => repo.AddAsync(It.IsAny<EngagementCampaign>(), It.IsAny<CancellationToken>()))
+            .Callback<EngagementCampaign, CancellationToken>((campaign, _) => persisted = campaign)
+            .ReturnsAsync(() => persisted!);
+
+        // Act
+        var result = await _sut.CreateEngagementCampaignAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(persisted);
+        Assert.Equal("Culture Week", persisted!.Name);
+        Assert.Equal(result.Id, persisted.Id);
+    }
+
+    [Fact]
+    public async Task CreatePulseSurveyAsync_PersistsSurvey()
+    {
+        // Arrange
+        var request = new CreatePulseSurveyRequest
+        {
+            Title = " Sentiment Check ",
+            Description = "Quarterly pulse",
+            Audience = "Managers",
+            QuestionSet = "How satisfied are you?",
+            ResponseWindowMinutes = 1440,
+            OwnerId = Guid.NewGuid()
+        };
+
+        PulseSurvey? persisted = null;
+
+        _pulseSurveyRepositoryMock
+            .Setup(repo => repo.AddAsync(It.IsAny<PulseSurvey>(), It.IsAny<CancellationToken>()))
+            .Callback<PulseSurvey, CancellationToken>((survey, _) => persisted = survey)
+            .ReturnsAsync(() => persisted!);
+
+        // Act
+        var result = await _sut.CreatePulseSurveyAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(persisted);
+        Assert.Equal("Sentiment Check", persisted!.Title);
+        Assert.Equal(result.Id, persisted.Id);
+    }
+
+    [Fact]
+    public async Task UpdateRecognitionProgramAsync_WhenMissing_ReturnsNull()
+    {
+        // Arrange
+        var request = new UpdateRecognitionProgramRequest
+        {
+            Name = "Spotlight",
+            Description = "Celebrating values",
+            Criteria = "Nomination",
+            Reward = "Gift card",
+            IsPeerToPeer = true,
+            IsActive = true,
+            OwnerId = Guid.NewGuid(),
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        _recognitionProgramRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RecognitionProgram?)null);
+
+        // Act
+        var result = await _sut.UpdateRecognitionProgramAsync(Guid.NewGuid(), request, CancellationToken.None);
+
+        // Assert
+        Assert.Null(result);
+        _recognitionProgramRepositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<RecognitionProgram>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -230,3 +230,12 @@ Hercules IT Solutions	Owner	🌐 www.herculesit.com
 
 This project is proprietary and owned by Hercules IT Solutions.
 All rights reserved © 2025. Unauthorized copying or distribution is prohibited.
+- #### Employee communications delivery stack
+
+| Surface | Purpose | Key API endpoints |
+| --- | --- | --- |
+| Announcements | Broadcast urgent and evergreen messages across inbox, in-app, and SMS channels with acknowledgement tracking. | <code>GET/POST/PUT/DELETE</code> <code>/api/Announcements</code> |
+| Engagement campaigns | Automate multi-channel nurture journeys with channel mixes, launch windows, and ownership metadata. | <code>GET/POST/PUT/DELETE</code> <code>/api/EngagementCampaigns</code> |
+| Pulse surveys | Launch sentiment surveys with configurable question banks, response windows, and close dates. | <code>GET/POST/PUT/DELETE</code> <code>/api/PulseSurveys</code> |
+| Recognition programmes | Curate nomination criteria, rewards, and peer-to-peer participation for culture initiatives. | <code>GET/POST/PUT/DELETE</code> <code>/api/RecognitionPrograms</code> |
+
