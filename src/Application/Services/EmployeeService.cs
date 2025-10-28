@@ -42,7 +42,28 @@ public sealed class EmployeeService : IEmployeeService
         var allEmployees = await _employeeRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        IEnumerable<Employee> filteredEmployees = allEmployees;
+        var filteredEmployees = ApplyFilters(allEmployees, request, today);
+        var orderedEmployees = ApplySorting(filteredEmployees, request, today).ToList();
+
+        var totalCount = orderedEmployees.Count;
+        var skip = (request.PageNumber - 1) * request.PageSize;
+        var pageItems = orderedEmployees
+            .Skip(skip)
+            .Take(request.PageSize)
+            .Select(employee => employee.ToDto())
+            .ToArray();
+
+        return new PaginatedResponse<EmployeeDto>(request.PageNumber, request.PageSize, totalCount, pageItems);
+    }
+
+    private static IEnumerable<Employee> ApplyFilters(
+        IEnumerable<Employee> employees,
+        EmployeeSearchRequest request,
+        DateOnly referenceDate)
+    {
+        ArgumentNullException.ThrowIfNull(employees);
+
+        IEnumerable<Employee> filteredEmployees = employees;
 
         if (!string.IsNullOrWhiteSpace(request.Query))
         {
@@ -68,7 +89,7 @@ public sealed class EmployeeService : IEmployeeService
 
         if (request.IsActive.HasValue)
         {
-            filteredEmployees = filteredEmployees.Where(employee => IsActive(employee, today) == request.IsActive.Value);
+            filteredEmployees = filteredEmployees.Where(employee => IsActive(employee, referenceDate) == request.IsActive.Value);
         }
 
         if (request.HiredFrom.HasValue)
@@ -93,17 +114,7 @@ public sealed class EmployeeService : IEmployeeService
                 employee.EmploymentEndDate.HasValue && employee.EmploymentEndDate.Value <= request.EmploymentEndTo.Value);
         }
 
-        var orderedEmployees = ApplySorting(filteredEmployees, request, today).ToList();
-
-        var totalCount = orderedEmployees.Count;
-        var skip = (request.PageNumber - 1) * request.PageSize;
-        var pageItems = orderedEmployees
-            .Skip(skip)
-            .Take(request.PageSize)
-            .Select(employee => employee.ToDto())
-            .ToArray();
-
-        return new PaginatedResponse<EmployeeDto>(request.PageNumber, request.PageSize, totalCount, pageItems);
+        return filteredEmployees;
     }
 
     /// <inheritdoc />
