@@ -5,7 +5,7 @@ namespace HR.Application.Abstractions.Services;
 /// <summary>
 ///     Application service responsible for orchestrating employee use cases.
 /// </summary>
-public interface IEmployeeService
+public partial interface IEmployeeService
 {
     /// <summary>
     ///     Retrieves all employees as DTOs suitable for API consumption.
@@ -39,9 +39,4 @@ public interface IEmployeeService
     /// </summary>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    ///     Calculates workforce analytics metrics including headcount, movement, and tenure trends.
-    /// </summary>
-    Task<EmployeeWorkforceSnapshotDto> GetWorkforceSnapshotAsync(
-        CancellationToken cancellationToken = default);
 }
