@@ -184,6 +184,8 @@ AGENT.md
 
 /docs/changelog.md — Version history
 
+GET /api/platform/configuration — Runtime feature toggle and repository metadata feed for clients.
+
 🧩 Roadmap
 
  Mobile App (React Native)

@@ -266,6 +266,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmployeeWorkforceSnapshotDto'
+  /api/platform/configuration:
+    get:
+      summary: Retrieve platform configuration and feature catalogue
+      tags: [Platform]
+      responses:
+        '200':
+          description: Platform configuration details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformConfigurationDto'
   /api/attendancerecords:
     get:
       summary: Retrieve all attendance records
@@ -1502,3 +1513,29 @@ components:
     UpdateAnalyticsSnapshotRequest:
       allOf:
         - $ref: '#/components/schemas/CreateAnalyticsSnapshotRequest'
+    PlatformConfigurationDto:
+      type: object
+      properties:
+        repositoryProvider:
+          type: string
+          description: Active repository provider identifier
+        databaseProvider:
+          type: string
+          description: Active database provider identifier or N/A when not applicable
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureToggleStatusDto'
+      required: [repositoryProvider, databaseProvider, features]
+    FeatureToggleStatusDto:
+      type: object
+      properties:
+        featureKey:
+          type: string
+        displayName:
+          type: string
+        usage:
+          type: string
+        enabled:
+          type: boolean
+      required: [featureKey, displayName, usage, enabled]
