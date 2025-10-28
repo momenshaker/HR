@@ -59,7 +59,7 @@ public sealed class PlatformConfigurationService : IPlatformConfigurationService
         [HrFeature.OrganizationStructure] = new("OrganizationStructure", "Organization Structure", "Department hierarchies, reporting lines, and position modelling."),
         [HrFeature.AttendanceAndTimeTracking] = new("AttendanceAndTimeTracking", "Attendance & Time Tracking", "Shift scheduling, clocking, and overtime analytics."),
         [HrFeature.LeaveManagement] = new("LeaveManagement", "Leave Management", "Configurable leave policies, balances, and approvals."),
-        [HrFeature.PayrollManagement] = new("PayrollManagement", "Payroll Management", "Gross-to-net payroll processing and statutory compliance."),
+        [HrFeature.PayrollManagement] = new("PayrollManagement", "Payroll Management", "Gross-to-net payroll automation, statutory deductions, payslip distribution, and audit-ready payroll cycle tracking."),
         [HrFeature.PerformanceManagement] = new("PerformanceManagement", "Performance Management", "Goal tracking, KPI reviews, and appraisal cycles."),
         [HrFeature.RecruitmentAndAts] = new("RecruitmentAndAts", "Recruitment & ATS", "Candidate pipelines, interview scheduling, and offer workflows."),
         [HrFeature.TrainingAndDevelopment] = new("TrainingAndDevelopment", "Training & Development", "Course catalogues, enrolment, and learning analytics."),
