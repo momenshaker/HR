@@ -62,7 +62,7 @@ public sealed class PlatformConfigurationService : IPlatformConfigurationService
             "Attendance & Time Tracking",
             "Shift orchestration, real-time time capture, entitlement policies, routed approvals, and balance reconciliation."),
         [HrFeature.LeaveManagement] = new("LeaveManagement", "Leave Management", "Configurable leave policies, balances, and approvals."),
-        [HrFeature.PayrollManagement] = new("PayrollManagement", "Payroll Management", "Gross-to-net payroll processing and statutory compliance."),
+        [HrFeature.PayrollManagement] = new("PayrollManagement", "Payroll Management", "Gross-to-net payroll automation, statutory deductions, payslip distribution, and audit-ready payroll cycle tracking."),
         [HrFeature.PerformanceManagement] = new("PerformanceManagement", "Performance Management", "Goal tracking, KPI reviews, and appraisal cycles."),
         [HrFeature.RecruitmentAndAts] = new("RecruitmentAndAts", "Recruitment & ATS", "Candidate pipelines, interview scheduling, and offer workflows."),
         [HrFeature.TrainingAndDevelopment] = new("TrainingAndDevelopment", "Training & Development", "Course catalogues, enrolment, and learning analytics."),
