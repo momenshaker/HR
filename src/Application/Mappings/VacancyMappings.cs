@@ -1,5 +1,7 @@
 using HR.Application.DTOs;
 using HR.Domain.Entities;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HR.Application.Mappings;
 
@@ -79,17 +81,17 @@ public static class VacancyMappings
         };
     }
 
-    private static IReadOnlyCollection<string> Normalize(IReadOnlyCollection<string>? values)
+    private static List<string> Normalize(IReadOnlyCollection<string>? values)
     {
         if (values is null || values.Count == 0)
         {
-            return Array.Empty<string>();
+            return new List<string>();
         }
 
         return values
             .Where(value => !string.IsNullOrWhiteSpace(value))
             .Select(value => value.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+            .ToList();
     }
 }
