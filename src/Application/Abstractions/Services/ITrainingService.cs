@@ -13,6 +13,10 @@ public interface ITrainingService
 {
     Task<IReadOnlyCollection<TrainingCourseDto>> GetAsync(CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<TrainingCourseDto>> GetTrainingCoursesAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyCollection<TrainingCourseDto>> GetByCompetencyAsync(string competencyCode, CancellationToken cancellationToken = default);
 
     Task<TrainingCourseDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

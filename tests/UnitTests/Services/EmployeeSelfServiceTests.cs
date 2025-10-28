@@ -189,25 +189,26 @@ public sealed class EmployeeSelfServiceTests
     }
 
     [Fact]
-    public async Task GetSalarySlipsAsync_MapsPayrollRuns()
+    public async Task GetSalarySlipsAsync_ReturnsValuesFromPayrollService()
     {
         // Arrange
-        var payrollRuns = new[]
+        var employeeId = Guid.NewGuid();
+        var salarySlips = new[]
         {
-            new PayrollRunDto(Guid.NewGuid(), DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1)), DateOnly.FromDateTime(DateTime.UtcNow), DateTime.UtcNow, "Completed", 10000m, 8000m, "Run"),
-            new PayrollRunDto(Guid.NewGuid(), DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-2)), DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1)), DateTime.UtcNow.AddDays(-30), "Completed", 9500m, 7600m, "Run")
+            new SalarySlipDto(Guid.NewGuid(), employeeId, DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1)), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-15)), DateTime.UtcNow.AddDays(-10), "Completed", 5000m, 4200m, "Processed"),
+            new SalarySlipDto(Guid.NewGuid(), employeeId, DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-2)), DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-2).AddDays(15)), DateTime.UtcNow.AddDays(-40), "Completed", 5100m, 4300m, "Processed")
         };
 
         _payrollServiceMock
-            .Setup(service => service.GetAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(payrollRuns);
+            .Setup(service => service.GetSalarySlipsAsync(employeeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(salarySlips);
 
         // Act
-        var result = await _sut.GetSalarySlipsAsync(Guid.NewGuid(), CancellationToken.None);
+        var result = await _sut.GetSalarySlipsAsync(employeeId, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
-        Assert.All(result, slip => Assert.Contains(slip.PayrollRunId, payrollRuns.Select(run => run.Id)));
+        Assert.Equal(salarySlips, result);
+        _payrollServiceMock.Verify(service => service.GetSalarySlipsAsync(employeeId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
