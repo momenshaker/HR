@@ -65,6 +65,8 @@ public sealed class PlatformConfigurationService : IPlatformConfigurationService
         [HrFeature.TrainingAndDevelopment] = new("TrainingAndDevelopment", "Training & Development", "Course catalogues, enrolment, and learning analytics."),
         [HrFeature.InternalCommunication] = new("InternalCommunication", "Internal Communication", "Announcements, engagement campaigns, and recognition tools."),
         [HrFeature.HrAnalytics] = new("HrAnalytics", "HR Analytics", "Executive dashboards, predictive insights, and compliance reporting."),
+        [HrFeature.DelegatedAuthority] = new("DelegatedAuthority", "Delegated Authority", "Delegation frameworks, approval limits, and succession coverage."),
+        [HrFeature.SelfService] = new("SelfService", "Employee Self-Service", "Digital employee portals, OAuth account management, and delegated access."),
     };
 
     private sealed record FeatureDescriptor(string FeatureKey, string DisplayName, string Usage);

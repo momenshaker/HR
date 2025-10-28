@@ -53,5 +53,15 @@ public enum HrFeature
     /// <summary>
     ///     Analytics dashboards, reporting, and predictive insights.
     /// </summary>
-    HrAnalytics
+    HrAnalytics,
+
+    /// <summary>
+    ///     Delegated authority modelling and approval governance.
+    /// </summary>
+    DelegatedAuthority,
+
+    /// <summary>
+    ///     Employee self-service portals and account management.
+    /// </summary>
+    SelfService
 }
