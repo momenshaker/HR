@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace HR.Api.Controllers;
 
 /// <summary>
-///     Provides REST endpoints for attendance and time tracking operations.
+///     Provides REST endpoints for shift orchestration, time capture, entitlement policy
+///     enforcement, approval routing, and real-time balance reconciliation across
+///     attendance records.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]

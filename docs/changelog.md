@@ -16,6 +16,8 @@
 - Expanded organization design with multi-level units, position management, reporting hierarchies, delegated authority modelling, and OAuth-enabled self-service account management across services, repositories, APIs, and documentation.
 ### Changed
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
+- Clarified attendance and time tracking narratives across platform configuration and API documentation to emphasise shift
+  orchestration, time capture, entitlement policies, approval flows, and real-time balance reconciliation.
 
 # [0.3.2] - 2025-02-28
 ### Added
