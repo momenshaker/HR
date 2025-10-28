@@ -1,4 +1,4 @@
-namespace HR.Infrastructure.Options;
+namespace HR.Application.Configuration;
 
 /// <summary>
 ///     Strongly typed configuration model for HR platform settings.

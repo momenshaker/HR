@@ -1,6 +1,6 @@
 using HR.Application.DTOs;
 using HR.Application.Services;
-using HR.Infrastructure.Options;
+using HR.Application.Configuration;
 using Microsoft.Extensions.Options;
 using Xunit;
 

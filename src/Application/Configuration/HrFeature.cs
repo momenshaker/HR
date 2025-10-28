@@ -1,4 +1,4 @@
-namespace HR.Infrastructure.Options;
+namespace HR.Application.Configuration;
 
 /// <summary>
 ///     Enumerates the high-level feature areas available in the HR platform.

@@ -1,6 +1,6 @@
 using HR.Application.Abstractions.Services;
+using HR.Application.Configuration;
 using HR.Application.DTOs;
-using HR.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 
 namespace HR.Application.Services;
