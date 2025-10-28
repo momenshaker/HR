@@ -69,6 +69,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
+        services.AddSingleton<ISubscriptionService, SubscriptionService>();
+        services.AddSingleton<IInvoiceService, InvoiceService>();
+        services.AddSingleton<IUsageService, UsageService>();
+
         services.AddScoped<ISubscriptionBillingService, SubscriptionBillingService>();
 
         return services;

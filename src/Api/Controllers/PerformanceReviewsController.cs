@@ -1,4 +1,5 @@
 using HR.Api.Filters;
+using HR.Api.Middleware;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
@@ -12,6 +13,7 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.PerformanceManagement)]
+[RequiresSubscriptionEntitlement(HrFeature.PerformanceManagement)]
 public sealed class PerformanceReviewsController(IPerformanceManagementService performanceService) : ControllerBase
 {
     private readonly IPerformanceManagementService _performanceService = performanceService;

@@ -1,4 +1,5 @@
 using System;
+using HR.Api.Middleware;
 using HR.Infrastructure.Extensions;
 using HR.Infrastructure.Persistence.EntityFramework;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +77,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseMiddleware<SubscriptionGuardMiddleware>();
 app.MapControllers();
 
 app.Run();
