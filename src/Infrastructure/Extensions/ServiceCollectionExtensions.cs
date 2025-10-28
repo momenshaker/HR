@@ -1,5 +1,6 @@
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
+using HR.Application.Configuration;
 using HR.Application.Services;
 using HR.Infrastructure.Options;
 using HR.Infrastructure.Persistence.EntityFramework;
@@ -8,7 +9,7 @@ using HR.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DataOptions = HR.Infrastructure.Options.HrPlatformOptions.DataOptions;
+using DataOptions = HR.Application.Configuration.HrPlatformOptions.DataOptions;
 
 namespace HR.Infrastructure.Extensions;
 

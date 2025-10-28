@@ -1,5 +1,6 @@
-using HR.Infrastructure.Options;
 using System.IO;
+using HR.Application.Configuration;
+using HR.Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;

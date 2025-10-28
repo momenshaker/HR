@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HR.Application.Configuration;
 using HR.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Xunit;

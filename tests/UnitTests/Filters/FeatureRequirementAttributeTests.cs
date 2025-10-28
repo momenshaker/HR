@@ -1,5 +1,5 @@
 using HR.Api.Filters;
-using HR.Infrastructure.Options;
+using HR.Application.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;

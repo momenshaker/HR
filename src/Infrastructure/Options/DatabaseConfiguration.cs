@@ -1,4 +1,5 @@
 using System;
+using HR.Application.Configuration;
 using Microsoft.Extensions.Configuration;
 
 namespace HR.Infrastructure.Options;

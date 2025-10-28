@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
-using HR.Infrastructure.Options;
+using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;

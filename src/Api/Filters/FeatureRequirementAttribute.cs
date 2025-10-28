@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using HR.Infrastructure.Options;
+using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
