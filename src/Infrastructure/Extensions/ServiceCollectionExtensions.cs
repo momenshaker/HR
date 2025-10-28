@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
         hrPlatformSection.Bind(options);
 
         services.Configure<HrPlatformOptions>(hrPlatformSection);
+        services.Configure<StripeWebhookOptions>(configuration.GetSection(StripeWebhookOptions.SectionName));
 
         var dataOptions = options.Data ?? new DataOptions();
         var repositoryProvider = dataOptions.RepositoryProvider ?? DataOptions.RepositoryProviders.InMemory;
@@ -68,6 +69,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
+        services.AddScoped<ISubscriptionBillingService, SubscriptionBillingService>();
 
         return services;
     }
