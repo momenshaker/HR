@@ -54,7 +54,7 @@ internal sealed class TrainingCourseConfiguration : IEntityTypeConfiguration<Tra
             value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
             value => string.IsNullOrWhiteSpace(value)
                 ? Array.Empty<string>()
-                : (JsonSerializer.Deserialize<string[]>(value) ?? Array.Empty<string>()));
+                : (JsonSerializer.Deserialize<string[]>(value, (JsonSerializerOptions?)null) ?? Array.Empty<string>()));
 
         var comparer = new ValueComparer<IReadOnlyCollection<string>>(
             (left, right) => left.SequenceEqual(right, StringComparer.OrdinalIgnoreCase),
