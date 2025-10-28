@@ -23,7 +23,7 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
     [ProducesResponseType(typeof(IReadOnlyCollection<AnnouncementDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        var announcements = await _communicationService.GetAsync(cancellationToken).ConfigureAwait(false);
+        var announcements = await _communicationService.GetAnnouncementsAsync(cancellationToken).ConfigureAwait(false);
         return Ok(announcements);
     }
 
@@ -35,7 +35,7 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var announcement = await _communicationService.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var announcement = await _communicationService.GetAnnouncementByIdAsync(id, cancellationToken).ConfigureAwait(false);
         return announcement is null ? NotFound() : Ok(announcement);
     }
 
@@ -52,7 +52,7 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
             return ValidationProblem(ModelState);
         }
 
-        var createdAnnouncement = await _communicationService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+        var createdAnnouncement = await _communicationService.CreateAnnouncementAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdAnnouncement.Id }, createdAnnouncement);
     }
 
@@ -70,7 +70,7 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
             return ValidationProblem(ModelState);
         }
 
-        var updatedAnnouncement = await _communicationService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
+        var updatedAnnouncement = await _communicationService.UpdateAnnouncementAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedAnnouncement is null ? NotFound() : Ok(updatedAnnouncement);
     }
 
@@ -82,7 +82,7 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var deleted = await _communicationService.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
+        var deleted = await _communicationService.DeleteAnnouncementAsync(id, cancellationToken).ConfigureAwait(false);
         return deleted ? NoContent() : NotFound();
     }
 }

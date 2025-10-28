@@ -29,6 +29,9 @@ public sealed class HrDbContext : DbContext
     public DbSet<CourseEnrollment> CourseEnrollments => Set<CourseEnrollment>();
     public DbSet<CourseCertification> CourseCertifications => Set<CourseCertification>();
     public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<EngagementCampaign> EngagementCampaigns => Set<EngagementCampaign>();
+    public DbSet<PulseSurvey> PulseSurveys => Set<PulseSurvey>();
+    public DbSet<RecognitionProgram> RecognitionPrograms => Set<RecognitionProgram>();
     public DbSet<AnalyticsSnapshot> AnalyticsSnapshots => Set<AnalyticsSnapshot>();
     public DbSet<Vacancy> Vacancies => Set<Vacancy>();
     public DbSet<InterviewSchedule> InterviewSchedules => Set<InterviewSchedule>();

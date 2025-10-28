@@ -1,0 +1,23 @@
+namespace HR.Application.DTOs;
+
+/// <summary>
+///     Request payload for creating an engagement campaign.
+/// </summary>
+public sealed class CreateEngagementCampaignRequest
+{
+    public string Name { get; init; } = string.Empty;
+
+    public string Description { get; init; } = string.Empty;
+
+    public string Channels { get; init; } = string.Empty;
+
+    public string TargetAudience { get; init; } = string.Empty;
+
+    public DateTime LaunchDateUtc { get; init; } = DateTime.UtcNow;
+
+    public DateTime? EndDateUtc { get; init; }
+
+    public Guid OwnerId { get; init; }
+
+    public bool IsAutomated { get; init; }
+}
