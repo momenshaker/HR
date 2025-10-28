@@ -1461,10 +1461,24 @@ components:
           type: string
         goalsSummary:
           type: string
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformanceGoalDto'
+        keyPerformanceIndicators:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformanceKpiDto'
+        feedbackCycles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformanceFeedbackDto'
+        compensationReview:
+          $ref: '#/components/schemas/CompensationReviewDto'
         submittedAtUtc:
           type: string
           format: date-time
-      required: [id, employeeId, cycleName, periodStart, periodEnd, overallScore, submittedAtUtc]
+      required: [id, employeeId, cycleName, periodStart, periodEnd, overallScore, goals, keyPerformanceIndicators, feedbackCycles, submittedAtUtc]
     CreatePerformanceReviewRequest:
       type: object
       properties:
@@ -1485,6 +1499,20 @@ components:
           type: string
         goalsSummary:
           type: string
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformanceGoalRequest'
+        keyPerformanceIndicators:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformanceKpiRequest'
+        feedbackCycles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformanceFeedbackRequest'
+        compensationReview:
+          $ref: '#/components/schemas/CompensationReviewRequest'
       required: [employeeId, cycleName, periodStart, periodEnd]
     UpdatePerformanceReviewRequest:
       allOf:
@@ -1494,6 +1522,148 @@ components:
           type: string
           format: date-time
       required: [cycleName, periodStart, periodEnd, submittedAtUtc]
+    PerformanceGoalDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        weight:
+          type: number
+        parentGoalId:
+          type: string
+          format: uuid
+        alignment:
+          type: string
+        status:
+          type: string
+      required: [id, title, description, weight, alignment, status]
+    PerformanceKpiDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        targetValue:
+          type: number
+        actualValue:
+          type: number
+        unitOfMeasure:
+          type: string
+        status:
+          type: string
+      required: [id, name, targetValue, actualValue, unitOfMeasure, status]
+    PerformanceFeedbackDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        feedbackType:
+          type: string
+        comments:
+          type: string
+        submittedBy:
+          type: string
+          format: uuid
+        submittedAtUtc:
+          type: string
+          format: date-time
+      required: [id, feedbackType, comments, submittedBy, submittedAtUtc]
+    CompensationReviewDto:
+      type: object
+      properties:
+        effectiveDate:
+          type: string
+          format: date
+        currentBaseSalary:
+          type: number
+        proposedBaseSalary:
+          type: number
+        bonusRecommendation:
+          type: number
+        currency:
+          type: string
+        notes:
+          type: string
+      required: [effectiveDate, currentBaseSalary, proposedBaseSalary, bonusRecommendation, currency, notes]
+    PerformanceGoalRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        weight:
+          type: number
+        parentGoalId:
+          type: string
+          format: uuid
+        alignment:
+          type: string
+        status:
+          type: string
+      required: [title, description, weight]
+    PerformanceKpiRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        targetValue:
+          type: number
+        actualValue:
+          type: number
+        unitOfMeasure:
+          type: string
+        status:
+          type: string
+      required: [name, targetValue]
+    PerformanceFeedbackRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        feedbackType:
+          type: string
+        comments:
+          type: string
+        submittedBy:
+          type: string
+          format: uuid
+        submittedAtUtc:
+          type: string
+          format: date-time
+      required: [feedbackType, comments, submittedBy]
+    CompensationReviewRequest:
+      type: object
+      properties:
+        effectiveDate:
+          type: string
+          format: date
+        currentBaseSalary:
+          type: number
+        proposedBaseSalary:
+          type: number
+        bonusRecommendation:
+          type: number
+        currency:
+          type: string
+        notes:
+          type: string
+      required: [effectiveDate]
     CandidateDto:
       type: object
       properties:

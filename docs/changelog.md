@@ -8,6 +8,7 @@
 - Added comprehensive employee self-service endpoints for submitting leave, clocking in/out, viewing salary slips, and browsing training opportunities.
 - Implemented the EmployeeSelfService application service with dedicated DTOs and test coverage to orchestrate cross-module workflows.
 - Extended the public OpenAPI specification with salary slip models and self-service routes for employee experiences.
+- Enriched performance management with cascaded goals, KPI tracking, structured feedback, and compensation review modelling for end-to-end appraisal cycles.
 ### Changed
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 

@@ -28,7 +28,48 @@ public sealed class PerformanceManagementServiceTests
             PeriodStart = new DateOnly(2025, 1, 1),
             PeriodEnd = new DateOnly(2025, 6, 30),
             OverallScore = 4,
-            ManagerComments = "Great work"
+            ManagerComments = "Great work",
+            Goals =
+            [
+                new PerformanceGoalRequest
+                {
+                    Title = "Grow ARR",
+                    Description = "Expand enterprise sales",
+                    Weight = 40,
+                    Alignment = "Corporate",
+                    Status = "OnTrack"
+                }
+            ],
+            KeyPerformanceIndicators =
+            [
+                new PerformanceKpiRequest
+                {
+                    Name = "Pipeline Coverage",
+                    TargetValue = 3,
+                    ActualValue = 2.8m,
+                    UnitOfMeasure = "x",
+                    Status = "SlightlyBehind"
+                }
+            ],
+            FeedbackCycles =
+            [
+                new PerformanceFeedbackRequest
+                {
+                    FeedbackType = "Manager",
+                    Comments = "Keep pushing mid-market expansion",
+                    SubmittedBy = Guid.NewGuid(),
+                    SubmittedAtUtc = DateTime.UtcNow
+                }
+            ],
+            CompensationReview = new CompensationReviewRequest
+            {
+                EffectiveDate = new DateOnly(2025, 7, 1),
+                CurrentBaseSalary = 95000,
+                ProposedBaseSalary = 105000,
+                BonusRecommendation = 15000,
+                Currency = "usd",
+                Notes = "Merit increase for exceeding growth targets"
+            }
         };
 
         PerformanceReview? persisted = null;
@@ -45,6 +86,10 @@ public sealed class PerformanceManagementServiceTests
         Assert.NotNull(persisted);
         Assert.Equal(request.EmployeeId, persisted!.EmployeeId);
         Assert.Equal(result.Id, persisted.Id);
+        Assert.Single(persisted.Goals);
+        Assert.Single(persisted.KeyPerformanceIndicators);
+        Assert.Single(persisted.FeedbackCycles);
+        Assert.NotNull(persisted.CompensationReview);
     }
 
     [Fact]
