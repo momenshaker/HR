@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Added
 - Enriched employee master data with contract history, compliance documentation, job architecture, and department alignment surfaced through the Employees API and DTOs.
+- Delivered platform system diagnostics endpoints for health and version reporting alongside integration test coverage.
+- Published v0.4.0 OpenAPI specification detailing authentication, billing, subscription, and audit surfaces with JWT security.
 - Introduced a platform configuration API and service exposing feature toggle state and repository settings for clients.
 - Delivered advanced employee search API supporting filtering, sorting, and pagination for operational reporting.
 - Introduced workforce analytics snapshot endpoint exposing headcount, movement, and department-level insights.
@@ -17,6 +19,8 @@
 - Expanded organization design with multi-level units, position management, reporting hierarchies, delegated authority modelling, and OAuth-enabled self-service account management across services, repositories, APIs, and documentation.
 ### Changed
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
+- Clarified attendance and time tracking narratives across platform configuration and API documentation to emphasise shift
+  orchestration, time capture, entitlement policies, approval flows, and real-time balance reconciliation.
 
 # [0.3.2] - 2025-02-28
 ### Added

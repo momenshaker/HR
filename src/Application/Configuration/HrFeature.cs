@@ -63,5 +63,10 @@ public enum HrFeature
     /// <summary>
     ///     Employee self-service portals and account management.
     /// </summary>
-    SelfService
+    SelfService,
+
+    /// <summary>
+    ///     Core platform services such as health checks and metadata endpoints.
+    /// </summary>
+    PlatformServices
 }

@@ -65,6 +65,22 @@ public sealed class PlatformConfigurationServiceTests
         Assert.Equal("N/A", configuration.DatabaseProvider);
     }
 
+    [Fact]
+    public async Task GetConfigurationAsync_AttendanceFeature_ProvidesComprehensiveUsageNarrative()
+    {
+        // Arrange
+        var service = new PlatformConfigurationService(new TestOptionsSnapshot(new HrPlatformOptions()));
+
+        // Act
+        var configuration = await service.GetConfigurationAsync();
+
+        // Assert
+        var attendanceFeature = configuration.Features.Single(feature => feature.FeatureKey == "AttendanceAndTimeTracking");
+        const string expectedNarrative =
+            "Shift orchestration, real-time time capture, entitlement policies, routed approvals, and balance reconciliation.";
+        Assert.Equal(expectedNarrative, attendanceFeature.Usage);
+    }
+
     private sealed class TestOptionsSnapshot(HrPlatformOptions value) : IOptionsSnapshot<HrPlatformOptions>
     {
         public HrPlatformOptions Value { get; } = value;
