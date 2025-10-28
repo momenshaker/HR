@@ -12,4 +12,8 @@ public sealed record EmployeeDto(
     Guid DepartmentId,
     DateOnly EmploymentStartDate,
     DateOnly? EmploymentEndDate,
-    DateOnly? DateOfBirth);
+    DateOnly? DateOfBirth,
+    EmployeeJobArchitectureDto JobArchitecture,
+    EmployeeDepartmentAlignmentDto DepartmentAlignment,
+    IReadOnlyCollection<EmploymentContractDto> Contracts,
+    IReadOnlyCollection<EmployeeComplianceDocumentDto> ComplianceDocuments);

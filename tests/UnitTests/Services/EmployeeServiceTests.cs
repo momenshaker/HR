@@ -1,3 +1,4 @@
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.DTOs;
 using HR.Application.Services;
@@ -67,14 +68,57 @@ public sealed class EmployeeServiceTests
     public async Task CreateAsync_MapsRequestAndPersistsEmployee()
     {
         // Arrange
+        var departmentId = Guid.NewGuid();
+        var secondaryDepartmentId = Guid.NewGuid();
         var request = new CreateEmployeeRequest
         {
             FirstName = "John",
             LastName = "Smith",
             Email = "john.smith@example.com",
-            DepartmentId = Guid.NewGuid(),
+            DepartmentId = departmentId,
             EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            JobTitle = "Software Engineer"
+            JobTitle = "Software Engineer",
+            DepartmentAlignment = new EmployeeDepartmentAlignmentRequest
+            {
+                PrimaryDepartmentId = departmentId,
+                SecondaryDepartmentIds = new[] { secondaryDepartmentId },
+                CostCenter = "IT100",
+                BusinessUnit = "Technology"
+            },
+            JobArchitecture = new EmployeeJobArchitectureRequest
+            {
+                JobFamily = "Engineering",
+                JobFunction = "Software",
+                JobLevel = "L3",
+                JobCode = "ENG-III",
+                CareerTrack = "Individual Contributor"
+            },
+            Contracts = new[]
+            {
+                new EmploymentContractRequest
+                {
+                    ContractType = "Permanent",
+                    ContractNumber = "CN-001",
+                    Status = "Active",
+                    EffectiveFrom = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-30)),
+                    WorkLocation = "London",
+                    CompensationCurrency = "GBP",
+                    AnnualCompensation = 85000m,
+                    Notes = "Initial hire"
+                }
+            },
+            ComplianceDocuments = new[]
+            {
+                new EmployeeComplianceDocumentRequest
+                {
+                    DocumentType = "Passport",
+                    ReferenceNumber = "123456789",
+                    Status = "Verified",
+                    IssuedOn = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-5)),
+                    ExpiresOn = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(5)),
+                    StoragePath = "/docs/passport.pdf"
+                }
+            }
         };
 
         Employee? persistedEmployee = null;
@@ -89,8 +133,18 @@ public sealed class EmployeeServiceTests
 
         // Assert
         Assert.NotNull(persistedEmployee);
-        Assert.Equal(request.FirstName, persistedEmployee!.FirstName);
-        Assert.Equal(request.Email, result.Email);
+        Assert.Equal(request.JobArchitecture!.JobFamily, persistedEmployee!.JobArchitecture.JobFamily);
+        Assert.Single(persistedEmployee.Contracts);
+        Assert.Single(persistedEmployee.ComplianceDocuments);
+        Assert.Equal(departmentId, persistedEmployee.DepartmentAlignment.PrimaryDepartmentId);
+        Assert.Equal("Technology", persistedEmployee.DepartmentAlignment.BusinessUnit);
+
+        Assert.Equal(request.JobArchitecture.JobFamily, result.JobArchitecture.JobFamily);
+        Assert.Single(result.Contracts);
+        Assert.Single(result.ComplianceDocuments);
+        Assert.Equal(departmentId, result.DepartmentAlignment.PrimaryDepartmentId);
+        Assert.Contains(secondaryDepartmentId, result.DepartmentAlignment.SecondaryDepartmentIds);
+
         _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Employee>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -99,13 +153,14 @@ public sealed class EmployeeServiceTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
+        var departmentId = Guid.NewGuid();
         var existingEmployee = new Employee
         {
             Id = employeeId,
             FirstName = "Existing",
             LastName = "Employee",
             Email = "existing.employee@example.com",
-            DepartmentId = Guid.NewGuid(),
+            DepartmentId = departmentId,
             EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             JobTitle = "Analyst"
         };
@@ -115,11 +170,44 @@ public sealed class EmployeeServiceTests
             FirstName = "Updated",
             LastName = "Employee",
             Email = "updated.employee@example.com",
-            DepartmentId = existingEmployee.DepartmentId,
+            DepartmentId = departmentId,
             EmploymentStartDate = existingEmployee.EmploymentStartDate,
             JobTitle = "Senior Analyst",
             EmploymentEndDate = null,
-            DateOfBirth = existingEmployee.DateOfBirth
+            DateOfBirth = existingEmployee.DateOfBirth,
+            DepartmentAlignment = new EmployeeDepartmentAlignmentRequest
+            {
+                PrimaryDepartmentId = departmentId,
+                CostCenter = "CST-200"
+            },
+            JobArchitecture = new EmployeeJobArchitectureRequest
+            {
+                JobFamily = "Ops",
+                JobFunction = "Planning",
+                JobLevel = "L4"
+            },
+            Contracts = new[]
+            {
+                new EmploymentContractRequest
+                {
+                    Id = Guid.NewGuid(),
+                    ContractType = "Permanent",
+                    Status = "Active",
+                    EffectiveFrom = existingEmployee.EmploymentStartDate,
+                    WorkLocation = "Remote"
+                }
+            },
+            ComplianceDocuments = new[]
+            {
+                new EmployeeComplianceDocumentRequest
+                {
+                    Id = Guid.NewGuid(),
+                    DocumentType = "Work Permit",
+                    ReferenceNumber = "WP-123",
+                    Status = "Pending",
+                    IssuedOn = DateOnly.FromDateTime(DateTime.UtcNow)
+                }
+            }
         };
 
         Employee? updatedEntity = null;
@@ -141,6 +229,11 @@ public sealed class EmployeeServiceTests
         Assert.Equal(request.FirstName, result!.FirstName);
         Assert.NotNull(updatedEntity);
         Assert.Equal(employeeId, updatedEntity!.Id);
+        Assert.Equal("Ops", result.JobArchitecture.JobFamily);
+        Assert.Equal("CST-200", result.DepartmentAlignment.CostCenter);
+        Assert.Single(result.Contracts);
+        Assert.Single(result.ComplianceDocuments);
+
         _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Employee>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 

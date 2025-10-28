@@ -31,4 +31,12 @@ public sealed class UpdateEmployeeRequest
     public DateOnly? EmploymentEndDate { get; init; }
 
     public DateOnly? DateOfBirth { get; init; }
+
+    public EmployeeDepartmentAlignmentRequest? DepartmentAlignment { get; init; }
+
+    public EmployeeJobArchitectureRequest? JobArchitecture { get; init; }
+
+    public IReadOnlyCollection<EmploymentContractRequest> Contracts { get; init; } = Array.Empty<EmploymentContractRequest>();
+
+    public IReadOnlyCollection<EmployeeComplianceDocumentRequest> ComplianceDocuments { get; init; } = Array.Empty<EmployeeComplianceDocumentRequest>();
 }
