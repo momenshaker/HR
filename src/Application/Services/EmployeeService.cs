@@ -7,7 +7,7 @@ using HR.Domain.Entities;
 namespace HR.Application.Services;
 
 /// <inheritdoc />
-public sealed class EmployeeService : IEmployeeService
+public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentRepository;

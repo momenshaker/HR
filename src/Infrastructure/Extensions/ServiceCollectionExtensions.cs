@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IEmployeeSearchService, EmployeeService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
         services.AddScoped<IPositionService, PositionService>();
