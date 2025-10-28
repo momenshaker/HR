@@ -149,15 +149,15 @@ public sealed class EmployeeService : IEmployeeService
 
         await Task.WhenAll(employeesTask, departmentsTask).ConfigureAwait(false);
 
-        var employees = employeesTask.Result;
-        var departments = departmentsTask.Result;
+        var employees = (await employeesTask.ConfigureAwait(false)).ToArray();
+        var departments = await departmentsTask.ConfigureAwait(false);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var thirtyDaysAgo = today.AddDays(-30);
         var thirtyDaysAhead = today.AddDays(30);
 
         var activeEmployees = employees.Where(employee => IsActive(employee, today)).ToArray();
-        var totalEmployees = employees.Count;
+        var totalEmployees = employees.Length;
         var inactiveEmployees = totalEmployees - activeEmployees.Length;
 
         var newHiresLast30Days = activeEmployees.Count(employee => employee.EmploymentStartDate >= thirtyDaysAgo);
@@ -175,6 +175,10 @@ public sealed class EmployeeService : IEmployeeService
             : Math.Round(activeEmployees.Average(employee => CalculateTenureInYears(employee, today)), 2);
 
         var departmentLookup = departments.ToDictionary(department => department.Id, department => department.Name);
+        var employeesPerDepartment = employees
+            .GroupBy(employee => employee.DepartmentId)
+            .ToDictionary(group => group.Key, group => group.Count());
+
         var departmentHeadcounts = activeEmployees
             .GroupBy(employee => employee.DepartmentId)
             .Select(group =>
@@ -182,7 +186,9 @@ public sealed class EmployeeService : IEmployeeService
                 var departmentName = departmentLookup.TryGetValue(group.Key, out var name)
                     ? name
                     : "Unknown";
-                var totalEmployeesInDepartment = employees.Count(employee => employee.DepartmentId == group.Key);
+                var totalEmployeesInDepartment = employeesPerDepartment.TryGetValue(group.Key, out var count)
+                    ? count
+                    : group.Count();
 
                 return new EmployeeDepartmentHeadcountDto(
                     group.Key,

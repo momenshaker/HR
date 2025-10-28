@@ -13,7 +13,7 @@ public sealed class InMemoryAnalyticsSnapshotRepository : IAnalyticsSnapshotRepo
 
     public Task<IReadOnlyCollection<AnalyticsSnapshot>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult<IReadOnlyCollection<AnalyticsSnapshot>>([.. _snapshots.Values]);
+        return Task.FromResult<IReadOnlyCollection<AnalyticsSnapshot>>(_snapshots.Values.ToArray());
     }
 
     public Task<AnalyticsSnapshot?> GetByIdAsync(Guid analyticsSnapshotId, CancellationToken cancellationToken = default)
