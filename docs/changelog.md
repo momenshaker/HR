@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 ### Added
+- Delivered platform system diagnostics endpoints for health and version reporting alongside integration test coverage.
+- Published v0.4.0 OpenAPI specification detailing authentication, billing, subscription, and audit surfaces with JWT security.
 - Introduced a platform configuration API and service exposing feature toggle state and repository settings for clients.
 - Delivered advanced employee search API supporting filtering, sorting, and pagination for operational reporting.
 - Introduced workforce analytics snapshot endpoint exposing headcount, movement, and department-level insights.
