@@ -1,4 +1,5 @@
 using HR.Api.Filters;
+using HR.Api.Middleware;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
@@ -12,6 +13,7 @@ namespace HR.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [FeatureRequirement(HrFeature.PayrollManagement)]
+[RequiresSubscriptionEntitlement(HrFeature.PayrollManagement)]
 public sealed class PayrollRunsController(IPayrollService payrollService) : ControllerBase
 {
     private readonly IPayrollService _payrollService = payrollService;

@@ -1,0 +1,53 @@
+using HR.Application.DTOs;
+using HR.Domain.Entities;
+
+namespace HR.Application.Mappings;
+
+/// <summary>
+///     Projection helpers for subscription domain entities.
+/// </summary>
+public static class SubscriptionMappings
+{
+    public static SubscriptionDto ToDto(this Subscription subscription)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+
+        return new SubscriptionDto(
+            subscription.Id,
+            subscription.PlanId,
+            subscription.Status.ToString(),
+            subscription.Seats,
+            subscription.CreatedAtUtc,
+            subscription.CanceledAtUtc,
+            subscription.RenewsAtUtc,
+            subscription.Metadata.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));
+    }
+
+    public static InvoiceDto ToDto(this Invoice invoice)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+
+        return new InvoiceDto(
+            invoice.Id,
+            invoice.SubscriptionId,
+            invoice.AmountDue,
+            invoice.Currency,
+            invoice.DueDate,
+            invoice.Status.ToString(),
+            invoice.HostedInvoiceUrl?.ToString(),
+            invoice.PdfUrl?.ToString(),
+            invoice.CreatedAtUtc,
+            invoice.PaidAtUtc);
+    }
+
+    public static UsageSummaryDto ToDto(this UsageRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        return new UsageSummaryDto(
+            record.SubscriptionId,
+            record.FeatureKey,
+            record.ConsumedUnits,
+            record.UsageLimit);
+    }
+}
