@@ -3,7 +3,9 @@ using HR.Application.DTOs;
 namespace HR.Application.Abstractions.Services;
 
 /// <summary>
-///     Application service responsible for attendance operations.
+///     Application service responsible for orchestrating shifts, capturing worked time,
+///     enforcing entitlement policies, routing approvals, and reconciling balances in
+///     real time across attendance records.
 /// </summary>
 public interface IAttendanceService
 {

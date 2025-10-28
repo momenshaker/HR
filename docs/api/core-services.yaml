@@ -930,6 +930,10 @@ paths:
   /api/attendancerecords:
     get:
       summary: Retrieve all attendance records
+      description: >-
+        Surfaces shift orchestration data, captured working time, entitlement
+        policy usage, approval routing history, and up-to-date balance
+        reconciliation for workforce planning.
       tags: [Attendance]
       responses:
         '200':
@@ -942,6 +946,10 @@ paths:
                   $ref: '#/components/schemas/AttendanceRecordDto'
     post:
       summary: Create an attendance record
+      description: >-
+        Register worked time against shift plans while applying entitlement
+        policies, triggering approval flows, and reconciling balances in
+        real time.
       tags: [Attendance]
       requestBody:
         required: true
@@ -961,6 +969,10 @@ paths:
   /api/attendancerecords/{id}:
     get:
       summary: Retrieve an attendance record by id
+      description: >-
+        Inspect a single attendance record including shift orchestration
+        details, captured time entries, entitlement usage, approval history,
+        and current balance impact.
       tags: [Attendance]
       parameters:
         - $ref: '#/components/parameters/ResourceId'
@@ -975,6 +987,10 @@ paths:
           description: Record not found
     put:
       summary: Update an attendance record
+      description: >-
+        Amend shift assignments, captured time, entitlement allocations, or
+        approval outcomes while ensuring balances stay reconciled in real
+        time.
       tags: [Attendance]
       parameters:
         - $ref: '#/components/parameters/ResourceId'
@@ -997,6 +1013,9 @@ paths:
           description: Record not found
     delete:
       summary: Delete an attendance record
+      description: >-
+        Remove attendance records when shifts are voided, approvals
+        rescinded, or entitlements reversed, restoring balance integrity.
       tags: [Attendance]
       parameters:
         - $ref: '#/components/parameters/ResourceId'
