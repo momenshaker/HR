@@ -12,4 +12,8 @@ public sealed record PerformanceReviewDto(
     decimal OverallScore,
     string ManagerComments,
     string GoalsSummary,
+    IReadOnlyCollection<PerformanceGoalDto> Goals,
+    IReadOnlyCollection<PerformanceKpiDto> KeyPerformanceIndicators,
+    IReadOnlyCollection<PerformanceFeedbackDto> FeedbackCycles,
+    CompensationReviewDto? CompensationReview,
     DateTime SubmittedAtUtc);

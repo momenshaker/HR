@@ -21,5 +21,13 @@ public sealed class PerformanceReview
 
     public string GoalsSummary { get; init; } = string.Empty;
 
+    public IReadOnlyCollection<PerformanceGoal> Goals { get; init; } = Array.Empty<PerformanceGoal>();
+
+    public IReadOnlyCollection<PerformanceKpi> KeyPerformanceIndicators { get; init; } = Array.Empty<PerformanceKpi>();
+
+    public IReadOnlyCollection<PerformanceFeedback> FeedbackCycles { get; init; } = Array.Empty<PerformanceFeedback>();
+
+    public CompensationReview? CompensationReview { get; init; }
+
     public DateTime SubmittedAtUtc { get; init; }
 }

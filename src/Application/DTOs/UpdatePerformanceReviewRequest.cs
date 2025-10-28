@@ -26,5 +26,17 @@ public sealed class UpdatePerformanceReviewRequest
     [MaxLength(2000)]
     public string GoalsSummary { get; init; } = string.Empty;
 
+    [ValidateComplexType]
+    public IReadOnlyCollection<PerformanceGoalRequest> Goals { get; init; } = Array.Empty<PerformanceGoalRequest>();
+
+    [ValidateComplexType]
+    public IReadOnlyCollection<PerformanceKpiRequest> KeyPerformanceIndicators { get; init; } = Array.Empty<PerformanceKpiRequest>();
+
+    [ValidateComplexType]
+    public IReadOnlyCollection<PerformanceFeedbackRequest> FeedbackCycles { get; init; } = Array.Empty<PerformanceFeedbackRequest>();
+
+    [ValidateComplexType]
+    public CompensationReviewRequest? CompensationReview { get; init; }
+
     public DateTime SubmittedAtUtc { get; init; }
 }
