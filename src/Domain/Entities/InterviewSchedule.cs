@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -23,7 +26,7 @@ public sealed class InterviewSchedule
 
     public string MeetingLink { get; init; } = string.Empty;
 
-    public IReadOnlyCollection<string> Interviewers { get; init; } = Array.Empty<string>();
+    public List<string> Interviewers { get; init; } = new();
 
     public string Status { get; init; } = string.Empty;
 

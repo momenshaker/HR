@@ -50,16 +50,16 @@ internal sealed class TrainingCourseConfiguration : IEntityTypeConfiguration<Tra
         builder.Property(course => course.DurationHours)
             .HasDefaultValue(0);
 
-        var converter = new ValueConverter<IReadOnlyCollection<string>, string>(
+        var converter = new ValueConverter<List<string>, string>(
             value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
             value => string.IsNullOrWhiteSpace(value)
-                ? Array.Empty<string>()
-                : (JsonSerializer.Deserialize<string[]>(value, (JsonSerializerOptions?)null) ?? Array.Empty<string>()));
+                ? new List<string>()
+                : (JsonSerializer.Deserialize<List<string>>(value, (JsonSerializerOptions?)null) ?? new List<string>()));
 
-        var comparer = new ValueComparer<IReadOnlyCollection<string>>(
+        var comparer = new ValueComparer<List<string>>(
             (left, right) => left.SequenceEqual(right, StringComparer.OrdinalIgnoreCase),
             value => value.Aggregate(0, (hash, item) => HashCode.Combine(hash, item.GetHashCode(StringComparison.OrdinalIgnoreCase))),
-            value => value.ToArray());
+            value => value.ToList());
 
         builder.Property(course => course.CompetencyCodes)
             .HasConversion(converter)

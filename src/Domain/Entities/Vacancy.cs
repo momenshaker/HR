@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -17,13 +20,13 @@ public sealed class Vacancy
 
     public string Description { get; init; } = string.Empty;
 
-    public IReadOnlyCollection<string> Responsibilities { get; init; } = Array.Empty<string>();
+    public List<string> Responsibilities { get; init; } = new();
 
-    public IReadOnlyCollection<string> Requirements { get; init; } = Array.Empty<string>();
+    public List<string> Requirements { get; init; } = new();
 
-    public IReadOnlyCollection<string> PipelineStages { get; init; } = Array.Empty<string>();
+    public List<string> PipelineStages { get; init; } = new();
 
-    public IReadOnlyCollection<string> HiringTeam { get; init; } = Array.Empty<string>();
+    public List<string> HiringTeam { get; init; } = new();
 
     public DateTime PostedAtUtc { get; init; }
 

@@ -83,11 +83,11 @@ public static class TrainingCourseMappings
         };
     }
 
-    private static IReadOnlyCollection<string> NormalizeCompetencyCodes(IEnumerable<string> codes)
+    private static List<string> NormalizeCompetencyCodes(IEnumerable<string> codes)
     {
         if (codes is null)
         {
-            return Array.Empty<string>();
+            return new List<string>();
         }
 
         return codes
@@ -95,6 +95,6 @@ public static class TrainingCourseMappings
             .Select(code => code.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(code => code, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+            .ToList();
     }
 }

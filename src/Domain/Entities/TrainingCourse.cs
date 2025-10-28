@@ -26,7 +26,7 @@ public sealed class TrainingCourse
 
     public string DeliveryMode { get; init; } = string.Empty;
 
-    public IReadOnlyCollection<string> CompetencyCodes { get; init; } = Array.Empty<string>();
+    public List<string> CompetencyCodes { get; init; } = new();
 
     public string SkillLevel { get; init; } = string.Empty;
 
