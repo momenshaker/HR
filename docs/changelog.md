@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Introduced a platform configuration API and service exposing feature toggle state and repository settings for clients.
 - Delivered advanced employee search API supporting filtering, sorting, and pagination for operational reporting.
 - Introduced workforce analytics snapshot endpoint exposing headcount, movement, and department-level insights.
 ### Changed
