@@ -2254,7 +2254,109 @@ components:
           type: string
           format: date
           nullable: true
-      required: [id, firstName, lastName, email, jobTitle, departmentId, employmentStartDate]
+        jobArchitecture:
+          $ref: '#/components/schemas/EmployeeJobArchitectureDto'
+        departmentAlignment:
+          $ref: '#/components/schemas/EmployeeDepartmentAlignmentDto'
+        contracts:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmploymentContractDto'
+        complianceDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeComplianceDocumentDto'
+      required: [id, firstName, lastName, email, jobTitle, departmentId, employmentStartDate, jobArchitecture, departmentAlignment, contracts, complianceDocuments]
+    EmployeeJobArchitectureDto:
+      type: object
+      properties:
+        jobFamily:
+          type: string
+        jobFunction:
+          type: string
+        jobLevel:
+          type: string
+        jobCode:
+          type: string
+        careerTrack:
+          type: string
+      required: [jobFamily, jobFunction, jobLevel, jobCode, careerTrack]
+    EmployeeDepartmentAlignmentDto:
+      type: object
+      properties:
+        primaryDepartmentId:
+          type: string
+          format: uuid
+        secondaryDepartmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        reportingDepartmentId:
+          type: string
+          format: uuid
+          nullable: true
+        costCenter:
+          type: string
+        businessUnit:
+          type: string
+      required: [primaryDepartmentId, secondaryDepartmentIds, costCenter, businessUnit]
+    EmploymentContractDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        contractType:
+          type: string
+        contractNumber:
+          type: string
+        status:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        ftePercentage:
+          type: number
+          format: double
+          nullable: true
+        workLocation:
+          type: string
+        compensationCurrency:
+          type: string
+        annualCompensation:
+          type: number
+          format: double
+          nullable: true
+        notes:
+          type: string
+      required: [id, contractType, status, effectiveFrom, workLocation, compensationCurrency, notes]
+    EmployeeComplianceDocumentDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        documentType:
+          type: string
+        referenceNumber:
+          type: string
+        status:
+          type: string
+        issuedOn:
+          type: string
+          format: date
+        expiresOn:
+          type: string
+          format: date
+          nullable: true
+        storagePath:
+          type: string
+      required: [id, documentType, referenceNumber, status, issuedOn, storagePath]
     CreateEmployeeRequest:
       type: object
       properties:
@@ -2281,7 +2383,110 @@ components:
           type: string
           format: date
           nullable: true
+        departmentAlignment:
+          $ref: '#/components/schemas/EmployeeDepartmentAlignmentRequest'
+        jobArchitecture:
+          $ref: '#/components/schemas/EmployeeJobArchitectureRequest'
+        contracts:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmploymentContractRequest'
+        complianceDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeComplianceDocumentRequest'
       required: [firstName, lastName, email, departmentId, employmentStartDate, jobTitle]
+    EmployeeDepartmentAlignmentRequest:
+      type: object
+      properties:
+        primaryDepartmentId:
+          type: string
+          format: uuid
+        secondaryDepartmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        reportingDepartmentId:
+          type: string
+          format: uuid
+          nullable: true
+        costCenter:
+          type: string
+        businessUnit:
+          type: string
+      required: [primaryDepartmentId]
+    EmployeeJobArchitectureRequest:
+      type: object
+      properties:
+        jobFamily:
+          type: string
+        jobFunction:
+          type: string
+        jobLevel:
+          type: string
+        jobCode:
+          type: string
+        careerTrack:
+          type: string
+    EmploymentContractRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        contractType:
+          type: string
+        contractNumber:
+          type: string
+        status:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        ftePercentage:
+          type: number
+          format: double
+          nullable: true
+        workLocation:
+          type: string
+        compensationCurrency:
+          type: string
+        annualCompensation:
+          type: number
+          format: double
+          nullable: true
+        notes:
+          type: string
+      required: [contractType, effectiveFrom]
+    EmployeeComplianceDocumentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        documentType:
+          type: string
+        referenceNumber:
+          type: string
+        status:
+          type: string
+        issuedOn:
+          type: string
+          format: date
+        expiresOn:
+          type: string
+          format: date
+          nullable: true
+        storagePath:
+          type: string
+      required: [documentType, referenceNumber, issuedOn]
     UpdateEmployeeRequest:
       allOf:
         - $ref: '#/components/schemas/CreateEmployeeRequest'
