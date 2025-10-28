@@ -75,6 +75,24 @@ public sealed class CandidatesController(IRecruitmentService recruitmentService)
     }
 
     /// <summary>
+    ///     Advances a candidate to the next pipeline stage and optionally schedules interviews.
+    /// </summary>
+    [HttpPost("{id:guid}/advance")]
+    [ProducesResponseType(typeof(CandidateDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AdvanceAsync(Guid id, [FromBody] AdvanceCandidateRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var advancedCandidate = await _recruitmentService.AdvanceCandidateAsync(id, request, cancellationToken).ConfigureAwait(false);
+        return advancedCandidate is null ? NotFound() : Ok(advancedCandidate);
+    }
+
+    /// <summary>
     ///     Deletes a candidate record.
     /// </summary>
     [HttpDelete("{id:guid}")]

@@ -777,6 +777,201 @@ paths:
           description: Candidate deleted
         '404':
           description: Candidate not found
+  /api/candidates/{id}/advance:
+    post:
+      summary: Advance a candidate through the pipeline
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvanceCandidateRequest'
+      responses:
+        '200':
+          description: Updated candidate after stage advancement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Candidate not found
+  /api/vacancies:
+    get:
+      summary: Retrieve all vacancies
+      tags: [Recruitment]
+      responses:
+        '200':
+          description: A list of published vacancies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VacancyDto'
+    post:
+      summary: Publish a vacancy
+      tags: [Recruitment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVacancyRequest'
+      responses:
+        '201':
+          description: Newly published vacancy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VacancyDto'
+        '400':
+          description: Validation failure
+  /api/vacancies/{id}:
+    get:
+      summary: Retrieve a vacancy by id
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Vacancy details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VacancyDto'
+        '404':
+          description: Vacancy not found
+    put:
+      summary: Update a vacancy
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVacancyRequest'
+      responses:
+        '200':
+          description: Updated vacancy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VacancyDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Vacancy not found
+  /api/vacancies/{id}/close:
+    post:
+      summary: Close a vacancy
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Vacancy closed
+        '404':
+          description: Vacancy not found
+  /api/interviews:
+    get:
+      summary: Retrieve interviews with optional filters
+      tags: [Recruitment]
+      parameters:
+        - name: vacancyId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: candidateId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: onlyUpcoming
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: A list of interview schedules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InterviewScheduleDto'
+    post:
+      summary: Schedule an interview
+      tags: [Recruitment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleInterviewRequest'
+      responses:
+        '201':
+          description: Newly scheduled interview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewScheduleDto'
+        '400':
+          description: Validation failure
+  /api/interviews/{id}:
+    put:
+      summary: Update an interview schedule
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInterviewScheduleRequest'
+      responses:
+        '200':
+          description: Updated interview schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewScheduleDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Interview not found
+    delete:
+      summary: Cancel an interview
+      tags: [Recruitment]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Interview cancelled
+        '404':
+          description: Interview not found
+  /api/recruitment/insights:
+    get:
+      summary: Retrieve collaborative hiring insights
+      tags: [Recruitment]
+      responses:
+        '200':
+          description: Aggregated recruitment insights
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecruitmentInsightsDto'
   /api/trainingcourses:
     get:
       summary: Retrieve all training courses
@@ -1722,6 +1917,241 @@ components:
     UpdateCandidateRequest:
       allOf:
         - $ref: '#/components/schemas/CreateCandidateRequest'
+    AdvanceCandidateRequest:
+      type: object
+      properties:
+        targetStage:
+          type: string
+        nextFollowUpAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+        interview:
+          $ref: '#/components/schemas/ScheduleInterviewRequest'
+      required: [targetStage]
+    VacancyDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        department:
+          type: string
+        location:
+          type: string
+        employmentType:
+          type: string
+        description:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        requirements:
+          type: array
+          items:
+            type: string
+        pipelineStages:
+          type: array
+          items:
+            type: string
+        hiringTeam:
+          type: array
+          items:
+            type: string
+        postedAtUtc:
+          type: string
+          format: date-time
+        closingAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+        applicationUrl:
+          type: string
+          format: uri
+          nullable: true
+      required: [id, title, department, location, employmentType, description, postedAtUtc, status]
+    CreateVacancyRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        department:
+          type: string
+        location:
+          type: string
+        employmentType:
+          type: string
+        description:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        requirements:
+          type: array
+          items:
+            type: string
+        pipelineStages:
+          type: array
+          items:
+            type: string
+        hiringTeam:
+          type: array
+          items:
+            type: string
+        applicationUrl:
+          type: string
+          format: uri
+          nullable: true
+        closingAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+      required: [title, department, location, employmentType, description]
+    UpdateVacancyRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateVacancyRequest'
+      properties:
+        status:
+          type: string
+      required: [title, department, location, employmentType, description]
+    InterviewScheduleDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        candidateId:
+          type: string
+          format: uuid
+        vacancyId:
+          type: string
+          format: uuid
+        stage:
+          type: string
+        scheduledAtUtc:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+        mode:
+          type: string
+        location:
+          type: string
+        meetingLink:
+          type: string
+        interviewers:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        notes:
+          type: string
+      required: [id, candidateId, vacancyId, stage, scheduledAtUtc, durationMinutes, status]
+    ScheduleInterviewRequest:
+      type: object
+      properties:
+        candidateId:
+          type: string
+          format: uuid
+        vacancyId:
+          type: string
+          format: uuid
+        stage:
+          type: string
+        scheduledAtUtc:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+        mode:
+          type: string
+        location:
+          type: string
+        meetingLink:
+          type: string
+        interviewers:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+      required: [candidateId, vacancyId, stage, scheduledAtUtc]
+    UpdateInterviewScheduleRequest:
+      allOf:
+        - $ref: '#/components/schemas/ScheduleInterviewRequest'
+      properties:
+        status:
+          type: string
+      required: [candidateId, vacancyId, stage, scheduledAtUtc]
+    RecruitmentInsightsDto:
+      type: object
+      properties:
+        totalVacancies:
+          type: integer
+        openVacancies:
+          type: integer
+        activeCandidates:
+          type: integer
+        pipelineStageSummaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelineStageSummaryDto'
+        upcomingInterviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpcomingInterviewSummaryDto'
+        hiringTeamCollaborators:
+          type: array
+          items:
+            $ref: '#/components/schemas/HiringTeamContributorDto'
+      required: [totalVacancies, openVacancies, activeCandidates, pipelineStageSummaries, upcomingInterviews, hiringTeamCollaborators]
+    PipelineStageSummaryDto:
+      type: object
+      properties:
+        stage:
+          type: string
+        candidateCount:
+          type: integer
+      required: [stage, candidateCount]
+    UpcomingInterviewSummaryDto:
+      type: object
+      properties:
+        interviewId:
+          type: string
+          format: uuid
+        candidateId:
+          type: string
+          format: uuid
+        vacancyId:
+          type: string
+          format: uuid
+        scheduledAtUtc:
+          type: string
+          format: date-time
+        stage:
+          type: string
+        interviewers:
+          type: array
+          items:
+            type: string
+      required: [interviewId, candidateId, vacancyId, scheduledAtUtc, stage]
+    HiringTeamContributorDto:
+      type: object
+      properties:
+        name:
+          type: string
+        vacancyCount:
+          type: integer
+      required: [name, vacancyCount]
     TrainingCourseDto:
       type: object
       properties:

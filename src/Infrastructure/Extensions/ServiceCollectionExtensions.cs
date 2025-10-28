@@ -128,6 +128,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITrainingCourseRepository, EntityFrameworkTrainingCourseRepository>();
         services.AddScoped<IAnnouncementRepository, EntityFrameworkAnnouncementRepository>();
         services.AddScoped<IAnalyticsSnapshotRepository, EntityFrameworkAnalyticsSnapshotRepository>();
+        services.AddScoped<IVacancyRepository, EntityFrameworkVacancyRepository>();
+        services.AddScoped<IInterviewScheduleRepository, EntityFrameworkInterviewScheduleRepository>();
     }
 
     private static void RegisterInMemoryRepositories(IServiceCollection services)
@@ -142,5 +144,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITrainingCourseRepository, InMemoryTrainingCourseRepository>();
         services.AddSingleton<IAnnouncementRepository, InMemoryAnnouncementRepository>();
         services.AddSingleton<IAnalyticsSnapshotRepository, InMemoryAnalyticsSnapshotRepository>();
+        services.AddSingleton<IVacancyRepository, InMemoryVacancyRepository>();
+        services.AddSingleton<IInterviewScheduleRepository, InMemoryInterviewScheduleRepository>();
     }
 }
