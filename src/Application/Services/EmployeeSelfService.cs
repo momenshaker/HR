@@ -10,11 +10,21 @@ public sealed class EmployeeSelfService(
     ILeaveManagementService leaveService,
     IAttendanceService attendanceService,
     IPayrollService payrollService,
-    ITrainingService trainingService) : IEmployeeSelfService
+    ITrainingService trainingService,
+    IPositionService positionService,
+    IOrganizationUnitService organizationUnitService,
+    IReportingRelationshipService reportingRelationshipService,
+    IDelegatedAuthorityService delegatedAuthorityService,
+    ISelfServiceAccountService selfServiceAccountService) : IEmployeeSelfService
 {
     private readonly IAttendanceService _attendanceService = attendanceService;
+    private readonly IDelegatedAuthorityService _delegatedAuthorityService = delegatedAuthorityService;
     private readonly ILeaveManagementService _leaveService = leaveService;
+    private readonly IOrganizationUnitService _organizationUnitService = organizationUnitService;
     private readonly IPayrollService _payrollService = payrollService;
+    private readonly IPositionService _positionService = positionService;
+    private readonly IReportingRelationshipService _reportingRelationshipService = reportingRelationshipService;
+    private readonly ISelfServiceAccountService _selfServiceAccountService = selfServiceAccountService;
     private readonly ITrainingService _trainingService = trainingService;
 
     /// <inheritdoc />
@@ -158,30 +168,130 @@ public sealed class EmployeeSelfService(
         Guid employeeId,
         CancellationToken cancellationToken = default)
     {
-        var payrollRuns = await _payrollService.GetAsync(cancellationToken).ConfigureAwait(false);
-
-        return payrollRuns
-            .Select(run => new SalarySlipDto(
-                run.Id,
-                employeeId,
-                run.PeriodStart,
-                run.PeriodEnd,
-                run.ProcessedAtUtc,
-                run.Status,
-                run.TotalGrossPay,
-                run.TotalNetPay,
-                run.Notes))
-            .OrderByDescending(slip => slip.PeriodEnd)
-            .ToArray();
+        var salarySlips = await _payrollService.GetSalarySlipsAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        return salarySlips;
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyCollection<TrainingCourseDto>> GetTrainingCoursesAsync(
+    public async Task<IReadOnlyCollection<TrainingCourseDto>> GetTrainingCoursesAsync(
         Guid employeeId,
         CancellationToken cancellationToken = default)
     {
-        // Currently training courses are global. In future iterations this can be extended to filter by enrolments
-        // specific to the provided employee identifier.
-        return _trainingService.GetAsync(cancellationToken);
+        var trainingCourses = await _trainingService
+            .GetTrainingCoursesAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return trainingCourses;
+    }
+
+    /// <inheritdoc />
+    public async Task<EmployeeOrganizationSnapshotDto> GetOrganizationSnapshotAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var position = await _positionService.GetByEmployeeIdAsync(employeeId, cancellationToken).ConfigureAwait(false);
+
+        OrganizationUnitDto? organizationUnit = null;
+        if (position is not null)
+        {
+            organizationUnit = await _organizationUnitService
+                .GetByIdAsync(position.OrganizationUnitId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        var reportingLines = position is null
+            ? Array.Empty<ReportingRelationshipDto>()
+            : (await Task.WhenAll(
+                    _reportingRelationshipService.GetByReportPositionAsync(position.Id, cancellationToken),
+                    _reportingRelationshipService.GetByManagerPositionAsync(position.Id, cancellationToken)))
+                .SelectMany(result => result)
+                .GroupBy(relationship => relationship.Id)
+                .Select(group => group.First())
+                .ToArray();
+
+        var delegatedAuthorities = await _delegatedAuthorityService
+            .GetByDelegateAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        var account = await _selfServiceAccountService
+            .GetByEmployeeIdAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return new EmployeeOrganizationSnapshotDto(
+            employeeId,
+            position,
+            organizationUnit,
+            reportingLines,
+            delegatedAuthorities,
+            account);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyCollection<DelegatedAuthorityDto>> GetDelegatedAuthoritiesAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        return _delegatedAuthorityService.GetByDelegateAsync(employeeId, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<SelfServiceAccountDto?> GetAccountAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        return _selfServiceAccountService.GetByEmployeeIdAsync(employeeId, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<SelfServiceAccountDto> RegisterAccountAsync(
+        Guid employeeId,
+        CreateSelfServiceAccountRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.EmployeeId != employeeId)
+        {
+            throw new InvalidOperationException("Self-service account request employee identifier does not match the route parameter.");
+        }
+
+        return await _selfServiceAccountService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<SelfServiceAccountDto?> UpdateAccountAsync(
+        Guid employeeId,
+        UpdateSelfServiceAccountRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var existing = await _selfServiceAccountService.GetByEmployeeIdAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existing is null)
+        {
+            return null;
+        }
+
+        return await _selfServiceAccountService
+            .UpdateAsync(existing.Id, request, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> DeleteAccountAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        var existing = await _selfServiceAccountService.GetByEmployeeIdAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existing is null)
+        {
+            return false;
+        }
+
+        return await _selfServiceAccountService.DeleteAsync(existing.Id, cancellationToken).ConfigureAwait(false);
     }
 }

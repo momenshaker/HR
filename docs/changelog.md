@@ -13,6 +13,7 @@
 - Expanded training and development with competency-aligned course metadata, enrollment management workflows, progress analytics, and certification governance endpoints.
 - Documented capability deep dives in the README to highlight communications, time and attendance, organisation design, master data, and payroll coverage.
 - Rolled out internal communications APIs spanning announcements, engagement campaigns, pulse surveys, and recognition programme governance with supporting services and repositories.
+- Expanded organization design with multi-level units, position management, reporting hierarchies, delegated authority modelling, and OAuth-enabled self-service account management across services, repositories, APIs, and documentation.
 ### Changed
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 

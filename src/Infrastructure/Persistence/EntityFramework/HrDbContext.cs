@@ -20,6 +20,11 @@ public sealed class HrDbContext : DbContext
 
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Department> Departments => Set<Department>();
+    public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
+    public DbSet<Position> Positions => Set<Position>();
+    public DbSet<ReportingRelationship> ReportingRelationships => Set<ReportingRelationship>();
+    public DbSet<DelegatedAuthority> DelegatedAuthorities => Set<DelegatedAuthority>();
+    public DbSet<SelfServiceAccount> SelfServiceAccounts => Set<SelfServiceAccount>();
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
     public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
     public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();

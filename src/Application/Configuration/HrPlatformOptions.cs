@@ -35,6 +35,8 @@ public sealed class HrPlatformOptions
         public bool TrainingAndDevelopment { get; set; } = true;
         public bool InternalCommunication { get; set; } = true;
         public bool HrAnalytics { get; set; } = true;
+        public bool DelegatedAuthority { get; set; } = true;
+        public bool SelfService { get; set; } = true;
 
         /// <summary>
         ///     Determines if a feature is enabled.
@@ -55,6 +57,8 @@ public sealed class HrPlatformOptions
                 HrFeature.TrainingAndDevelopment => TrainingAndDevelopment,
                 HrFeature.InternalCommunication => InternalCommunication,
                 HrFeature.HrAnalytics => HrAnalytics,
+                HrFeature.DelegatedAuthority => DelegatedAuthority,
+                HrFeature.SelfService => SelfService,
                 _ => false
             };
         }

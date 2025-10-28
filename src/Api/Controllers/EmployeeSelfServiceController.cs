@@ -17,6 +17,9 @@ namespace HR.Api.Controllers;
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
 [FeatureRequirement(HrFeature.PayrollManagement)]
 [FeatureRequirement(HrFeature.TrainingAndDevelopment)]
+[FeatureRequirement(HrFeature.OrganizationStructure)]
+[FeatureRequirement(HrFeature.DelegatedAuthority)]
+[FeatureRequirement(HrFeature.SelfService)]
 public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfService) : ControllerBase
 {
     private readonly IEmployeeSelfService _selfService = selfService;
@@ -174,5 +177,110 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
             .ConfigureAwait(false);
 
         return Ok(trainingCourses);
+    }
+
+    /// <summary>
+    ///     Retrieves the employee's organisation snapshot including position, hierarchy, and delegations.
+    /// </summary>
+    [HttpGet("organization")]
+    [ProducesResponseType(typeof(EmployeeOrganizationSnapshotDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetOrganizationSnapshotAsync(Guid employeeId, CancellationToken cancellationToken)
+    {
+        var snapshot = await _selfService.GetOrganizationSnapshotAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Retrieves delegated authorities assigned to the employee.
+    /// </summary>
+    [HttpGet("delegated-authorities")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<DelegatedAuthorityDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDelegatedAuthoritiesAsync(Guid employeeId, CancellationToken cancellationToken)
+    {
+        var authorities = await _selfService.GetDelegatedAuthoritiesAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        return Ok(authorities);
+    }
+
+    /// <summary>
+    ///     Retrieves the self-service account associated with the employee, if available.
+    /// </summary>
+    [HttpGet("account")]
+    [ProducesResponseType(typeof(SelfServiceAccountDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAccountAsync(Guid employeeId, CancellationToken cancellationToken)
+    {
+        var account = await _selfService.GetAccountAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        return account is null ? NotFound() : Ok(account);
+    }
+
+    /// <summary>
+    ///     Registers a new self-service account for the employee.
+    /// </summary>
+    [HttpPost("account")]
+    [ProducesResponseType(typeof(SelfServiceAccountDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateAccountAsync(
+        Guid employeeId,
+        [FromBody] CreateSelfServiceAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        try
+        {
+            var account = await _selfService
+                .RegisterAccountAsync(employeeId, request, cancellationToken)
+                .ConfigureAwait(false);
+
+            return CreatedAtAction(nameof(GetAccountAsync), new { employeeId }, account);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Unable to create self-service account",
+                Detail = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+    }
+
+    /// <summary>
+    ///     Updates the employee's self-service account.
+    /// </summary>
+    [HttpPut("account")]
+    [ProducesResponseType(typeof(SelfServiceAccountDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateAccountAsync(
+        Guid employeeId,
+        [FromBody] UpdateSelfServiceAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var account = await _selfService
+            .UpdateAccountAsync(employeeId, request, cancellationToken)
+            .ConfigureAwait(false);
+
+        return account is null ? NotFound() : Ok(account);
+    }
+
+    /// <summary>
+    ///     Deletes the employee's self-service account.
+    /// </summary>
+    [HttpDelete("account")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAccountAsync(Guid employeeId, CancellationToken cancellationToken)
+    {
+        var deleted = await _selfService.DeleteAccountAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        return deleted ? NoContent() : NotFound();
     }
 }

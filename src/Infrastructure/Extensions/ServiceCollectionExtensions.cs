@@ -52,6 +52,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
+        services.AddScoped<IPositionService, PositionService>();
+        services.AddScoped<IReportingRelationshipService, ReportingRelationshipService>();
+        services.AddScoped<IDelegatedAuthorityService, DelegatedAuthorityService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<ILeaveManagementService, LeaveManagementService>();
         services.AddScoped<IPayrollService, PayrollService>();
@@ -59,6 +63,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRecruitmentService, RecruitmentService>();
         services.AddScoped<ITrainingService, TrainingService>();
         services.AddScoped<IEmployeeSelfService, EmployeeSelfService>();
+        services.AddScoped<ISelfServiceAccountService, SelfServiceAccountService>();
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
@@ -120,6 +125,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IEmployeeRepository, EntityFrameworkEmployeeRepository>();
         services.AddScoped<IDepartmentRepository, EntityFrameworkDepartmentRepository>();
+        services.AddScoped<IOrganizationUnitRepository, EntityFrameworkOrganizationUnitRepository>();
+        services.AddScoped<IPositionRepository, EntityFrameworkPositionRepository>();
+        services.AddScoped<IReportingRelationshipRepository, EntityFrameworkReportingRelationshipRepository>();
+        services.AddScoped<IDelegatedAuthorityRepository, EntityFrameworkDelegatedAuthorityRepository>();
         services.AddScoped<IAttendanceRecordRepository, EntityFrameworkAttendanceRecordRepository>();
         services.AddScoped<ILeaveRequestRepository, EntityFrameworkLeaveRequestRepository>();
         services.AddScoped<IPayrollRunRepository, EntityFrameworkPayrollRunRepository>();
@@ -135,12 +144,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnalyticsSnapshotRepository, EntityFrameworkAnalyticsSnapshotRepository>();
         services.AddScoped<IVacancyRepository, EntityFrameworkVacancyRepository>();
         services.AddScoped<IInterviewScheduleRepository, EntityFrameworkInterviewScheduleRepository>();
+        services.AddScoped<ISelfServiceAccountRepository, EntityFrameworkSelfServiceAccountRepository>();
     }
 
     private static void RegisterInMemoryRepositories(IServiceCollection services)
     {
         services.AddSingleton<IEmployeeRepository, InMemoryEmployeeRepository>();
         services.AddSingleton<IDepartmentRepository, InMemoryDepartmentRepository>();
+        services.AddSingleton<IOrganizationUnitRepository, InMemoryOrganizationUnitRepository>();
+        services.AddSingleton<IPositionRepository, InMemoryPositionRepository>();
+        services.AddSingleton<IReportingRelationshipRepository, InMemoryReportingRelationshipRepository>();
+        services.AddSingleton<IDelegatedAuthorityRepository, InMemoryDelegatedAuthorityRepository>();
         services.AddSingleton<IAttendanceRecordRepository, InMemoryAttendanceRecordRepository>();
         services.AddSingleton<ILeaveRequestRepository, InMemoryLeaveRequestRepository>();
         services.AddSingleton<IPayrollRunRepository, InMemoryPayrollRunRepository>();
@@ -156,5 +170,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAnalyticsSnapshotRepository, InMemoryAnalyticsSnapshotRepository>();
         services.AddSingleton<IVacancyRepository, InMemoryVacancyRepository>();
         services.AddSingleton<IInterviewScheduleRepository, InMemoryInterviewScheduleRepository>();
+        services.AddSingleton<ISelfServiceAccountRepository, InMemorySelfServiceAccountRepository>();
     }
 }

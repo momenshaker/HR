@@ -59,4 +59,48 @@ public interface IEmployeeSelfService
     Task<IReadOnlyCollection<TrainingCourseDto>> GetTrainingCoursesAsync(
         Guid employeeId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Retrieves the employee's organisation snapshot including position, reporting lines, and delegations.
+    /// </summary>
+    Task<EmployeeOrganizationSnapshotDto> GetOrganizationSnapshotAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Retrieves delegated authorities granted to the employee.
+    /// </summary>
+    Task<IReadOnlyCollection<DelegatedAuthorityDto>> GetDelegatedAuthoritiesAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Retrieves the self-service account associated with the employee, when available.
+    /// </summary>
+    Task<SelfServiceAccountDto?> GetAccountAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Registers a new self-service account for the specified employee.
+    /// </summary>
+    Task<SelfServiceAccountDto> RegisterAccountAsync(
+        Guid employeeId,
+        CreateSelfServiceAccountRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Updates the self-service account associated with the specified employee.
+    /// </summary>
+    Task<SelfServiceAccountDto?> UpdateAccountAsync(
+        Guid employeeId,
+        UpdateSelfServiceAccountRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes the self-service account associated with the specified employee.
+    /// </summary>
+    Task<bool> DeleteAccountAsync(
+        Guid employeeId,
+        CancellationToken cancellationToken = default);
 }

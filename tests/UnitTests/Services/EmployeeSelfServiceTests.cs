@@ -15,6 +15,11 @@ public sealed class EmployeeSelfServiceTests
     private readonly Mock<ILeaveManagementService> _leaveServiceMock = new();
     private readonly Mock<IPayrollService> _payrollServiceMock = new();
     private readonly Mock<ITrainingService> _trainingServiceMock = new();
+    private readonly Mock<IPositionService> _positionServiceMock = new();
+    private readonly Mock<IOrganizationUnitService> _organizationUnitServiceMock = new();
+    private readonly Mock<IReportingRelationshipService> _reportingRelationshipServiceMock = new();
+    private readonly Mock<IDelegatedAuthorityService> _delegatedAuthorityServiceMock = new();
+    private readonly Mock<ISelfServiceAccountService> _selfServiceAccountServiceMock = new();
     private readonly EmployeeSelfService _sut;
 
     public EmployeeSelfServiceTests()
@@ -23,7 +28,12 @@ public sealed class EmployeeSelfServiceTests
             _leaveServiceMock.Object,
             _attendanceServiceMock.Object,
             _payrollServiceMock.Object,
-            _trainingServiceMock.Object);
+            _trainingServiceMock.Object,
+            _positionServiceMock.Object,
+            _organizationUnitServiceMock.Object,
+            _reportingRelationshipServiceMock.Object,
+            _delegatedAuthorityServiceMock.Object,
+            _selfServiceAccountServiceMock.Object);
     }
 
     [Fact]
@@ -198,5 +208,99 @@ public sealed class EmployeeSelfServiceTests
         // Assert
         Assert.Equal(2, result.Count);
         Assert.All(result, slip => Assert.Contains(slip.PayrollRunId, payrollRuns.Select(run => run.Id)));
+    }
+
+    [Fact]
+    public async Task GetOrganizationSnapshotAsync_ComposesHierarchyAndDelegations()
+    {
+        // Arrange
+        var employeeId = Guid.NewGuid();
+        var positionId = Guid.NewGuid();
+        var organizationUnitId = Guid.NewGuid();
+
+        var position = new PositionDto(positionId, "Head of Engineering", "ENG001", organizationUnitId, null, employeeId, "L2", "FullTime", DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-1)), null, true, false);
+        var organizationUnit = new OrganizationUnitDto(organizationUnitId, "Engineering", "ENG", "Division", null, null, null, 1, "", true);
+        var reportingRelationship = new ReportingRelationshipDto(Guid.NewGuid(), positionId, Guid.NewGuid(), "Line", DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-6)), null, true);
+        var delegatedAuthority = new DelegatedAuthorityDto(Guid.NewGuid(), employeeId, employeeId, null, null, "Approve CapEx", 5000m, DateTimeOffset.UtcNow.AddDays(-10), DateTimeOffset.UtcNow.AddDays(20), null, false, string.Empty);
+        var account = new SelfServiceAccountDto(Guid.NewGuid(), employeeId, "user@example.com", "AzureAD", "sub-123", true, false, DateTimeOffset.UtcNow.AddMonths(-3), DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow, new[] { "Leave", "Payroll" });
+
+        _positionServiceMock
+            .Setup(service => service.GetByEmployeeIdAsync(employeeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(position);
+
+        _organizationUnitServiceMock
+            .Setup(service => service.GetByIdAsync(organizationUnitId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(organizationUnit);
+
+        _reportingRelationshipServiceMock
+            .Setup(service => service.GetByReportPositionAsync(positionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { reportingRelationship });
+
+        _reportingRelationshipServiceMock
+            .Setup(service => service.GetByManagerPositionAsync(positionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ReportingRelationshipDto>());
+
+        _delegatedAuthorityServiceMock
+            .Setup(service => service.GetByDelegateAsync(employeeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { delegatedAuthority });
+
+        _selfServiceAccountServiceMock
+            .Setup(service => service.GetByEmployeeIdAsync(employeeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(account);
+
+        // Act
+        var snapshot = await _sut.GetOrganizationSnapshotAsync(employeeId, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(employeeId, snapshot.EmployeeId);
+        Assert.Equal(positionId, snapshot.Position?.Id);
+        Assert.Equal(organizationUnitId, snapshot.OrganizationUnit?.Id);
+        Assert.Single(snapshot.ReportingLines);
+        Assert.Single(snapshot.DelegatedAuthorities);
+        Assert.Equal(account.Id, snapshot.SelfServiceAccount?.Id);
+    }
+
+    [Fact]
+    public async Task RegisterAccountAsync_PassesThroughToService()
+    {
+        // Arrange
+        var employeeId = Guid.NewGuid();
+        var request = new CreateSelfServiceAccountRequest
+        {
+            EmployeeId = employeeId,
+            Email = "user@example.com",
+            OAuthProvider = "AzureAD",
+            ExternalIdentifier = "sub-123",
+            FeatureAccess = new[] { "Leave" }
+        };
+
+        var account = new SelfServiceAccountDto(Guid.NewGuid(), employeeId, request.Email, request.OAuthProvider, request.ExternalIdentifier, true, false, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, new[] { "Leave" });
+
+        _selfServiceAccountServiceMock
+            .Setup(service => service.CreateAsync(request, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(account);
+
+        // Act
+        var result = await _sut.RegisterAccountAsync(employeeId, request, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(account.Id, result.Id);
+        _selfServiceAccountServiceMock.Verify(service => service.CreateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAccountAsync_WhenAccountMissing_ReturnsNull()
+    {
+        // Arrange
+        _selfServiceAccountServiceMock
+            .Setup(service => service.GetByEmployeeIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SelfServiceAccountDto?)null);
+
+        // Act
+        var result = await _sut.UpdateAccountAsync(Guid.NewGuid(), new UpdateSelfServiceAccountRequest(), CancellationToken.None);
+
+        // Assert
+        Assert.Null(result);
+        _selfServiceAccountServiceMock.Verify(service => service.UpdateAsync(It.IsAny<Guid>(), It.IsAny<UpdateSelfServiceAccountRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

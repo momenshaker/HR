@@ -87,6 +87,451 @@ paths:
           description: Department deleted
         '404':
           description: Department not found
+  /api/organization-units:
+    get:
+      summary: Retrieve all organization units
+      tags: [Organization]
+      responses:
+        '200':
+          description: A list of organization units
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationUnitDto'
+    post:
+      summary: Create an organization unit
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationUnitRequest'
+      responses:
+        '201':
+          description: Newly created organization unit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnitDto'
+        '400':
+          description: Validation failure
+  /api/organization-units/hierarchy:
+    get:
+      summary: Retrieve the organization hierarchy tree
+      tags: [Organization]
+      responses:
+        '200':
+          description: Hierarchical representation of organization units
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationHierarchyNodeDto'
+  /api/organization-units/{id}:
+    get:
+      summary: Retrieve an organization unit by id
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Organization unit details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnitDto'
+        '404':
+          description: Organization unit not found
+    put:
+      summary: Update an organization unit
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationUnitRequest'
+      responses:
+        '200':
+          description: Updated organization unit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationUnitDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Organization unit not found
+    delete:
+      summary: Delete an organization unit
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Organization unit deleted
+        '404':
+          description: Organization unit not found
+  /api/positions:
+    get:
+      summary: Retrieve all positions
+      tags: [Organization]
+      responses:
+        '200':
+          description: A list of positions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PositionDto'
+    post:
+      summary: Create a position
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePositionRequest'
+      responses:
+        '201':
+          description: Newly created position
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionDto'
+        '400':
+          description: Validation failure
+  /api/positions/organization-unit/{organizationUnitId}:
+    get:
+      summary: Retrieve positions for an organization unit
+      tags: [Organization]
+      parameters:
+        - name: organizationUnitId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Positions for the organization unit
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PositionDto'
+  /api/positions/employee/{employeeId}:
+    get:
+      summary: Retrieve the position assigned to an employee
+      tags: [Organization]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Position details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionDto'
+        '404':
+          description: Position not found
+  /api/positions/{id}:
+    get:
+      summary: Retrieve a position by id
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Position details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionDto'
+        '404':
+          description: Position not found
+    put:
+      summary: Update a position
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePositionRequest'
+      responses:
+        '200':
+          description: Updated position
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Position not found
+    delete:
+      summary: Delete a position
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Position deleted
+        '404':
+          description: Position not found
+  /api/reporting-relationships:
+    get:
+      summary: Retrieve all reporting relationships
+      tags: [Organization]
+      responses:
+        '200':
+          description: A list of reporting relationships
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportingRelationshipDto'
+    post:
+      summary: Create a reporting relationship
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReportingRelationshipRequest'
+      responses:
+        '201':
+          description: Newly created reporting relationship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingRelationshipDto'
+        '400':
+          description: Validation failure
+  /api/reporting-relationships/manager/{managerPositionId}:
+    get:
+      summary: Retrieve reporting relationships for a manager
+      tags: [Organization]
+      parameters:
+        - name: managerPositionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Reporting relationships for the manager
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportingRelationshipDto'
+  /api/reporting-relationships/report/{reportPositionId}:
+    get:
+      summary: Retrieve reporting relationships for a subordinate
+      tags: [Organization]
+      parameters:
+        - name: reportPositionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Reporting relationships for the subordinate position
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportingRelationshipDto'
+  /api/reporting-relationships/{id}:
+    get:
+      summary: Retrieve a reporting relationship by id
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Reporting relationship details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingRelationshipDto'
+        '404':
+          description: Reporting relationship not found
+    put:
+      summary: Update a reporting relationship
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReportingRelationshipRequest'
+      responses:
+        '200':
+          description: Updated reporting relationship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportingRelationshipDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Reporting relationship not found
+    delete:
+      summary: Delete a reporting relationship
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Reporting relationship deleted
+        '404':
+          description: Reporting relationship not found
+  /api/delegated-authorities:
+    get:
+      summary: Retrieve all delegated authorities
+      tags: [Organization]
+      responses:
+        '200':
+          description: A list of delegated authorities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DelegatedAuthorityDto'
+    post:
+      summary: Create a delegated authority
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDelegatedAuthorityRequest'
+      responses:
+        '201':
+          description: Newly created delegated authority
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelegatedAuthorityDto'
+        '400':
+          description: Validation failure
+  /api/delegated-authorities/grantor/{employeeId}:
+    get:
+      summary: Retrieve delegated authorities granted by an employee
+      tags: [Organization]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Delegated authorities granted by the employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DelegatedAuthorityDto'
+  /api/delegated-authorities/delegate/{employeeId}:
+    get:
+      summary: Retrieve delegated authorities assigned to an employee
+      tags: [Organization]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Delegated authorities assigned to the employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DelegatedAuthorityDto'
+  /api/delegated-authorities/{id}:
+    get:
+      summary: Retrieve a delegated authority by id
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Delegated authority details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelegatedAuthorityDto'
+        '404':
+          description: Delegated authority not found
+    put:
+      summary: Update a delegated authority
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDelegatedAuthorityRequest'
+      responses:
+        '200':
+          description: Updated delegated authority
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelegatedAuthorityDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Delegated authority not found
+    delete:
+      summary: Delete a delegated authority
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Delegated authority deleted
+        '404':
+          description: Delegated authority not found
   /api/employees:
     get:
       summary: Retrieve all employees
@@ -365,6 +810,101 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TrainingCourseDto'
+  /api/employees/{employeeId}/self-service/organization:
+    get:
+      summary: Retrieve an employee organization snapshot
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: Organization snapshot including position and delegations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeOrganizationSnapshotDto'
+  /api/employees/{employeeId}/self-service/delegated-authorities:
+    get:
+      summary: Retrieve delegated authorities available to an employee
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: Delegated authorities assigned to the employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DelegatedAuthorityDto'
+  /api/employees/{employeeId}/self-service/account:
+    get:
+      summary: Retrieve a self-service account
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: Self-service account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfServiceAccountDto'
+        '404':
+          description: Account not found
+    post:
+      summary: Register a self-service account
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSelfServiceAccountRequest'
+      responses:
+        '201':
+          description: Newly created self-service account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfServiceAccountDto'
+        '400':
+          description: Validation failure
+    put:
+      summary: Update a self-service account
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSelfServiceAccountRequest'
+      responses:
+        '200':
+          description: Updated self-service account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfServiceAccountDto'
+        '400':
+          description: Validation failure
+        '404':
+          description: Account not found
+    delete:
+      summary: Delete a self-service account
+      tags: [Employee Self-Service]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '204':
+          description: Account deleted
+        '404':
+          description: Account not found
   /api/employees/insights/workforce:
     get:
       summary: Retrieve workforce analytics snapshot metrics
@@ -1288,6 +1828,403 @@ components:
         isActive:
           type: boolean
       required: [name, code, isActive]
+    OrganizationUnitDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        type:
+          type: string
+        parentUnitId:
+          type: string
+          format: uuid
+          nullable: true
+        departmentId:
+          type: string
+          format: uuid
+          nullable: true
+        leadPositionId:
+          type: string
+          format: uuid
+          nullable: true
+        level:
+          type: integer
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [id, name, code, type, level, isActive]
+    CreateOrganizationUnitRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateOrganizationUnitRequest'
+      required: [name, code, type]
+    UpdateOrganizationUnitRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        type:
+          type: string
+        parentUnitId:
+          type: string
+          format: uuid
+          nullable: true
+        departmentId:
+          type: string
+          format: uuid
+          nullable: true
+        leadPositionId:
+          type: string
+          format: uuid
+          nullable: true
+        level:
+          type: integer
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [name, code, type, level, isActive]
+    OrganizationHierarchyNodeDto:
+      type: object
+      properties:
+        unit:
+          $ref: '#/components/schemas/OrganizationUnitDto'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationHierarchyNodeDto'
+      required: [unit, children]
+    PositionDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        jobCode:
+          type: string
+        organizationUnitId:
+          type: string
+          format: uuid
+        reportsToPositionId:
+          type: string
+          format: uuid
+          nullable: true
+        occupiedByEmployeeId:
+          type: string
+          format: uuid
+          nullable: true
+        grade:
+          type: string
+        employmentType:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+          nullable: true
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        isCriticalRole:
+          type: boolean
+        isVacant:
+          type: boolean
+      required: [id, title, jobCode, organizationUnitId, isCriticalRole, isVacant]
+    CreatePositionRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdatePositionRequest'
+      required: [title, jobCode, organizationUnitId]
+    UpdatePositionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        jobCode:
+          type: string
+        organizationUnitId:
+          type: string
+          format: uuid
+        reportsToPositionId:
+          type: string
+          format: uuid
+          nullable: true
+        occupiedByEmployeeId:
+          type: string
+          format: uuid
+          nullable: true
+        grade:
+          type: string
+        employmentType:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+          nullable: true
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        isCriticalRole:
+          type: boolean
+        isVacant:
+          type: boolean
+      required: [title, jobCode, organizationUnitId, isCriticalRole, isVacant]
+    ReportingRelationshipDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        managerPositionId:
+          type: string
+          format: uuid
+        reportPositionId:
+          type: string
+          format: uuid
+        relationshipType:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+          nullable: true
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        isPrimary:
+          type: boolean
+      required: [id, managerPositionId, reportPositionId, relationshipType, isPrimary]
+    CreateReportingRelationshipRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateReportingRelationshipRequest'
+      required: [managerPositionId, reportPositionId, relationshipType]
+    UpdateReportingRelationshipRequest:
+      type: object
+      properties:
+        managerPositionId:
+          type: string
+          format: uuid
+        reportPositionId:
+          type: string
+          format: uuid
+        relationshipType:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+          nullable: true
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        isPrimary:
+          type: boolean
+      required: [managerPositionId, reportPositionId, relationshipType, isPrimary]
+    DelegatedAuthorityDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        grantorEmployeeId:
+          type: string
+          format: uuid
+          nullable: true
+        delegateEmployeeId:
+          type: string
+          format: uuid
+          nullable: true
+        grantorPositionId:
+          type: string
+          format: uuid
+          nullable: true
+        delegatePositionId:
+          type: string
+          format: uuid
+          nullable: true
+        authorityScope:
+          type: string
+        approvalLimit:
+          type: number
+          format: decimal
+          nullable: true
+        grantedOnUtc:
+          type: string
+          format: date-time
+        expiresOnUtc:
+          type: string
+          format: date-time
+          nullable: true
+        revokedOnUtc:
+          type: string
+          format: date-time
+          nullable: true
+        isRevoked:
+          type: boolean
+        notes:
+          type: string
+      required: [id, authorityScope, grantedOnUtc, isRevoked]
+    CreateDelegatedAuthorityRequest:
+      type: object
+      properties:
+        grantorEmployeeId:
+          type: string
+          format: uuid
+          nullable: true
+        delegateEmployeeId:
+          type: string
+          format: uuid
+          nullable: true
+        grantorPositionId:
+          type: string
+          format: uuid
+          nullable: true
+        delegatePositionId:
+          type: string
+          format: uuid
+          nullable: true
+        authorityScope:
+          type: string
+        approvalLimit:
+          type: number
+          format: decimal
+          nullable: true
+        grantedOnUtc:
+          type: string
+          format: date-time
+        expiresOnUtc:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+      required: [authorityScope, grantedOnUtc]
+    UpdateDelegatedAuthorityRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateDelegatedAuthorityRequest'
+      properties:
+        revokedOnUtc:
+          type: string
+          format: date-time
+          nullable: true
+        isRevoked:
+          type: boolean
+      required: [authorityScope, grantedOnUtc, isRevoked]
+    SelfServiceAccountDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        oAuthProvider:
+          type: string
+        externalIdentifier:
+          type: string
+        isMfaEnabled:
+          type: boolean
+        isLocked:
+          type: boolean
+        createdOnUtc:
+          type: string
+          format: date-time
+        updatedOnUtc:
+          type: string
+          format: date-time
+          nullable: true
+        lastSignInUtc:
+          type: string
+          format: date-time
+          nullable: true
+        featureAccess:
+          type: array
+          items:
+            type: string
+      required: [id, employeeId, email, oAuthProvider, externalIdentifier, isMfaEnabled, isLocked, createdOnUtc, featureAccess]
+    CreateSelfServiceAccountRequest:
+      type: object
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        oAuthProvider:
+          type: string
+        externalIdentifier:
+          type: string
+        isMfaEnabled:
+          type: boolean
+        isLocked:
+          type: boolean
+        lastSignInUtc:
+          type: string
+          format: date-time
+          nullable: true
+        featureAccess:
+          type: array
+          items:
+            type: string
+      required: [employeeId, email, oAuthProvider, externalIdentifier]
+    UpdateSelfServiceAccountRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        oAuthProvider:
+          type: string
+        externalIdentifier:
+          type: string
+        isMfaEnabled:
+          type: boolean
+        isLocked:
+          type: boolean
+        lastSignInUtc:
+          type: string
+          format: date-time
+          nullable: true
+        featureAccess:
+          type: array
+          items:
+            type: string
+      required: [email, oAuthProvider, externalIdentifier]
+    EmployeeOrganizationSnapshotDto:
+      type: object
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        position:
+          $ref: '#/components/schemas/PositionDto'
+        organizationUnit:
+          $ref: '#/components/schemas/OrganizationUnitDto'
+        reportingLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportingRelationshipDto'
+        delegatedAuthorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/DelegatedAuthorityDto'
+        selfServiceAccount:
+          $ref: '#/components/schemas/SelfServiceAccountDto'
+      required: [employeeId, reportingLines, delegatedAuthorities]
     EmployeeDto:
       type: object
       properties:
