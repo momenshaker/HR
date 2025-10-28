@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace HR.Application.DTOs;
 
 /// <summary>
@@ -12,4 +14,9 @@ public sealed record TrainingCourseDto(
     DateOnly StartDate,
     DateOnly EndDate,
     int Capacity,
-    string DeliveryMode);
+    string DeliveryMode,
+    IReadOnlyCollection<string> CompetencyCodes,
+    string SkillLevel,
+    bool OffersCertification,
+    string CertificationCriteria,
+    int DurationHours);

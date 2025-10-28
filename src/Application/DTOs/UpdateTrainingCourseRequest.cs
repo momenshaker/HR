@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace HR.Application.DTOs;
 
@@ -31,4 +32,17 @@ public sealed class UpdateTrainingCourseRequest
 
     [MaxLength(50)]
     public string DeliveryMode { get; init; } = string.Empty;
+
+    [MaxLength(20)]
+    public string SkillLevel { get; init; } = string.Empty;
+
+    [Range(0, 1000)]
+    public int DurationHours { get; init; }
+
+    [MaxLength(1000)]
+    public string CertificationCriteria { get; init; } = string.Empty;
+
+    public IList<string> CompetencyCodes { get; init; } = new List<string>();
+
+    public bool OffersCertification { get; init; }
 }
