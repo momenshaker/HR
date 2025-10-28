@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Common.Validation;
 
 namespace HR.Application.DTOs;
 
