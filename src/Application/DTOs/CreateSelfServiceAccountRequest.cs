@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for registering a self-service account.
 /// </summary>
-public sealed class CreateSelfServiceAccountRequest
+public sealed class CreateSelfServiceAccountRequest : IValidatableRequest
 {
     [Required]
     public Guid EmployeeId { get; init; }

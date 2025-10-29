@@ -2,6 +2,7 @@ using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.Services;
+using HR.Infrastructure.Logging;
 using HR.Infrastructure.Options;
 using HR.Infrastructure.Persistence.EntityFramework;
 using HR.Infrastructure.Persistence.EntityFramework.Repositories;
@@ -74,6 +75,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IUsageService, UsageService>();
 
         services.AddScoped<ISubscriptionBillingService, SubscriptionBillingService>();
+        services.AddScoped<IAuditLogger, AuditLogger>();
 
         return services;
     }

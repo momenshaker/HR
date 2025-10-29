@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming payload for updating a reporting relationship.
 /// </summary>
-public sealed class UpdateReportingRelationshipRequest
+public sealed class UpdateReportingRelationshipRequest : IValidatableRequest
 {
     [Required]
     public Guid ManagerPositionId { get; init; }

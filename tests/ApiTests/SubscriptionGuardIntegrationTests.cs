@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
@@ -23,7 +25,13 @@ public sealed class SubscriptionGuardIntegrationTests(CustomWebApplicationFactor
 
         await UpdateEntitlementsAsync(subscription.Id, new[] { HrFeature.EmployeeManagement }).ConfigureAwait(false);
 
-        var response = await _client.GetAsync("/api/PayrollRuns").ConfigureAwait(false);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "/api/v1/PayrollRuns");
+        requestMessage.Headers.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            JwtTestHelper.CreateToken("https://tests", "hr-api-tests", "test-super-secret-key-1234567890", new[] { "Admin" })
+        );
+
+        var response = await _client.SendAsync(requestMessage).ConfigureAwait(false);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 
@@ -39,7 +47,13 @@ public sealed class SubscriptionGuardIntegrationTests(CustomWebApplicationFactor
 
         await UpdateEntitlementsAsync(subscription.Id, Enum.GetValues<HrFeature>()).ConfigureAwait(false);
 
-        var response = await _client.GetAsync("/api/PerformanceReviews").ConfigureAwait(false);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "/api/v1/PerformanceReviews");
+        requestMessage.Headers.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            JwtTestHelper.CreateToken("https://tests", "hr-api-tests", "test-super-secret-key-1234567890", new[] { "Admin" })
+        );
+
+        var response = await _client.SendAsync(requestMessage).ConfigureAwait(false);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -78,7 +92,14 @@ public sealed class SubscriptionGuardIntegrationTests(CustomWebApplicationFactor
             {
                 configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["HrPlatform:Data:RepositoryProvider"] = "InMemory"
+                    ["HrPlatform:Data:RepositoryProvider"] = "InMemory",
+                    ["Jwt:Issuer"] = "https://tests",
+                    ["Jwt:Audience"] = "hr-api-tests",
+                    ["Jwt:Key"] = "test-super-secret-key-1234567890",
+                    ["Jwt:CustomerClaim"] = "cust",
+                    ["RateLimit:RequestsPerWindow"] = "1000",
+                    ["RateLimit:WindowSeconds"] = "60",
+                    ["Idempotency:WindowHours"] = "24"
                 });
             });
         }

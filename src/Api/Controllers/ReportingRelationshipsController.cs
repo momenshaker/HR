@@ -4,6 +4,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -11,7 +12,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for modelling reporting hierarchies.
 /// </summary>
 [ApiController]
-[Route("api/reporting-relationships")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("ReportingRelationship")]
 [FeatureRequirement(HrFeature.OrganizationStructure)]
 public sealed class ReportingRelationshipsController(IReportingRelationshipService reportingRelationshipService) : ControllerBase
 {
@@ -76,10 +80,6 @@ public sealed class ReportingRelationshipsController(IReportingRelationshipServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateReportingRelationshipRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var created = await _reportingRelationshipService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
@@ -94,10 +94,6 @@ public sealed class ReportingRelationshipsController(IReportingRelationshipServi
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateReportingRelationshipRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updated = await _reportingRelationshipService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updated is null ? NotFound() : Ok(updated);

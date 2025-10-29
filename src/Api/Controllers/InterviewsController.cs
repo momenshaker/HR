@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides endpoints for interview scheduling and management.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("Interview")]
 [FeatureRequirement(HrFeature.RecruitmentAndAts)]
 public sealed class InterviewsController(IRecruitmentService recruitmentService) : ControllerBase
 {
@@ -41,10 +45,6 @@ public sealed class InterviewsController(IRecruitmentService recruitmentService)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] ScheduleInterviewRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var interview = await _recruitmentService.ScheduleInterviewAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetAsync), new { interview.Id }, interview);
@@ -59,10 +59,6 @@ public sealed class InterviewsController(IRecruitmentService recruitmentService)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateInterviewScheduleRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updated = await _recruitmentService.UpdateInterviewAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updated is null ? NotFound() : Ok(updated);

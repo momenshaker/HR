@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming payload for publishing a new vacancy.
 /// </summary>
-public sealed class CreateVacancyRequest
+public sealed class CreateVacancyRequest : IValidatableRequest
 {
     [Required]
     [MaxLength(200)]

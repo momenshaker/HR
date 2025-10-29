@@ -4,6 +4,7 @@ using HR.Api.Filters;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -11,7 +12,9 @@ namespace HR.Api.Controllers;
 ///     Provides system metadata and operational health endpoints.
 /// </summary>
 [ApiController]
-[Route("api")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}")]
+[AllowAnonymous]
 [FeatureRequirement(HrFeature.PlatformServices)]
 public sealed class SystemController(IHostEnvironment hostEnvironment) : ControllerBase
 {

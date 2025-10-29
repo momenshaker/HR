@@ -4,6 +4,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -11,7 +12,10 @@ namespace HR.Api.Controllers;
 ///     Provides self-service endpoints scoped to a specific employee.
 /// </summary>
 [ApiController]
-[Route("api/employees/{employeeId:guid}/self-service")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/employees/{employeeId:guid}/self-service")]
+[Authorize(Roles = "Employee")]
+[AuditResource("EmployeeSelfService")]
 [FeatureRequirement(HrFeature.EmployeeManagement)]
 [FeatureRequirement(HrFeature.LeaveManagement)]
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
@@ -46,10 +50,6 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
         [FromBody] CreateLeaveRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         try
         {
@@ -85,10 +85,6 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
         [FromBody] ClockInRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         try
         {
@@ -126,10 +122,6 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
         [FromBody] ClockOutRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         try
         {
@@ -224,10 +216,6 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
         [FromBody] CreateSelfServiceAccountRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         try
         {
@@ -260,10 +248,6 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
         [FromBody] UpdateSelfServiceAccountRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var account = await _selfService
             .UpdateAccountAsync(employeeId, request, cancellationToken)

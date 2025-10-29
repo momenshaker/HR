@@ -131,7 +131,15 @@ Create a .env file (for frontend) and appsettings.Development.json (for backend)
   "Jwt": {
     "Issuer": "https://yourdomain.com",
     "Audience": "https://yourdomain.com",
-    "Key": "supersecretkey"
+    "Key": "supersecretkey",
+    "CustomerClaim": "cust"
+  },
+  "RateLimit": {
+    "RequestsPerWindow": 100,
+    "WindowSeconds": 60
+  },
+  "Idempotency": {
+    "WindowHours": 24
   },
   "Azure": {
     "SignalR": "Endpoint=https://signalr.yourdomain.net;",
@@ -140,7 +148,7 @@ Create a .env file (for frontend) and appsettings.Development.json (for backend)
 }
 
 # .env (Next.js)
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
 NEXT_PUBLIC_SIGNALR_URL=https://signalr.yourdomain.net
 
 🧪 Testing
@@ -173,13 +181,20 @@ Auto migration and secret sync via CI/CD
 
 Role-based access (Admin, HR, Manager, Employee)
 
-JWT / Azure AD B2C authentication
+JWT / Azure AD B2C authentication — tokens must include the `cust` claim representing the tenant/customer scope.
 
 Data encryption (at rest + in transit)
 
 GDPR compliant data handling
 
 Audit logs for all critical operations
+
+🚦 API Hardening Essentials
+
+- **Global rate limiting**: 100 authenticated requests per 60 seconds per bearer token (configurable via `RateLimit` section).
+- **Idempotency**: All `POST` endpoints require an `Idempotency-Key` header; repeated calls replay the original response for 24 hours.
+- **Caching**: `GET` lookups return strong `ETag` headers; send `If-None-Match` to receive `304 Not Modified` when unchanged.
+- **Audit logging**: Every create/update/delete operation is logged with actor, action, entity, entity id, and `traceId` correlation.
 
 📚 Documentation
 

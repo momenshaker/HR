@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -12,7 +13,10 @@ namespace HR.Api.Controllers;
 ///     attendance records.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("AttendanceRecord")]
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
 public sealed class AttendanceRecordsController(IAttendanceService attendanceService) : ControllerBase
 {
@@ -49,10 +53,6 @@ public sealed class AttendanceRecordsController(IAttendanceService attendanceSer
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateAttendanceRecordRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdRecord = await _attendanceService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdRecord.Id }, createdRecord);
@@ -67,10 +67,6 @@ public sealed class AttendanceRecordsController(IAttendanceService attendanceSer
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateAttendanceRecordRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedRecord = await _attendanceService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedRecord is null ? NotFound() : Ok(updatedRecord);

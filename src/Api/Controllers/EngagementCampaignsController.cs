@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for orchestrating engagement campaigns.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("EngagementCampaign")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
 public sealed class EngagementCampaignsController(ICommunicationService communicationService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class EngagementCampaignsController(ICommunicationService communic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateEngagementCampaignRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdCampaign = await _communicationService
             .CreateEngagementCampaignAsync(request, cancellationToken)
@@ -68,10 +68,6 @@ public sealed class EngagementCampaignsController(ICommunicationService communic
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateEngagementCampaignRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedCampaign = await _communicationService
             .UpdateEngagementCampaignAsync(id, request, cancellationToken)

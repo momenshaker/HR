@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Request payload for provisioning a new subscription.
 /// </summary>
-public sealed class CreateSubscriptionRequest
+public sealed class CreateSubscriptionRequest : IValidatableRequest
 {
     [Required]
     public Guid PlanId { get; set; }

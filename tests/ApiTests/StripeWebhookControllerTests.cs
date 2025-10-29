@@ -98,7 +98,14 @@ public sealed class StripeWebhookControllerTests(WebApplicationFactory<Program> 
                 configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["Billing:Stripe:EndpointSecret"] = EndpointSecret,
-                    ["Billing:Stripe:ToleranceInSeconds"] = "300"
+                    ["Billing:Stripe:ToleranceInSeconds"] = "300",
+                    ["Jwt:Issuer"] = "https://tests",
+                    ["Jwt:Audience"] = "hr-api-tests",
+                    ["Jwt:Key"] = "test-super-secret-key-1234567890",
+                    ["Jwt:CustomerClaim"] = "cust",
+                    ["RateLimit:RequestsPerWindow"] = "1000",
+                    ["RateLimit:WindowSeconds"] = "60",
+                    ["Idempotency:WindowHours"] = "24"
                 });
             });
             builder.ConfigureServices(services =>
@@ -110,13 +117,14 @@ public sealed class StripeWebhookControllerTests(WebApplicationFactory<Program> 
 
     private static HttpRequestMessage BuildRequest(string payload)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/billing/webhooks/stripe")
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/billing/webhooks/stripe")
         {
             Content = new StringContent(payload, Encoding.UTF8, "application/json")
         };
 
         var signature = StripeTestSignatureUtility.CreateSignatureHeader(EndpointSecret, payload);
         request.Headers.Add("Stripe-Signature", signature);
+        request.Headers.Add("Idempotency-Key", Guid.NewGuid().ToString());
         return request;
     }
 

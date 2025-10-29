@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for updating an announcement.
 /// </summary>
-public sealed class UpdateAnnouncementRequest
+public sealed class UpdateAnnouncementRequest : IValidatableRequest
 {
     [Required]
     [MaxLength(200)]

@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for HR analytics operations.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("AnalyticsSnapshot")]
 [FeatureRequirement(HrFeature.HrAnalytics)]
 public sealed class AnalyticsSnapshotsController(IAnalyticsService analyticsService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class AnalyticsSnapshotsController(IAnalyticsService analyticsServ
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateAnalyticsSnapshotRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdSnapshot = await _analyticsService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdSnapshot.Id }, createdSnapshot);
@@ -65,10 +65,6 @@ public sealed class AnalyticsSnapshotsController(IAnalyticsService analyticsServ
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateAnalyticsSnapshotRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedSnapshot = await _analyticsService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedSnapshot is null ? NotFound() : Ok(updatedSnapshot);

@@ -4,6 +4,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -11,7 +12,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for managing organisation positions.
 /// </summary>
 [ApiController]
-[Route("api/positions")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("Position")]
 [FeatureRequirement(HrFeature.OrganizationStructure)]
 public sealed class PositionsController(IPositionService positionService) : ControllerBase
 {
@@ -74,10 +78,6 @@ public sealed class PositionsController(IPositionService positionService) : Cont
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreatePositionRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var created = await _positionService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
@@ -92,10 +92,6 @@ public sealed class PositionsController(IPositionService positionService) : Cont
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdatePositionRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updated = await _positionService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updated is null ? NotFound() : Ok(updated);

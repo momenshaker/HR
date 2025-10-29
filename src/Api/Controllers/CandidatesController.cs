@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for recruitment and applicant tracking operations.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("Candidate")]
 [FeatureRequirement(HrFeature.RecruitmentAndAts)]
 public sealed class CandidatesController(IRecruitmentService recruitmentService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class CandidatesController(IRecruitmentService recruitmentService)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateCandidateRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdCandidate = await _recruitmentService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdCandidate.Id }, createdCandidate);
@@ -65,10 +65,6 @@ public sealed class CandidatesController(IRecruitmentService recruitmentService)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateCandidateRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedCandidate = await _recruitmentService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedCandidate is null ? NotFound() : Ok(updatedCandidate);
@@ -83,10 +79,6 @@ public sealed class CandidatesController(IRecruitmentService recruitmentService)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AdvanceAsync(Guid id, [FromBody] AdvanceCandidateRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var advancedCandidate = await _recruitmentService.AdvanceCandidateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return advancedCandidate is null ? NotFound() : Ok(advancedCandidate);
