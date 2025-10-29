@@ -82,6 +82,29 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
                 .HasMaxLength(150);
         });
 
+        builder.ComplexProperty(employee => employee.JobArchitecture, architecture =>
+        {
+            architecture.Property(job => job.JobFamily)
+                .HasColumnName("JobArchitectureJobFamily")
+                .HasMaxLength(150);
+
+            architecture.Property(job => job.JobFunction)
+                .HasColumnName("JobArchitectureJobFunction")
+                .HasMaxLength(150);
+
+            architecture.Property(job => job.JobLevel)
+                .HasColumnName("JobArchitectureJobLevel")
+                .HasMaxLength(100);
+
+            architecture.Property(job => job.JobCode)
+                .HasColumnName("JobArchitectureJobCode")
+                .HasMaxLength(100);
+
+            architecture.Property(job => job.CareerTrack)
+                .HasColumnName("JobArchitectureCareerTrack")
+                .HasMaxLength(150);
+        });
+
         builder.Ignore(employee => employee.FullName);
     }
 }
