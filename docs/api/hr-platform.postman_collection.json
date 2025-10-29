@@ -155,7 +155,7 @@
             "description": "Creates a new analytics snapshot.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CapturedAtUtc\": \"2024-03-01T00:00:00Z\",\n  \"Headcount\": 250,\n  \"TurnoverRate\": 8.5,\n  \"AverageTenureMonths\": 36.2,\n  \"HiringVelocity\": 45.0,\n  \"EngagementScore\": 78.4,\n  \"Commentary\": \"Monthly snapshot for March 2024.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -275,7 +275,7 @@
             "description": "Updates an existing analytics snapshot.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CapturedAtUtc\": \"2024-03-01T00:00:00Z\",\n  \"Headcount\": 252,\n  \"TurnoverRate\": 8.1,\n  \"AverageTenureMonths\": 36.5,\n  \"HiringVelocity\": 44.0,\n  \"EngagementScore\": 79.1,\n  \"Commentary\": \"Adjusted snapshot after payroll reconciliation.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -324,7 +324,7 @@
             "description": "Creates a new announcement.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Quarterly All Hands\",\n  \"Message\": \"Join the leadership team for updates on strategy, wins, and upcoming initiatives.\",\n  \"Audience\": \"AllEmployees\",\n  \"CreatedBy\": \"22222222-2222-2222-2222-222222222222\",\n  \"RequiresAcknowledgement\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -444,7 +444,7 @@
             "description": "Updates an existing announcement.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Quarterly All Hands\",\n  \"Message\": \"Agenda updated to include recognition awards segment.\",\n  \"Audience\": \"AllEmployees\",\n  \"CreatedBy\": \"22222222-2222-2222-2222-222222222222\",\n  \"RequiresAcknowledgement\": true,\n  \"PublishedAtUtc\": \"2024-03-05T14:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -493,7 +493,7 @@
             "description": "Creates a new attendance record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"WorkDate\": \"2024-03-04\",\n  \"ShiftName\": \"Day Shift\",\n  \"ClockInUtc\": \"2024-03-04T08:55:00Z\",\n  \"ClockOutUtc\": \"2024-03-04T17:15:00Z\",\n  \"OvertimeMinutes\": 30,\n  \"Status\": \"Completed\",\n  \"Notes\": \"Worked on quarterly planning.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -613,7 +613,7 @@
             "description": "Updates an existing attendance record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"WorkDate\": \"2024-03-04\",\n  \"ShiftName\": \"Day Shift\",\n  \"ClockInUtc\": \"2024-03-04T09:00:00Z\",\n  \"ClockOutUtc\": \"2024-03-04T17:30:00Z\",\n  \"OvertimeMinutes\": 45,\n  \"Status\": \"Adjusted\",\n  \"Notes\": \"Extended shift to support release deployment.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -659,7 +659,7 @@
             "description": "Receives and processes Stripe webhook notifications.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"id\": \"evt_test_invoice_paid\",\n  \"type\": \"invoice.paid\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"in_test_12345\",\n      \"customer\": \"cus_123456789\",\n      \"amount_paid\": 129900,\n      \"currency\": \"usd\"\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -710,7 +710,7 @@
             "description": "Advances a candidate to the next pipeline stage and optionally schedules interviews.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"TargetStage\": \"Offer\",\n  \"NextFollowUpAtUtc\": \"2024-03-10T15:00:00Z\",\n  \"Notes\": \"Candidate ready for offer approval after successful final panel.\",\n  \"Interview\": {\n    \"CandidateId\": \"{{id}}\",\n    \"VacancyId\": \"dddddddd-dddd-dddd-dddd-dddddddddddd\",\n    \"Stage\": \"Final Panel\",\n    \"ScheduledAtUtc\": \"2024-03-08T14:30:00Z\",\n    \"DurationMinutes\": 60,\n    \"Mode\": \"Video\",\n    \"Location\": \"Microsoft Teams\",\n    \"MeetingLink\": \"https://meet.example.com/final-panel\",\n    \"Interviewers\": [\n      \"carla.wong@example.com\",\n      \"nate.miller@example.com\"\n    ],\n    \"Notes\": \"Focus on leadership principles and architecture depth.\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -754,7 +754,7 @@
             "description": "Creates a new candidate record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"FullName\": \"Jordan Smith\",\n  \"Email\": \"jordan.smith@example.com\",\n  \"AppliedRole\": \"Senior Backend Engineer\",\n  \"Stage\": \"Screening\",\n  \"Source\": \"Referral\",\n  \"ResumeUrl\": \"https://example.com/resumes/jordan-smith.pdf\",\n  \"Notes\": \"10 years experience with distributed systems.\",\n  \"NextInterviewAtUtc\": \"2024-03-06T13:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -874,7 +874,7 @@
             "description": "Updates an existing candidate record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"FullName\": \"Jordan Smith\",\n  \"Email\": \"jordan.smith@example.com\",\n  \"AppliedRole\": \"Senior Backend Engineer\",\n  \"Stage\": \"Offer\",\n  \"Source\": \"Referral\",\n  \"ResumeUrl\": \"https://example.com/resumes/jordan-smith.pdf\",\n  \"Notes\": \"Offer drafted and pending compensation approval.\",\n  \"NextInterviewAtUtc\": \"2024-03-08T14:30:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -923,7 +923,7 @@
             "description": "Creates a new delegated authority record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"GrantorEmployeeId\": \"{{employeeId}}\",\n  \"DelegateEmployeeId\": \"66666666-6666-6666-6666-666666666666\",\n  \"GrantorPositionId\": \"{{managerPositionId}}\",\n  \"DelegatePositionId\": \"{{reportPositionId}}\",\n  \"AuthorityScope\": \"Approve operating expenses up to 5,000 USD\",\n  \"ApprovalLimit\": 5000,\n  \"GrantedOnUtc\": \"2024-03-01T09:00:00Z\",\n  \"ExpiresOnUtc\": \"2024-09-01T09:00:00Z\",\n  \"Notes\": \"Delegated while manager is on parental leave.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1099,7 +1099,7 @@
             "description": "Updates an existing delegated authority.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"GrantorEmployeeId\": \"{{employeeId}}\",\n  \"DelegateEmployeeId\": \"66666666-6666-6666-6666-666666666666\",\n  \"GrantorPositionId\": \"{{managerPositionId}}\",\n  \"DelegatePositionId\": \"{{reportPositionId}}\",\n  \"AuthorityScope\": \"Approve operating expenses up to 5,000 USD\",\n  \"ApprovalLimit\": 5000,\n  \"GrantedOnUtc\": \"2024-03-01T09:00:00Z\",\n  \"ExpiresOnUtc\": \"2024-09-01T09:00:00Z\",\n  \"RevokedOnUtc\": null,\n  \"IsRevoked\": false,\n  \"Notes\": \"Authority remains active during extended leave coverage.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1148,7 +1148,7 @@
             "description": "Creates a new department.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Product Engineering\",\n  \"Code\": \"ENG\",\n  \"ParentDepartmentId\": \"ffffffff-ffff-ffff-ffff-ffffffffffff\",\n  \"ManagerId\": \"{{employeeId}}\",\n  \"Branch\": \"HQ\",\n  \"Location\": \"Seattle\",\n  \"Description\": \"Owns delivery of the SaaS HR platform.\",\n  \"IsActive\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1268,7 +1268,7 @@
             "description": "Updates an existing department.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Product Engineering\",\n  \"Code\": \"ENG\",\n  \"ParentDepartmentId\": \"ffffffff-ffff-ffff-ffff-ffffffffffff\",\n  \"ManagerId\": \"{{employeeId}}\",\n  \"Branch\": \"HQ\",\n  \"Location\": \"Seattle\",\n  \"Description\": \"Expanded remit to include analytics squad.\",\n  \"IsActive\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1321,7 +1321,7 @@
             "description": "Captures a clock-in for the employee.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"TimestampUtc\": \"2024-03-04T08:55:00Z\",\n  \"ShiftName\": \"Day Shift\",\n  \"Notes\": \"Clocked in before customer escalation review.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1370,7 +1370,7 @@
             "description": "Captures a clock-out for an existing attendance record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"TimestampUtc\": \"2024-03-04T17:45:00Z\",\n  \"Notes\": \"Stayed late to finalise analytics dashboard.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1446,7 +1446,7 @@
             "description": "Registers a new self-service account for the employee.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"Email\": \"employee.selfservice@example.com\",\n  \"OAuthProvider\": \"AzureAdB2C\",\n  \"ExternalIdentifier\": \"aad-user-12345\",\n  \"IsMfaEnabled\": true,\n  \"IsLocked\": false,\n  \"LastSignInUtc\": \"2024-03-03T21:15:00Z\",\n  \"FeatureAccess\": [\n    \"Attendance\",\n    \"Leave\",\n    \"Payslips\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1667,7 +1667,7 @@
             "description": "Submits a new leave request on behalf of the employee.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"LeaveType\": \"AnnualLeave\",\n  \"StartDate\": \"2024-03-18\",\n  \"EndDate\": \"2024-03-22\",\n  \"Reason\": \"Family vacation.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1709,7 +1709,7 @@
             "description": "Updates the employee's self-service account.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Email\": \"employee.selfservice@example.com\",\n  \"OAuthProvider\": \"AzureAdB2C\",\n  \"ExternalIdentifier\": \"aad-user-12345\",\n  \"IsMfaEnabled\": true,\n  \"IsLocked\": false,\n  \"LastSignInUtc\": \"2024-03-04T21:00:00Z\",\n  \"FeatureAccess\": [\n    \"Attendance\",\n    \"Leave\",\n    \"Payslips\",\n    \"Training\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1758,7 +1758,7 @@
             "description": "Creates a new employee record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"FirstName\": \"Avery\",\n  \"LastName\": \"Johnson\",\n  \"Email\": \"avery.johnson@example.com\",\n  \"DepartmentId\": \"{{departmentId}}\",\n  \"EmploymentStartDate\": \"2022-04-11\",\n  \"JobTitle\": \"Engineering Manager\",\n  \"EmploymentEndDate\": null,\n  \"DateOfBirth\": \"1988-07-23\",\n  \"DepartmentAlignment\": {\n    \"PrimaryDepartmentId\": \"{{departmentId}}\",\n    \"SecondaryDepartmentIds\": [\n      \"ffffffff-ffff-ffff-ffff-ffffffffffff\"\n    ],\n    \"ReportingDepartmentId\": \"ffffffff-ffff-ffff-ffff-ffffffffffff\",\n    \"CostCenter\": \"ENG-100\",\n    \"BusinessUnit\": \"Product\"\n  },\n  \"JobArchitecture\": {\n    \"JobFamily\": \"Engineering\",\n    \"JobFunction\": \"Platform\",\n    \"JobLevel\": \"M3\",\n    \"JobCode\": \"ENG-MGR-03\",\n    \"CareerTrack\": \"Management\"\n  },\n  \"Contracts\": [\n    {\n      \"ContractType\": \"FullTime\",\n      \"ContractNumber\": \"FT-2022-0411\",\n      \"Status\": \"Active\",\n      \"EffectiveFrom\": \"2022-04-11\",\n      \"EffectiveTo\": null,\n      \"FtePercentage\": 1,\n      \"WorkLocation\": \"Seattle\",\n      \"CompensationCurrency\": \"USD\",\n      \"AnnualCompensation\": 165000,\n      \"Notes\": \"Eligible for annual leadership bonus.\"\n    }\n  ],\n  \"ComplianceDocuments\": [\n    {\n      \"DocumentType\": \"WorkEligibility\",\n      \"ReferenceNumber\": \"WE-2022-0411\",\n      \"Status\": \"Verified\",\n      \"IssuedOn\": \"2022-04-01\",\n      \"ExpiresOn\": \"2025-04-01\",\n      \"StoragePath\": \"/compliance/avery-johnson/work-eligibility.pdf\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1933,7 +1933,7 @@
             "description": "Updates an existing employee record.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"FirstName\": \"Avery\",\n  \"LastName\": \"Johnson\",\n  \"Email\": \"avery.johnson@example.com\",\n  \"DepartmentId\": \"{{departmentId}}\",\n  \"EmploymentStartDate\": \"2022-04-11\",\n  \"JobTitle\": \"Director of Engineering\",\n  \"EmploymentEndDate\": null,\n  \"DateOfBirth\": \"1988-07-23\",\n  \"DepartmentAlignment\": {\n    \"PrimaryDepartmentId\": \"{{departmentId}}\",\n    \"SecondaryDepartmentIds\": [\n      \"ffffffff-ffff-ffff-ffff-ffffffffffff\"\n    ],\n    \"ReportingDepartmentId\": \"ffffffff-ffff-ffff-ffff-ffffffffffff\",\n    \"CostCenter\": \"ENG-120\",\n    \"BusinessUnit\": \"Product\"\n  },\n  \"JobArchitecture\": {\n    \"JobFamily\": \"Engineering\",\n    \"JobFunction\": \"Platform\",\n    \"JobLevel\": \"M4\",\n    \"JobCode\": \"ENG-DIR-04\",\n    \"CareerTrack\": \"Management\"\n  },\n  \"Contracts\": [\n    {\n      \"Id\": \"11111111-2222-3333-4444-555555555555\",\n      \"ContractType\": \"FullTime\",\n      \"ContractNumber\": \"FT-2022-0411\",\n      \"Status\": \"Active\",\n      \"EffectiveFrom\": \"2022-04-11\",\n      \"EffectiveTo\": null,\n      \"FtePercentage\": 1,\n      \"WorkLocation\": \"Seattle\",\n      \"CompensationCurrency\": \"USD\",\n      \"AnnualCompensation\": 185000,\n      \"Notes\": \"Updated compensation effective FY24.\"\n    }\n  ],\n  \"ComplianceDocuments\": [\n    {\n      \"Id\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\",\n      \"DocumentType\": \"WorkEligibility\",\n      \"ReferenceNumber\": \"WE-2022-0411\",\n      \"Status\": \"Verified\",\n      \"IssuedOn\": \"2022-04-01\",\n      \"ExpiresOn\": \"2025-04-01\",\n      \"StoragePath\": \"/compliance/avery-johnson/work-eligibility.pdf\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1982,7 +1982,7 @@
             "description": "Creates a new engagement campaign.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Spring Wellbeing Pulse\",\n  \"Description\": \"30-day wellbeing initiative with weekly nudges and surveys.\",\n  \"Channels\": \"Email,Teams\",\n  \"TargetAudience\": \"AllEmployees\",\n  \"LaunchDateUtc\": \"2024-04-01T09:00:00Z\",\n  \"EndDateUtc\": \"2024-04-30T23:59:00Z\",\n  \"OwnerId\": \"{{employeeId}}\",\n  \"IsAutomated\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2102,7 +2102,7 @@
             "description": "Updates an existing engagement campaign.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Spring Wellbeing Pulse\",\n  \"Description\": \"Incorporate weekly mindfulness sessions and feedback digest.\",\n  \"Channels\": \"Email,Teams,Intranet\",\n  \"TargetAudience\": \"AllEmployees\",\n  \"LaunchDateUtc\": \"2024-04-01T09:00:00Z\",\n  \"EndDateUtc\": \"2024-05-07T23:59:00Z\",\n  \"OwnerId\": \"{{employeeId}}\",\n  \"IsAutomated\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2204,7 +2204,7 @@
             "description": "Schedules a new interview.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CandidateId\": \"{{id}}\",\n  \"VacancyId\": \"dddddddd-dddd-dddd-dddd-dddddddddddd\",\n  \"Stage\": \"Technical Interview\",\n  \"ScheduledAtUtc\": \"2024-03-06T16:00:00Z\",\n  \"DurationMinutes\": 90,\n  \"Mode\": \"Video\",\n  \"Location\": \"Zoom\",\n  \"MeetingLink\": \"https://zoom.example.com/j/123456789\",\n  \"Interviewers\": [\n    \"lead.engineer@example.com\",\n    \"product.manager@example.com\"\n  ],\n  \"Notes\": \"Include architecture deep-dive and behavioural questions.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2244,7 +2244,7 @@
             "description": "Updates an existing interview schedule.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Stage\": \"Technical Interview\",\n  \"ScheduledAtUtc\": \"2024-03-07T16:00:00Z\",\n  \"DurationMinutes\": 75,\n  \"Mode\": \"Video\",\n  \"Location\": \"Zoom\",\n  \"MeetingLink\": \"https://zoom.example.com/j/987654321\",\n  \"Interviewers\": [\n    \"lead.engineer@example.com\",\n    \"product.manager@example.com\"\n  ],\n  \"Notes\": \"Rescheduled to accommodate candidate availability.\",\n  \"Status\": \"Confirmed\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2293,7 +2293,7 @@
             "description": "Creates a new leave request.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"LeaveType\": \"AnnualLeave\",\n  \"StartDate\": \"2024-03-18\",\n  \"EndDate\": \"2024-03-22\",\n  \"Reason\": \"Family vacation.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2413,7 +2413,7 @@
             "description": "Updates an existing leave request.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"LeaveType\": \"AnnualLeave\",\n  \"StartDate\": \"2024-03-18\",\n  \"EndDate\": \"2024-03-22\",\n  \"Reason\": \"Family vacation.\",\n  \"Status\": \"Approved\",\n  \"ApproverId\": \"{{employeeId}}\",\n  \"DecisionAtUtc\": \"2024-03-01T10:15:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2462,7 +2462,7 @@
             "description": "Creates a new organisation unit.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Customer Success\",\n  \"Code\": \"CS-NA\",\n  \"Type\": \"Division\",\n  \"ParentUnitId\": \"{{organizationUnitId}}\",\n  \"DepartmentId\": \"{{departmentId}}\",\n  \"LeadPositionId\": \"{{managerPositionId}}\",\n  \"Level\": 2,\n  \"Description\": \"North America customer success operations.\",\n  \"IsActive\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2609,7 +2609,7 @@
             "description": "Updates an existing organisation unit.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Customer Success\",\n  \"Code\": \"CS-NA\",\n  \"Type\": \"Division\",\n  \"ParentUnitId\": \"{{organizationUnitId}}\",\n  \"DepartmentId\": \"{{departmentId}}\",\n  \"LeadPositionId\": \"{{managerPositionId}}\",\n  \"Level\": 2,\n  \"Description\": \"Expanded remit to include enterprise onboarding.\",\n  \"IsActive\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2658,7 +2658,7 @@
             "description": "Creates a new payroll run.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"PeriodStart\": \"2024-02-01\",\n  \"PeriodEnd\": \"2024-02-29\",\n  \"Status\": \"InProgress\",\n  \"TotalGrossPay\": 1285000.45,\n  \"TotalNetPay\": 985400.32,\n  \"Notes\": \"Includes annual bonus adjustments for sales.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2778,7 +2778,7 @@
             "description": "Updates an existing payroll run.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"PeriodStart\": \"2024-02-01\",\n  \"PeriodEnd\": \"2024-02-29\",\n  \"Status\": \"Completed\",\n  \"TotalGrossPay\": 1285000.45,\n  \"TotalNetPay\": 985400.32,\n  \"Notes\": \"Payroll finalised with compliance sign-off.\",\n  \"ProcessedAtUtc\": \"2024-03-02T08:30:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2827,7 +2827,7 @@
             "description": "Creates a new performance review.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"CycleName\": \"FY24 Mid-Year Review\",\n  \"PeriodStart\": \"2023-07-01\",\n  \"PeriodEnd\": \"2023-12-31\",\n  \"OverallScore\": 4.3,\n  \"ManagerComments\": \"Consistently exceeds expectations across delivery and coaching.\",\n  \"GoalsSummary\": \"Delivered platform modernization milestones ahead of schedule.\",\n  \"Goals\": [\n    {\n      \"Title\": \"Launch analytics module\",\n      \"Description\": \"Deliver the analytics MVP by Q3 with green SLAs.\",\n      \"Weight\": 40,\n      \"Alignment\": \"CompanyObjective:DataDriven\",\n      \"Status\": \"Completed\"\n    }\n  ],\n  \"KeyPerformanceIndicators\": [\n    {\n      \"Name\": \"ReleaseBurndown\",\n      \"TargetValue\": 6,\n      \"ActualValue\": 5,\n      \"UnitOfMeasure\": \"sprints\",\n      \"Status\": \"OnTrack\"\n    }\n  ],\n  \"FeedbackCycles\": [\n    {\n      \"FeedbackType\": \"Peer\",\n      \"Comments\": \"Great collaborator across teams.\",\n      \"SubmittedBy\": \"44444444-4444-4444-4444-444444444444\",\n      \"SubmittedAtUtc\": \"2024-01-05T16:45:00Z\"\n    }\n  ],\n  \"CompensationReview\": {\n    \"EffectiveDate\": \"2024-04-01\",\n    \"CurrentBaseSalary\": 165000,\n    \"ProposedBaseSalary\": 175000,\n    \"BonusRecommendation\": 18000,\n    \"Currency\": \"USD\",\n    \"Notes\": \"Recommend market adjustment for scope expansion.\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2947,7 +2947,7 @@
             "description": "Updates an existing performance review.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CycleName\": \"FY24 Mid-Year Review\",\n  \"PeriodStart\": \"2023-07-01\",\n  \"PeriodEnd\": \"2023-12-31\",\n  \"OverallScore\": 4.4,\n  \"ManagerComments\": \"Incorporated customer feedback to refine roadmap.\",\n  \"GoalsSummary\": \"Maintained velocity despite team growth.\",\n  \"Goals\": [\n    {\n      \"Title\": \"Launch analytics module\",\n      \"Description\": \"Delivered on time with high adoption.\",\n      \"Weight\": 40,\n      \"Alignment\": \"CompanyObjective:DataDriven\",\n      \"Status\": \"Completed\"\n    }\n  ],\n  \"KeyPerformanceIndicators\": [\n    {\n      \"Name\": \"ReleaseBurndown\",\n      \"TargetValue\": 6,\n      \"ActualValue\": 5,\n      \"UnitOfMeasure\": \"sprints\",\n      \"Status\": \"OnTrack\"\n    }\n  ],\n  \"FeedbackCycles\": [\n    {\n      \"FeedbackType\": \"Peer\",\n      \"Comments\": \"Inspires confidence during critical releases.\",\n      \"SubmittedBy\": \"44444444-4444-4444-4444-444444444444\",\n      \"SubmittedAtUtc\": \"2024-01-05T16:45:00Z\"\n    }\n  ],\n  \"CompensationReview\": {\n    \"EffectiveDate\": \"2024-04-01\",\n    \"CurrentBaseSalary\": 165000,\n    \"ProposedBaseSalary\": 180000,\n    \"BonusRecommendation\": 20000,\n    \"Currency\": \"USD\",\n    \"Notes\": \"Final recommendation after calibration.\"\n  },\n  \"SubmittedAtUtc\": \"2024-02-28T18:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3028,7 +3028,7 @@
             "description": "Creates a new position.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Principal Solutions Architect\",\n  \"JobCode\": \"ARCH-PRINC-01\",\n  \"OrganizationUnitId\": \"{{organizationUnitId}}\",\n  \"ReportsToPositionId\": \"{{managerPositionId}}\",\n  \"OccupiedByEmployeeId\": null,\n  \"Grade\": \"P6\",\n  \"EmploymentType\": \"FullTime\",\n  \"EffectiveFrom\": \"2024-03-01\",\n  \"EffectiveTo\": null,\n  \"IsCriticalRole\": true,\n  \"IsVacant\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3204,7 +3204,7 @@
             "description": "Updates an existing position.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Principal Solutions Architect\",\n  \"JobCode\": \"ARCH-PRINC-01\",\n  \"OrganizationUnitId\": \"{{organizationUnitId}}\",\n  \"ReportsToPositionId\": \"{{managerPositionId}}\",\n  \"OccupiedByEmployeeId\": \"{{employeeId}}\",\n  \"Grade\": \"P6\",\n  \"EmploymentType\": \"FullTime\",\n  \"EffectiveFrom\": \"2024-03-01\",\n  \"EffectiveTo\": null,\n  \"IsCriticalRole\": true,\n  \"IsVacant\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3253,7 +3253,7 @@
             "description": "Creates a new pulse survey.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Weekly Engagement Pulse\",\n  \"Description\": \"Two-question pulse to monitor engagement trends.\",\n  \"Audience\": \"AllEmployees\",\n  \"QuestionSet\": \"Q1: How engaged do you feel?;Q2: Any blockers?\",\n  \"ResponseWindowMinutes\": 720,\n  \"LaunchDateUtc\": \"2024-03-11T15:00:00Z\",\n  \"CloseDateUtc\": \"2024-03-18T15:00:00Z\",\n  \"OwnerId\": \"{{employeeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3373,7 +3373,7 @@
             "description": "Updates an existing pulse survey.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Weekly Engagement Pulse\",\n  \"Description\": \"Extending survey to capture onboarding feedback.\",\n  \"Audience\": \"AllEmployees\",\n  \"QuestionSet\": \"Q1: How engaged do you feel?;Q2: Any blockers?;Q3: How supported do you feel by leadership?\",\n  \"ResponseWindowMinutes\": 1008,\n  \"LaunchDateUtc\": \"2024-03-11T15:00:00Z\",\n  \"CloseDateUtc\": \"2024-03-25T15:00:00Z\",\n  \"OwnerId\": \"{{employeeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3422,7 +3422,7 @@
             "description": "Creates a new recognition programme.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Spotlight Awards\",\n  \"Description\": \"Monthly peer-nominated recognition for outstanding teamwork.\",\n  \"Criteria\": \"Demonstrates company values during critical initiatives.\",\n  \"Reward\": \"$250 gift card and intranet spotlight\",\n  \"IsPeerToPeer\": true,\n  \"IsActive\": true,\n  \"OwnerId\": \"{{employeeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3542,7 +3542,7 @@
             "description": "Updates an existing recognition programme.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Name\": \"Spotlight Awards\",\n  \"Description\": \"Now includes cross-functional collaboration highlights.\",\n  \"Criteria\": \"Demonstrates company values and drives measurable outcomes.\",\n  \"Reward\": \"$300 gift card, leadership lunch, intranet spotlight\",\n  \"IsPeerToPeer\": true,\n  \"IsActive\": true,\n  \"OwnerId\": \"{{employeeId}}\",\n  \"CreatedAtUtc\": \"2023-01-15T12:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3622,7 +3622,7 @@
             "description": "Creates a new reporting relationship.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"ManagerPositionId\": \"{{managerPositionId}}\",\n  \"ReportPositionId\": \"{{reportPositionId}}\",\n  \"RelationshipType\": \"Direct\",\n  \"EffectiveFrom\": \"2024-03-01\",\n  \"EffectiveTo\": null,\n  \"IsPrimary\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3798,7 +3798,7 @@
             "description": "Updates an existing reporting relationship.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"ManagerPositionId\": \"{{managerPositionId}}\",\n  \"ReportPositionId\": \"{{reportPositionId}}\",\n  \"RelationshipType\": \"Direct\",\n  \"EffectiveFrom\": \"2024-03-01\",\n  \"EffectiveTo\": null,\n  \"IsPrimary\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3892,7 +3892,7 @@
             "description": "Creates a new training course.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"AI-Assisted HR Analytics\",\n  \"Category\": \"Analytics\",\n  \"Description\": \"Learn how to apply AI models to HR data for predictive insights.\",\n  \"Instructor\": \"Morgan Ellis\",\n  \"StartDate\": \"2024-04-08\",\n  \"EndDate\": \"2024-05-03\",\n  \"Capacity\": 40,\n  \"DeliveryMode\": \"Virtual\",\n  \"SkillLevel\": \"Intermediate\",\n  \"DurationHours\": 16,\n  \"CertificationCriteria\": \"Complete all modules and pass final assessment with 80%.\",\n  \"CompetencyCodes\": [\n    \"DATA-LIT\",\n    \"PEOPLE-ANALYTICS\"\n  ],\n  \"OffersCertification\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3965,7 +3965,7 @@
             "description": "Enrolls an employee in a training course.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CourseId\": \"{{courseId}}\",\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"EnrolledOn\": \"2024-04-01\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4011,7 +4011,7 @@
             "description": "Issues a certification for a completed enrollment.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CourseId\": \"{{courseId}}\",\n  \"EmployeeId\": \"{{employeeId}}\",\n  \"CertificateNumber\": \"CERT-2024-041\",\n  \"IssuedOn\": \"2024-05-05\",\n  \"ExpiresOn\": \"2026-05-05\",\n  \"IssuedBy\": \"Morgan Ellis\",\n  \"GovernanceNotes\": \"Completed with distinction.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4281,7 +4281,7 @@
             "description": "Revokes a certification with governance notes.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"GovernanceNotes\": \"Certification revoked due to updated compliance requirements.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4321,7 +4321,7 @@
             "description": "Updates an existing training course.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"AI-Assisted HR Analytics\",\n  \"Category\": \"Analytics\",\n  \"Description\": \"Added live lab sessions on forecasting attrition and headcount.\",\n  \"Instructor\": \"Morgan Ellis\",\n  \"StartDate\": \"2024-04-08\",\n  \"EndDate\": \"2024-05-10\",\n  \"Capacity\": 45,\n  \"DeliveryMode\": \"Virtual\",\n  \"SkillLevel\": \"Intermediate\",\n  \"DurationHours\": 18,\n  \"CertificationCriteria\": \"Complete modules, labs, and score 85% on assessment.\",\n  \"CompetencyCodes\": [\n    \"DATA-LIT\",\n    \"PEOPLE-ANALYTICS\",\n    \"STORYTELLING\"\n  ],\n  \"OffersCertification\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4363,7 +4363,7 @@
             "description": "Updates progress for an enrollment.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"CompletionPercentage\": 55,\n  \"Status\": \"InProgress\",\n  \"CompletedOn\": null\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4410,7 +4410,7 @@
             "description": "Withdraws an enrollment from a course.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Reason\": \"Learner requested withdrawal after role change.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4461,7 +4461,7 @@
             "description": "Closes a vacancy to stop receiving applications.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"ClosedReason\": \"Offer accepted by top candidate.\",\n  \"ClosedAtUtc\": \"2024-03-05T12:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4505,7 +4505,7 @@
             "description": "Publishes a new vacancy.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Staff Product Designer\",\n  \"Department\": \"Product Design\",\n  \"Location\": \"Remote - North America\",\n  \"EmploymentType\": \"FullTime\",\n  \"Description\": \"Lead design for analytics experiences across the HR platform.\",\n  \"Responsibilities\": [\n    \"Own end-to-end product discovery and delivery for analytics workflows.\",\n    \"Partner with product and engineering to drive design standards.\"\n  ],\n  \"Requirements\": [\n    \"8+ years designing enterprise SaaS experiences.\",\n    \"Portfolio demonstrating complex data visualisation work.\"\n  ],\n  \"PipelineStages\": [\n    \"Recruiter Screen\",\n    \"Design Portfolio Review\",\n    \"Panel Interview\",\n    \"Offer\"\n  ],\n  \"HiringTeam\": [\n    \"design.lead@example.com\",\n    \"product.director@example.com\"\n  ],\n  \"ApplicationUrl\": \"https://careers.example.com/jobs/staff-product-designer\",\n  \"ClosingAtUtc\": \"2024-04-30T23:59:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4598,7 +4598,7 @@
             "description": "Updates an existing vacancy.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"Title\": \"Staff Product Designer\",\n  \"Department\": \"Product Design\",\n  \"Location\": \"Remote - North America\",\n  \"EmploymentType\": \"FullTime\",\n  \"Description\": \"Updated scope to include AI-assisted research tooling.\",\n  \"Responsibilities\": [\n    \"Own end-to-end product discovery and delivery for analytics workflows.\",\n    \"Partner with product and engineering to drive design standards.\",\n    \"Collaborate with research to integrate AI-generated insights.\"\n  ],\n  \"Requirements\": [\n    \"8+ years designing enterprise SaaS experiences.\",\n    \"Portfolio demonstrating complex data visualisation work.\",\n    \"Experience with generative research tooling.\"\n  ],\n  \"PipelineStages\": [\n    \"Recruiter Screen\",\n    \"Design Portfolio Review\",\n    \"Panel Interview\",\n    \"Offer\"\n  ],\n  \"HiringTeam\": [\n    \"design.lead@example.com\",\n    \"product.director@example.com\",\n    \"ux.research@example.com\"\n  ],\n  \"ApplicationUrl\": \"https://careers.example.com/jobs/staff-product-designer\",\n  \"ClosingAtUtc\": \"2024-04-30T23:59:00Z\",\n  \"Status\": \"Published\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4665,6 +4665,66 @@
     {
       "key": "apiVersion",
       "value": "1.0",
+      "type": "string"
+    },
+    {
+      "key": "employeeId",
+      "value": "33333333-3333-3333-3333-333333333333",
+      "type": "string"
+    },
+    {
+      "key": "departmentId",
+      "value": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+      "type": "string"
+    },
+    {
+      "key": "attendanceRecordId",
+      "value": "44444444-4444-4444-4444-444444444444",
+      "type": "string"
+    },
+    {
+      "key": "id",
+      "value": "55555555-5555-5555-5555-555555555555",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "77777777-7777-7777-7777-777777777777",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "88888888-8888-8888-8888-888888888888",
+      "type": "string"
+    },
+    {
+      "key": "certificationId",
+      "value": "99999999-9999-9999-9999-999999999999",
+      "type": "string"
+    },
+    {
+      "key": "managerPositionId",
+      "value": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "type": "string"
+    },
+    {
+      "key": "reportPositionId",
+      "value": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "type": "string"
+    },
+    {
+      "key": "organizationUnitId",
+      "value": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "type": "string"
+    },
+    {
+      "key": "competencyCode",
+      "value": "LEADERSHIP",
+      "type": "string"
+    },
+    {
+      "key": "vacancyId",
+      "value": "dddddddd-dddd-dddd-dddd-dddddddddddd",
       "type": "string"
     }
   ]
