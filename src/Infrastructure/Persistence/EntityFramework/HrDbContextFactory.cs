@@ -52,16 +52,27 @@ public sealed class HrDbContextFactory : IDesignTimeDbContextFactory<HrDbContext
             optionsBuilder.EnableSensitiveDataLogging();
         }
 
+        var migrationsAssemblyName = typeof(HrDbContext).Assembly.GetName().Name;
+
         switch (databaseConfiguration.Provider)
         {
             case HrPlatformOptions.DataOptions.DatabaseOptions.Providers.SqlServer:
-                optionsBuilder.UseSqlServer(databaseConfiguration.ConnectionString);
+                optionsBuilder.UseSqlServer(
+                    databaseConfiguration.ConnectionString,
+                    sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssemblyName)
+                );
                 break;
             case HrPlatformOptions.DataOptions.DatabaseOptions.Providers.PostgreSql:
-                optionsBuilder.UseNpgsql(databaseConfiguration.ConnectionString);
+                optionsBuilder.UseNpgsql(
+                    databaseConfiguration.ConnectionString,
+                    npgsqlOptions => npgsqlOptions.MigrationsAssembly(migrationsAssemblyName)
+                );
                 break;
             case HrPlatformOptions.DataOptions.DatabaseOptions.Providers.Sqlite:
-                optionsBuilder.UseSqlite(databaseConfiguration.ConnectionString);
+                optionsBuilder.UseSqlite(
+                    databaseConfiguration.ConnectionString,
+                    sqliteOptions => sqliteOptions.MigrationsAssembly(migrationsAssemblyName)
+                );
                 break;
             default:
                 throw new NotSupportedException(
