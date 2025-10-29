@@ -1,3 +1,4 @@
+using System;
 using HR.Application.DTOs;
 using HR.Domain.Entities;
 
@@ -29,15 +30,15 @@ public static class SubscriptionMappings
 
         return new InvoiceDto(
             invoice.Id,
-            invoice.SubscriptionId,
+            invoice.SubscriptionId ?? Guid.Empty,
             invoice.AmountDue,
             invoice.Currency,
-            invoice.DueDate,
+            invoice.DueDate.ToDateTime(TimeOnly.MinValue),
             invoice.Status.ToString(),
             invoice.HostedInvoiceUrl?.ToString(),
             invoice.PdfUrl?.ToString(),
-            invoice.CreatedAtUtc,
-            invoice.PaidAtUtc);
+            invoice.CreatedAtUtc.UtcDateTime,
+            invoice.PaidAtUtc?.UtcDateTime);
     }
 
     public static UsageSummaryDto ToDto(this UsageRecord record)

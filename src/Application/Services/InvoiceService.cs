@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
@@ -19,15 +20,17 @@ public sealed class InvoiceService : IInvoiceService
         }
 
         var invoice = new Invoice(
-            Guid.NewGuid(),
-            subscriptionId,
-            amountDue,
-            currency,
-            dueDate,
-            InvoiceStatus.Pending,
-            hostedInvoiceUrl: null,
-            pdfUrl: null,
-            createdAtUtc: DateTime.UtcNow);
+            id: Guid.NewGuid(),
+            customerId: Guid.Empty,
+            subscriptionId: subscriptionId,
+            invoiceNumber: string.Empty,
+            currency: currency,
+            issueDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            dueDate: DateOnly.FromDateTime(dueDate.Date),
+            subtotal: amountDue,
+            taxTotal: 0m,
+            status: InvoiceStatus.Open,
+            createdAtUtc: DateTimeOffset.UtcNow);
 
         var bucket = _invoices.GetOrAdd(subscriptionId, _ => []);
 
@@ -70,7 +73,7 @@ public sealed class InvoiceService : IInvoiceService
                     continue;
                 }
 
-                invoice.MarkPaid(DateTime.UtcNow);
+                invoice.MarkPaid(DateTimeOffset.UtcNow);
                 return Task.FromResult(true);
             }
         }

@@ -5,8 +5,11 @@ namespace HR.Domain.Entities;
 /// </summary>
 public enum InvoiceStatus
 {
-    Pending,
-    Paid,
-    Failed,
-    PastDue
+    Draft = 0,
+    Open = 1,
+    PastDue = 2,
+    Paid = 3,
+    Failed = 4,
+    Void = 5,
+    Refunded = 6
 }

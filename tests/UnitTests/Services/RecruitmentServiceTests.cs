@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.DTOs;
 using HR.Application.Services;
@@ -157,8 +158,8 @@ public sealed class RecruitmentServiceTests
             Description = "Lead strategic initiatives",
             Responsibilities = new[] { " Build systems ", "build systems" },
             Requirements = new[] { "C#", ".NET" },
-            PipelineStages = new[] { "Applied", "Interview" },
-            HiringTeam = new[] { "Alice", "alice" },
+            PipelineStages = new List<string> { "Applied", "Interview" },
+            HiringTeam = new List<string> { "Alice", "alice" },
             ApplicationUrl = "https://example.com/jobs/123"
         };
 
@@ -200,10 +201,10 @@ public sealed class RecruitmentServiceTests
                     Location = "Remote",
                     EmploymentType = "Full-time",
                     Description = "Build",
-                    Responsibilities = new[] { "Code" },
-                    Requirements = new[] { "C#" },
-                    PipelineStages = new[] { "Applied", "Interview" },
-                    HiringTeam = new[] { "Alice" },
+                    Responsibilities = new List<string> { "Code" },
+                    Requirements = new List<string> { "C#" },
+                    PipelineStages = new List<string> { "Applied", "Interview" },
+                    HiringTeam = new List<string> { "Alice" },
                     PostedAtUtc = DateTime.UtcNow.AddDays(-10),
                     Status = "Open",
                     ApplicationUrl = "https://example.com"
@@ -216,10 +217,10 @@ public sealed class RecruitmentServiceTests
                     Location = "Hybrid",
                     EmploymentType = "Contract",
                     Description = "Design",
-                    Responsibilities = Array.Empty<string>(),
-                    Requirements = Array.Empty<string>(),
-                    PipelineStages = new[] { "Applied" },
-                    HiringTeam = new[] { "Bob" },
+                    Responsibilities = new List<string>(),
+                    Requirements = new List<string>(),
+                    PipelineStages = new List<string> { "Applied" },
+                    HiringTeam = new List<string> { "Bob" },
                     PostedAtUtc = DateTime.UtcNow.AddDays(-20),
                     ClosingAtUtc = DateTime.UtcNow.AddDays(-1),
                     Status = "Closed",
@@ -266,7 +267,7 @@ public sealed class RecruitmentServiceTests
                     ScheduledAtUtc = futureTime,
                     Duration = TimeSpan.FromMinutes(60),
                     Mode = "Remote",
-                    Interviewers = new[] { "Alice" },
+                    Interviewers = new List<string> { "Alice" },
                     Status = "Scheduled"
                 },
                 new()
@@ -278,7 +279,7 @@ public sealed class RecruitmentServiceTests
                     ScheduledAtUtc = DateTime.UtcNow.AddHours(-2),
                     Duration = TimeSpan.FromMinutes(30),
                     Mode = "Remote",
-                    Interviewers = new[] { "Bob" },
+                    Interviewers = new List<string> { "Bob" },
                     Status = "Cancelled"
                 }
             });
