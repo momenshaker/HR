@@ -1,5 +1,8 @@
 using HR.Domain.Entities;
 using HR.Infrastructure.Persistence.EntityFramework.Seeders;
+using HR.Infrastructure.Security.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR.Infrastructure.Persistence.EntityFramework;
@@ -7,7 +10,7 @@ namespace HR.Infrastructure.Persistence.EntityFramework;
 /// <summary>
 ///     Primary Entity Framework Core database context for the HR platform.
 /// </summary>
-public sealed class HrDbContext : DbContext
+public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="HrDbContext" /> class.
@@ -53,10 +56,10 @@ public sealed class HrDbContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrDbContext).Assembly);
 
         PlanCatalogSeeder.Seed(modelBuilder);
-
-        base.OnModelCreating(modelBuilder);
     }
 }

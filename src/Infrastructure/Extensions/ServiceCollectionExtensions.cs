@@ -8,6 +8,8 @@ using HR.Infrastructure.Persistence.EntityFramework;
 using HR.Infrastructure.Persistence.EntityFramework.Repositories;
 using HR.Infrastructure.Persistence.Repositories;
 using HR.Infrastructure.Security;
+using HR.Infrastructure.Security.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +54,8 @@ public static class ServiceCollectionExtensions
                 $"The configured repository provider '{repositoryProvider}' is not supported."
             );
         }
+
+        ConfigureIdentityServices(services);
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
@@ -160,6 +164,8 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterInMemoryRepositories(IServiceCollection services)
     {
+        services.AddDbContext<HrDbContext>(options => options.UseInMemoryDatabase("hr-platform-identity"));
+
         services.AddSingleton<IEmployeeRepository, InMemoryEmployeeRepository>();
         services.AddSingleton<IDepartmentRepository, InMemoryDepartmentRepository>();
         services.AddSingleton<IOrganizationUnitRepository, InMemoryOrganizationUnitRepository>();
@@ -182,5 +188,27 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IVacancyRepository, InMemoryVacancyRepository>();
         services.AddSingleton<IInterviewScheduleRepository, InMemoryInterviewScheduleRepository>();
         services.AddSingleton<ISelfServiceAccountRepository, InMemorySelfServiceAccountRepository>();
+    }
+
+    private static void ConfigureIdentityServices(IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+
+        var identityBuilder = services.AddIdentityCore<ApplicationUser>(options =>
+        {
+            options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedEmail = false;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequiredLength = 8;
+            options.Lockout.AllowedForNewUsers = true;
+        });
+
+        identityBuilder = identityBuilder.AddRoles<IdentityRole<Guid>>();
+        identityBuilder.AddEntityFrameworkStores<HrDbContext>();
+        identityBuilder.AddSignInManager();
+        identityBuilder.AddDefaultTokenProviders();
     }
 }
