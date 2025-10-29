@@ -23,6 +23,9 @@
 - Clarified attendance and time tracking narratives across platform configuration and API documentation to emphasise shift
   orchestration, time capture, entitlement policies, approval flows, and real-time balance reconciliation.
 
+### Fixed
+- Added an Entity Framework Core migration to provision ASP.NET Core Identity tables so seeded admin accounts can be created without runtime SQL errors.
+
 # [0.3.2] - 2025-02-28
 ### Added
 - Introduced strongly-typed database configuration options allowing connection strings to be resolved from the configuration root.
