@@ -26,8 +26,7 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.Property(invoice => invoice.Status)
             .IsRequired()
-            .HasMaxLength(50)
-            .HasDefaultValue("Pending");
+            .HasDefaultValue(InvoiceStatus.Draft);
 
         builder.Property(invoice => invoice.Notes)
             .HasMaxLength(1024);
