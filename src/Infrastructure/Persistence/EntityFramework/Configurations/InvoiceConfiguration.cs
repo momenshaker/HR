@@ -37,8 +37,7 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property(invoice => invoice.TaxTotal)
             .HasColumnType("decimal(18,2)");
 
-        builder.Property(invoice => invoice.Total)
-            .HasColumnType("decimal(18,2)");
+        builder.Ignore(invoice => invoice.Total);
 
         builder.Property(invoice => invoice.AmountPaid)
             .HasColumnType("decimal(18,2)");
