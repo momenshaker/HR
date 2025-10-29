@@ -13,6 +13,7 @@ using HR.Api.Validation;
 using HR.Infrastructure.Extensions;
 using HR.Infrastructure.Options;
 using HR.Infrastructure.Persistence.EntityFramework;
+using HR.Infrastructure.Security.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -196,6 +197,8 @@ await using (var scope = app.Services.CreateAsyncScope())
     {
         await dbContext.Database.MigrateAsync();
     }
+
+    await IdentitySeeder.SeedAsync(scope.ServiceProvider, CancellationToken.None);
 }
 
 var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
