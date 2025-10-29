@@ -17,6 +17,11 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "body": {
@@ -24,12 +29,13 @@
               "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "v{{apiVersion}}",
                 "auth",
                 "login"
               ]
@@ -74,12 +80,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/audit?page=0&pageSize=25",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/audit?page=0&pageSize=25",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "v{{apiVersion}}",
                 "audit"
               ],
               "query": [
@@ -126,6 +133,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -291,6 +303,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -455,6 +472,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -614,6 +636,11 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -660,6 +687,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -700,6 +732,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -864,6 +901,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -1085,6 +1127,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -1249,6 +1296,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -1291,6 +1343,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -1364,6 +1421,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -1581,6 +1643,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -1669,6 +1736,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -1889,6 +1961,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -2106,6 +2183,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -2189,6 +2271,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -2353,6 +2440,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -2545,6 +2637,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -2708,6 +2805,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -2904,6 +3006,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -3125,6 +3232,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -3288,6 +3400,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -3483,6 +3600,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -3749,6 +3871,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -3815,6 +3942,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -3855,6 +3987,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
@@ -4120,6 +4257,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -4244,6 +4386,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -4291,6 +4438,11 @@
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
                 "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "type": "text"
               }
             ],
             "url": {
@@ -4331,6 +4483,11 @@
               {
                 "key": "Authorization",
                 "value": "{{tokenType}} {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
                 "type": "text"
               }
             ],
