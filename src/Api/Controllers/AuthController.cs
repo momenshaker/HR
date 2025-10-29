@@ -1,13 +1,14 @@
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Linq;
 using HR.Api.Contracts;
 using HR.Api.Filters;
-using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using IAuthenticationService = HR.Application.Abstractions.Services.IAuthenticationService;
 
 namespace HR.Api.Controllers;
 
@@ -64,12 +65,15 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
     {
+        var claims = request.Claims?.ToDictionary(pair => pair.Key, pair => pair.Value)
+                     ?? new Dictionary<string, string>();
+
         var (result, userId) = await _authenticationService.RegisterUserAsync(
             request.Email,
             request.Password,
             request.CustomerId,
             request.Roles ?? Array.Empty<string>(),
-            request.Claims ?? new Dictionary<string, string>(),
+            claims,
             cancellationToken).ConfigureAwait(false);
 
         if (!result.Succeeded || userId is null)
@@ -293,8 +297,11 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddClaimsAsync(Guid userId, [FromBody] UpdateUserClaimsRequest request, CancellationToken cancellationToken)
     {
+        var claims = request.Claims?.ToDictionary(pair => pair.Key, pair => pair.Value)
+                     ?? new Dictionary<string, string>();
+
         var result = await _authenticationService
-            .AddClaimsAsync(userId, request.Claims, cancellationToken)
+            .AddClaimsAsync(userId, claims, cancellationToken)
             .ConfigureAwait(false);
 
         if (!result.Succeeded)
@@ -314,8 +321,11 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveClaimsAsync(Guid userId, [FromBody] UpdateUserClaimsRequest request, CancellationToken cancellationToken)
     {
+        var claims = request.Claims?.ToDictionary(pair => pair.Key, pair => pair.Value)
+                     ?? new Dictionary<string, string>();
+
         var result = await _authenticationService
-            .RemoveClaimsAsync(userId, request.Claims, cancellationToken)
+            .RemoveClaimsAsync(userId, claims, cancellationToken)
             .ConfigureAwait(false);
 
         if (!result.Succeeded)
