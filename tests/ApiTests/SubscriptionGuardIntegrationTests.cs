@@ -6,10 +6,12 @@ using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using static HR.Api.IntegrationTests.SubscriptionGuardIntegrationTests;
 
 namespace HR.Api.IntegrationTests;
 

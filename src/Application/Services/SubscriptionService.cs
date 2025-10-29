@@ -46,7 +46,6 @@ public sealed class SubscriptionService : ISubscriptionService
             SubscriptionStatus.Active,
             request.Seats,
             createdAt,
-            canceledAtUtc: null,
             renewsAt,
             request.Metadata,
             entitlementKeys);

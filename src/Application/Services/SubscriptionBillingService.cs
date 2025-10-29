@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using Microsoft.Extensions.Logging;

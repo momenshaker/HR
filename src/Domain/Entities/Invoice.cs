@@ -70,7 +70,7 @@ public sealed class Invoice
     public DateTimeOffset? PaidAtUtc { get; private set; }
 
     /// <summary>Convenience: paid calendar date (if paid).</summary>
-    public DateOnly? PaidDate => PaidAtUtc?.Date;
+    public DateOnly? PaidDate => DateOnly.FromDateTime(PaidAtUtc?.Date ?? DateTime.Now);
 
     /// <summary>Subtotal before taxes.</summary>
     public decimal Subtotal { get; private set; }

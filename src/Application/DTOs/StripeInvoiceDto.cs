@@ -13,16 +13,16 @@ public sealed record StripeInvoiceDto
     /// <summary>
     ///     Gets the identifier of the customer associated with the invoice.
     /// </summary>
-    public string? CustomerId { get; init; };
+    public string? CustomerId { get; init; }
 
     /// <summary>
     ///     Gets the total amount paid on the invoice, expressed in the smallest currency unit.
     /// </summary>
-    public long AmountPaid { get; init; };
+    public long AmountPaid { get; init; }
 
     /// <summary>
     ///     Gets the three-letter ISO currency code for the invoice.
     /// </summary>
-    public string? Currency { get; init; };
+    public string? Currency { get; init; }
 }
 
