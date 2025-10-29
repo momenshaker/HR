@@ -20,7 +20,8 @@ internal sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subsc
         builder.Property(subscription => subscription.Status)
             .IsRequired()
             .HasMaxLength(50)
-            .HasDefaultValue("Active");
+            .HasConversion<string>()
+            .HasDefaultValue(SubscriptionStatus.Active);
 
         builder.Property(subscription => subscription.BillingInterval)
             .IsRequired()
