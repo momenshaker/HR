@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for updating a training course.
 /// </summary>
-public sealed class UpdateTrainingCourseRequest
+public sealed class UpdateTrainingCourseRequest : IValidatableRequest
 {
     [Required]
     [MaxLength(200)]

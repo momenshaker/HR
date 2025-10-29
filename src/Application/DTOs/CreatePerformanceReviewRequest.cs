@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using HR.Application.Common.Validation;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating a performance review.
 /// </summary>
-public sealed class CreatePerformanceReviewRequest
+public sealed class CreatePerformanceReviewRequest : IValidatableRequest
 {
     [Required]
     public Guid EmployeeId { get; init; }

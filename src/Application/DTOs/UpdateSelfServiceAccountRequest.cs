@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming payload for updating a self-service account.
 /// </summary>
-public sealed class UpdateSelfServiceAccountRequest
+public sealed class UpdateSelfServiceAccountRequest : IValidatableRequest
 {
     [Required]
     [EmailAddress]

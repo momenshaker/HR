@@ -1,6 +1,8 @@
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using HR.Api.Filters;
 
 namespace HR.Api.Controllers;
 
@@ -8,7 +10,10 @@ namespace HR.Api.Controllers;
 ///     Exposes platform-wide configuration, including feature availability, for client discovery.
 /// </summary>
 [ApiController]
-[Route("api/platform/configuration")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/platform/configuration")]
+[Authorize(Roles = "Admin")]
+[AuditResource("PlatformConfiguration")]
 public sealed class PlatformConfigurationController(IPlatformConfigurationService configurationService) : ControllerBase
 {
     private readonly IPlatformConfigurationService _configurationService = configurationService;

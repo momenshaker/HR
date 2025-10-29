@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides endpoints for publishing and managing vacancies.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("Vacancy")]
 [FeatureRequirement(HrFeature.RecruitmentAndAts)]
 public sealed class VacanciesController(IRecruitmentService recruitmentService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class VacanciesController(IRecruitmentService recruitmentService) 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateVacancyRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var vacancy = await _recruitmentService.PublishVacancyAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = vacancy.Id }, vacancy);
@@ -65,10 +65,6 @@ public sealed class VacanciesController(IRecruitmentService recruitmentService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateVacancyRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updated = await _recruitmentService.UpdateVacancyAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updated is null ? NotFound() : Ok(updated);

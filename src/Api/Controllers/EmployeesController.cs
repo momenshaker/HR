@@ -2,6 +2,7 @@ using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for managing employee resources.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("Employee")]
 [FeatureRequirement(HrFeature.EmployeeManagement)]
 public sealed class EmployeesController(IEmployeeService employeeService) : ControllerBase
 {
@@ -44,14 +48,8 @@ public sealed class EmployeesController(IEmployeeService employeeService) : Cont
     /// </summary>
     [HttpGet("search")]
     [ProducesResponseType(typeof(PaginatedResponse<EmployeeDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SearchAsync([FromQuery] EmployeeSearchRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
-
         var result = await _employeeService.SearchAsync(request, cancellationToken).ConfigureAwait(false);
         return Ok(result);
     }
@@ -72,14 +70,8 @@ public sealed class EmployeesController(IEmployeeService employeeService) : Cont
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateEmployeeRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
-
         var createdEmployee = await _employeeService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
 
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdEmployee.Id }, createdEmployee);
@@ -90,15 +82,9 @@ public sealed class EmployeesController(IEmployeeService employeeService) : Cont
     /// </summary>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateEmployeeRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
-
         var updatedEmployee = await _employeeService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedEmployee is null ? NotFound() : Ok(updatedEmployee);
     }

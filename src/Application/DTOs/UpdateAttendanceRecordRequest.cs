@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for updating an attendance record.
 /// </summary>
-public sealed class UpdateAttendanceRecordRequest
+public sealed class UpdateAttendanceRecordRequest : IValidatableRequest
 {
     [Required]
     public Guid EmployeeId { get; init; }

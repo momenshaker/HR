@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for leave management operations.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("LeaveRequest")]
 [FeatureRequirement(HrFeature.LeaveManagement)]
 public sealed class LeaveRequestsController(ILeaveManagementService leaveService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class LeaveRequestsController(ILeaveManagementService leaveService
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateLeaveRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdLeave = await _leaveService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdLeave.Id }, createdLeave);
@@ -65,10 +65,6 @@ public sealed class LeaveRequestsController(ILeaveManagementService leaveService
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateLeaveRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedLeave = await _leaveService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedLeave is null ? NotFound() : Ok(updatedLeave);

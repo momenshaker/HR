@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating an employee.
 /// </summary>
-public sealed class CreateEmployeeRequest
+public sealed class CreateEmployeeRequest : IValidatableRequest
 {
     [Required]
     [MaxLength(100)]

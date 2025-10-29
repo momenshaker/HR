@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating an analytics snapshot.
 /// </summary>
-public sealed class CreateAnalyticsSnapshotRequest
+public sealed class CreateAnalyticsSnapshotRequest : IValidatableRequest
 {
     [Required]
     public DateTime CapturedAtUtc { get; init; }

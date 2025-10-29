@@ -15,7 +15,7 @@ public sealed class SystemControllerTests(WebApplicationFactory<Program> factory
     [Fact]
     public async Task Health_ReturnsHealthyStatus()
     {
-        var response = await _client.GetAsync("/api/health").ConfigureAwait(false);
+        var response = await _client.GetAsync("/api/v1/health").ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
         var payload = await response.Content.ReadFromJsonAsync<SystemHealthResponse>().ConfigureAwait(false);
@@ -28,7 +28,7 @@ public sealed class SystemControllerTests(WebApplicationFactory<Program> factory
     [Fact]
     public async Task Version_ReturnsAssemblyVersion()
     {
-        var response = await _client.GetAsync("/api/version").ConfigureAwait(false);
+        var response = await _client.GetAsync("/api/v1/version").ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
         var payload = await response.Content.ReadFromJsonAsync<SystemVersionResponse>().ConfigureAwait(false);

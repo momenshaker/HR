@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides collaborative hiring analytics endpoints.
 /// </summary>
 [ApiController]
-[Route("api/recruitment/insights")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("RecruitmentInsight")]
 [FeatureRequirement(HrFeature.RecruitmentAndAts)]
 public sealed class RecruitmentInsightsController(IRecruitmentService recruitmentService) : ControllerBase
 {

@@ -4,6 +4,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -11,7 +12,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for performance management operations.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("PerformanceReview")]
 [FeatureRequirement(HrFeature.PerformanceManagement)]
 [RequiresSubscriptionEntitlement(HrFeature.PerformanceManagement)]
 public sealed class PerformanceReviewsController(IPerformanceManagementService performanceService) : ControllerBase
@@ -49,10 +53,6 @@ public sealed class PerformanceReviewsController(IPerformanceManagementService p
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreatePerformanceReviewRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdReview = await _performanceService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdReview.Id }, createdReview);
@@ -67,10 +67,6 @@ public sealed class PerformanceReviewsController(IPerformanceManagementService p
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdatePerformanceReviewRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedReview = await _performanceService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedReview is null ? NotFound() : Ok(updatedReview);

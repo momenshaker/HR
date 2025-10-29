@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating a payroll run.
 /// </summary>
-public sealed class CreatePayrollRunRequest
+public sealed class CreatePayrollRunRequest : IValidatableRequest
 {
     [Required]
     public DateOnly PeriodStart { get; init; }

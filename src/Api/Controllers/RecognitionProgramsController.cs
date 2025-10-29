@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for employee recognition programmes.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("RecognitionProgram")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
 public sealed class RecognitionProgramsController(ICommunicationService communicationService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class RecognitionProgramsController(ICommunicationService communic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateRecognitionProgramRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdProgram = await _communicationService
             .CreateRecognitionProgramAsync(request, cancellationToken)
@@ -68,10 +68,6 @@ public sealed class RecognitionProgramsController(ICommunicationService communic
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateRecognitionProgramRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedProgram = await _communicationService
             .UpdateRecognitionProgramAsync(id, request, cancellationToken)

@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming payload for updating interview details.
 /// </summary>
-public sealed class UpdateInterviewScheduleRequest
+public sealed class UpdateInterviewScheduleRequest : IValidatableRequest
 {
     [Required]
     [MaxLength(100)]

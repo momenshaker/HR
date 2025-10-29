@@ -1,9 +1,10 @@
+using HR.Application.Validation;
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Request payload for creating a pulse survey.
 /// </summary>
-public sealed class CreatePulseSurveyRequest
+public sealed class CreatePulseSurveyRequest : IValidatableRequest
 {
     public string Title { get; init; } = string.Empty;
 

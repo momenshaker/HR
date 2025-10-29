@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -23,7 +24,10 @@ namespace HR.Api.Controllers;
 ///     Receives billing webhooks and dispatches to the underlying billing services.
 /// </summary>
 [ApiController]
-[Route("api/billing/webhooks")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/billing/webhooks")]
+[AllowAnonymous]
+[AuditResource("BillingWebhook")]
 [FeatureRequirement(HrFeature.PlatformServices)]
 public sealed class BillingWebhooksController : ControllerBase
 {

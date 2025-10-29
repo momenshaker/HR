@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating a leave request.
 /// </summary>
-public sealed class CreateLeaveRequest
+public sealed class CreateLeaveRequest : IValidatableRequest
 {
     [Required]
     public Guid EmployeeId { get; init; }

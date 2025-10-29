@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for managing organizational departments.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR")]
+[AuditResource("Department")]
 [FeatureRequirement(HrFeature.OrganizationStructure)]
 public sealed class DepartmentsController(IDepartmentService departmentService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdDepartment = await _departmentService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdDepartment.Id }, createdDepartment);
@@ -65,10 +65,6 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateDepartmentRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedDepartment = await _departmentService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedDepartment is null ? NotFound() : Ok(updatedDepartment);

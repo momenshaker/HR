@@ -1,9 +1,10 @@
+using HR.Application.Validation;
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Request payload for creating a recognition programme.
 /// </summary>
-public sealed class CreateRecognitionProgramRequest
+public sealed class CreateRecognitionProgramRequest : IValidatableRequest
 {
     public string Name { get; init; } = string.Empty;
 

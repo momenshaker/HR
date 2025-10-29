@@ -1,9 +1,10 @@
+using HR.Application.Validation;
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Request payload for creating an engagement campaign.
 /// </summary>
-public sealed class CreateEngagementCampaignRequest
+public sealed class CreateEngagementCampaignRequest : IValidatableRequest
 {
     public string Name { get; init; } = string.Empty;
 

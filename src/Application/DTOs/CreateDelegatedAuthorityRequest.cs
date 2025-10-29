@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating a delegated authority.
 /// </summary>
-public sealed class CreateDelegatedAuthorityRequest
+public sealed class CreateDelegatedAuthorityRequest : IValidatableRequest
 {
     public Guid? GrantorEmployeeId { get; init; }
 

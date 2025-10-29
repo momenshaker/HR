@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using HR.Application.Validation;
 
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Incoming request payload for creating a new organisation unit.
 /// </summary>
-public sealed class CreateOrganizationUnitRequest
+public sealed class CreateOrganizationUnitRequest : IValidatableRequest
 {
     [Required]
     [MaxLength(150)]

@@ -4,6 +4,7 @@ using HR.Application.Configuration;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -11,7 +12,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for training and development operations.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("TrainingCourse")]
 [FeatureRequirement(HrFeature.TrainingAndDevelopment)]
 public sealed class TrainingCoursesController(ITrainingService trainingService) : ControllerBase
 {
@@ -66,10 +70,6 @@ public sealed class TrainingCoursesController(ITrainingService trainingService) 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateTrainingCourseRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdCourse = await _trainingService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdCourse.Id }, createdCourse);
@@ -84,10 +84,6 @@ public sealed class TrainingCoursesController(ITrainingService trainingService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateTrainingCourseRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedCourse = await _trainingService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedCourse is null ? NotFound() : Ok(updatedCourse);
@@ -113,10 +109,6 @@ public sealed class TrainingCoursesController(ITrainingService trainingService) 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> EnrollAsync(Guid courseId, [FromBody] CreateCourseEnrollmentRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         if (request.CourseId != courseId)
         {
@@ -159,10 +151,6 @@ public sealed class TrainingCoursesController(ITrainingService trainingService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateEnrollmentProgressAsync(Guid enrollmentId, [FromBody] UpdateCourseEnrollmentProgressRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updated = await _trainingService.UpdateEnrollmentProgressAsync(enrollmentId, request, cancellationToken).ConfigureAwait(false);
         return updated is null ? NotFound() : Ok(updated);
@@ -199,10 +187,6 @@ public sealed class TrainingCoursesController(ITrainingService trainingService) 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> IssueCertificationAsync(Guid courseId, [FromBody] IssueCourseCertificationRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         if (request.CourseId != courseId)
         {
@@ -223,10 +207,6 @@ public sealed class TrainingCoursesController(ITrainingService trainingService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RevokeCertificationAsync(Guid certificationId, [FromBody] RevokeCourseCertificationRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var revoked = await _trainingService.RevokeCertificationAsync(certificationId, request, cancellationToken).ConfigureAwait(false);
         return revoked is null ? NotFound() : Ok(revoked);

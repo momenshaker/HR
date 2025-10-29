@@ -1,9 +1,10 @@
+using HR.Application.Validation;
 namespace HR.Application.DTOs;
 
 /// <summary>
 ///     Request payload for updating an existing subscription.
 /// </summary>
-public sealed class UpdateSubscriptionRequest
+public sealed class UpdateSubscriptionRequest : IValidatableRequest
 {
     public Guid? PlanId { get; set; }
 

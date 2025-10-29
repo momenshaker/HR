@@ -3,6 +3,7 @@ using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -10,7 +11,10 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for internal communications.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin,HR,Manager")]
+[AuditResource("Announcement")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
 public sealed class AnnouncementsController(ICommunicationService communicationService) : ControllerBase
 {
@@ -47,10 +51,6 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateAnnouncementRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var createdAnnouncement = await _communicationService.CreateAnnouncementAsync(request, cancellationToken).ConfigureAwait(false);
         return CreatedAtAction(nameof(GetByIdAsync), new { id = createdAnnouncement.Id }, createdAnnouncement);
@@ -65,10 +65,6 @@ public sealed class AnnouncementsController(ICommunicationService communicationS
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateAnnouncementRequest request, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(ModelState);
-        }
 
         var updatedAnnouncement = await _communicationService.UpdateAnnouncementAsync(id, request, cancellationToken).ConfigureAwait(false);
         return updatedAnnouncement is null ? NotFound() : Ok(updatedAnnouncement);
