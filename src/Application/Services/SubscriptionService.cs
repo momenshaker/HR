@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
 using HR.Application.DTOs;
@@ -31,24 +33,34 @@ public sealed class SubscriptionService : ISubscriptionService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var createdAt = DateTime.UtcNow;
-        var renewsAt = request.TrialPeriodDays.HasValue
-            ? createdAt.AddDays(request.TrialPeriodDays.Value)
-            : createdAt.AddMonths(1);
+        var createdAt = DateTimeOffset.UtcNow;
+        var startDate = DateOnly.FromDateTime(createdAt.UtcDateTime);
+        var renewalDate = request.TrialPeriodDays.HasValue
+            ? startDate.AddDays(request.TrialPeriodDays.Value)
+            : startDate.AddMonths(1);
 
         var entitlementKeys = Enum.GetValues<HrFeature>()
             .Where(feature => feature != HrFeature.PlatformServices)
             .Select(feature => feature.ToString());
 
         var subscription = new Subscription(
-            Guid.NewGuid(),
-            request.PlanId,
-            SubscriptionStatus.Active,
-            request.Seats,
-            createdAt,
-            renewsAt,
-            request.Metadata,
-            entitlementKeys);
+            id: Guid.NewGuid(),
+            customerId: Guid.Empty,
+            planId: request.PlanId,
+            planCode: string.Empty,
+            status: SubscriptionStatus.Active,
+            billingInterval: SubscriptionInterval.Monthly,
+            autoRenew: true,
+            seats: request.Seats,
+            startDate: startDate,
+            endDate: null,
+            renewalDate: renewalDate,
+            cancelledOn: null,
+            price: 0m,
+            currency: string.Empty,
+            createdAtUtc: createdAt,
+            metadata: request.Metadata,
+            entitledFeatures: entitlementKeys);
 
         if (!_subscriptions.TryAdd(subscription.Id, subscription))
         {
@@ -84,7 +96,8 @@ public sealed class SubscriptionService : ISubscriptionService
 
         if (request.RenewsAt.HasValue)
         {
-            subscription.UpdateRenewsAt(request.RenewsAt);
+            var renewal = DateOnly.FromDateTime(request.RenewsAt.Value.Date);
+            subscription.UpdateRenewalDate(renewal);
         }
 
         if (!string.IsNullOrWhiteSpace(request.Status) && Enum.TryParse<SubscriptionStatus>(request.Status, true, out var status))
@@ -102,7 +115,7 @@ public sealed class SubscriptionService : ISubscriptionService
             return Task.FromResult(false);
         }
 
-        subscription.Cancel(DateTime.UtcNow);
+        subscription.Cancel(DateOnly.FromDateTime(DateTime.UtcNow));
         return Task.FromResult(true);
     }
 

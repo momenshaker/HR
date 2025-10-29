@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using HR.Application.DTOs;
 using HR.Domain.Entities;
 
@@ -18,9 +19,9 @@ public static class SubscriptionMappings
             subscription.PlanId,
             subscription.Status.ToString(),
             subscription.Seats,
-            subscription.CreatedAtUtc,
-            subscription.CanceledAtUtc,
-            subscription.RenewsAtUtc,
+            subscription.CreatedAtUtc.UtcDateTime,
+            subscription.CancelledOn?.ToDateTime(TimeOnly.MinValue),
+            subscription.RenewalDate?.ToDateTime(TimeOnly.MinValue),
             subscription.Metadata.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));
     }
 
