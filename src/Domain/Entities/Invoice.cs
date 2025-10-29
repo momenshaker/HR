@@ -226,14 +226,3 @@ public sealed class Invoice
         value < 0 ? throw new ArgumentOutOfRangeException(nameof(value), "Value cannot be negative.") : value;
 }
 
-/// <summary>Lifecycle status for an invoice.</summary>
-public enum InvoiceStatus
-{
-    Draft = 0,
-    Open = 1,
-    PastDue = 2,
-    Paid = 3,
-    Failed = 4,
-    Void = 5,
-    Refunded = 6
-}
