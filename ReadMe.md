@@ -183,6 +183,22 @@ Role-based access (Admin, HR, Manager, Employee)
 
 JWT / Azure AD B2C authentication — tokens must include the `cust` claim representing the tenant/customer scope.
 
+### Development authentication
+
+For local testing (including Postman collections), request a JWT by calling:
+
+```
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@local.dev",
+  "password": "ChangeMe123!"
+}
+```
+
+The response contains a `Bearer` access token valid for 60 minutes. Attach it to subsequent requests using the `Authorization: Bearer {token}` header. The token already includes the required `cust` tenant claim.
+
 Data encryption (at rest + in transit)
 
 GDPR compliant data handling

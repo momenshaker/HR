@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -23,6 +24,13 @@ public sealed class AuthenticatedApiFactory : WebApplicationFactory<Program>
                 ["Jwt:Audience"] = Audience,
                 ["Jwt:Key"] = SigningKey,
                 ["Jwt:CustomerClaim"] = "cust",
+                ["Authentication:TokenLifetimeMinutes"] = "60",
+                ["Authentication:Users:0:Id"] = Guid.NewGuid().ToString(),
+                ["Authentication:Users:0:Email"] = "admin@tests.dev",
+                ["Authentication:Users:0:Password"] = "Password123!",
+                ["Authentication:Users:0:Roles:0"] = "Admin",
+                ["Authentication:Users:0:Roles:1"] = "HR",
+                ["Authentication:Users:0:CustomerId"] = "test-tenant",
                 ["RateLimit:RequestsPerWindow"] = "3",
                 ["RateLimit:WindowSeconds"] = "60",
                 ["Idempotency:WindowHours"] = "24"

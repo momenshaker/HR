@@ -7,6 +7,7 @@ using HR.Infrastructure.Options;
 using HR.Infrastructure.Persistence.EntityFramework;
 using HR.Infrastructure.Persistence.EntityFramework.Repositories;
 using HR.Infrastructure.Persistence.Repositories;
+using HR.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,7 @@ public static class ServiceCollectionExtensions
             );
         }
 
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IEmployeeSearchService, EmployeeService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
