@@ -11,6 +11,13 @@ public sealed class Subscription
     private readonly ConcurrentDictionary<string, string> _metadata;
     private IReadOnlyCollection<string> _entitledFeatures;
 
+    // EF Core parameterless constructor
+    private Subscription()
+    {
+        _metadata = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        _entitledFeatures = Array.Empty<string>();
+    }
+
     public Subscription(
         Guid id,
         Guid customerId,
@@ -29,6 +36,7 @@ public sealed class Subscription
         DateTimeOffset createdAtUtc,
         IEnumerable<KeyValuePair<string, string>>? metadata = null,
         IEnumerable<string>? entitledFeatures = null)
+        : this()
     {
         Id = id;
         CustomerId = customerId;
@@ -46,7 +54,6 @@ public sealed class Subscription
         Currency = currency ?? string.Empty;
         CreatedAtUtc = createdAtUtc;
 
-        _metadata = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (metadata is not null)
         {
             foreach (var pair in metadata)
