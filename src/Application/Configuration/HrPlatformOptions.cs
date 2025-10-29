@@ -37,6 +37,7 @@ public sealed class HrPlatformOptions
         public bool HrAnalytics { get; set; } = true;
         public bool DelegatedAuthority { get; set; } = true;
         public bool SelfService { get; set; } = true;
+        public bool PlatformServices { get; set; } = true;
 
         /// <summary>
         ///     Determines if a feature is enabled.
@@ -59,6 +60,7 @@ public sealed class HrPlatformOptions
                 HrFeature.HrAnalytics => HrAnalytics,
                 HrFeature.DelegatedAuthority => DelegatedAuthority,
                 HrFeature.SelfService => SelfService,
+                HrFeature.PlatformServices => PlatformServices,
                 _ => false
             };
         }
