@@ -3,23 +3,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HR.Infrastructure.Persistence.EntityFramework.Seeders;
 
-internal static class PlanCatalogSeeder
+public static class PlanCatalogSeeder
 {
-    internal const string StarterPlanCode = "starter";
-    internal const string ProfessionalPlanCode = "professional";
-    internal const string EnterprisePlanCode = "enterprise";
+    public const string StarterPlanCode = "starter";
+    public const string ProfessionalPlanCode = "professional";
+    public const string EnterprisePlanCode = "enterprise";
 
-    internal static readonly Guid StarterSeatEntitlementId = new("4cf0c924-9328-4c0a-9ec2-0a0cb0c0a63f");
-    internal static readonly Guid StarterStorageEntitlementId = new("c8a4742d-0275-4c9a-a2ba-c8dfd6de45ad");
-    internal static readonly Guid ProfessionalSeatEntitlementId = new("b166d8de-9a48-45d4-81a5-07fdfb5b467b");
-    internal static readonly Guid ProfessionalAutomationEntitlementId = new("3ea77932-f7fa-4df7-b362-5d8b9aafef7f");
-    internal static readonly Guid EnterpriseSeatEntitlementId = new("9ec8325a-463e-4c1d-9fb3-0bd83c48ebb2");
-    internal static readonly Guid EnterpriseSuccessEntitlementId = new("b2b9376d-9866-4fd9-a012-39c0fd305aa3");
+    public static readonly Guid StarterSeatEntitlementId = new("4cf0c924-9328-4c0a-9ec2-0a0cb0c0a63f");
+    public static readonly Guid StarterStorageEntitlementId = new("c8a4742d-0275-4c9a-a2ba-c8dfd6de45ad");
+    public static readonly Guid ProfessionalSeatEntitlementId = new("b166d8de-9a48-45d4-81a5-07fdfb5b467b");
+    public static readonly Guid ProfessionalAutomationEntitlementId = new("3ea77932-f7fa-4df7-b362-5d8b9aafef7f");
+    public static readonly Guid EnterpriseSeatEntitlementId = new("9ec8325a-463e-4c1d-9fb3-0bd83c48ebb2");
+    public static readonly Guid EnterpriseSuccessEntitlementId = new("b2b9376d-9866-4fd9-a012-39c0fd305aa3");
 
     private static readonly DateOnly CatalogEffectiveFrom = new(2025, 1, 1);
     private static readonly DateTimeOffset CatalogCreatedAtUtc = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-    internal static void Seed(ModelBuilder modelBuilder)
+    public static void Seed(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
