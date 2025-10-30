@@ -1,3 +1,5 @@
+using System;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -5,9 +7,17 @@ namespace HR.Domain.Entities;
 /// </summary>
 public sealed class EmployeeDepartment
 {
-    public Guid EmployeeId { get; init; }
+    public EmployeeDepartment(Guid employeeId, Guid departmentId)
+    {
+        EmployeeId = employeeId;
+        DepartmentId = departmentId;
+    }
 
-    public Guid DepartmentId { get; init; }
+    public Guid EmployeeId { get; }
 
-    public bool IsPrimary { get; init; }
+    public Guid DepartmentId { get; }
+
+    public Employee? Employee { get; private set; }
+
+    public Department? Department { get; private set; }
 }
