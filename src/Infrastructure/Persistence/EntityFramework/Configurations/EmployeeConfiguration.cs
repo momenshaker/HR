@@ -1,11 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using HR.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HR.Infrastructure.Persistence.EntityFramework.Configurations;
 
@@ -33,9 +28,6 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(employee => employee.JobTitle)
             .HasMaxLength(150);
 
-        builder.Property(employee => employee.DepartmentId)
-            .IsRequired();
-
         builder.Property(employee => employee.EmploymentStartDate)
             .HasColumnType("date");
 
@@ -44,43 +36,6 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.Property(employee => employee.DateOfBirth)
             .HasColumnType("date");
-
-        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-
-        var secondaryDepartmentIdsComparer = new ValueComparer<IReadOnlyCollection<Guid>>(
-            (left, right) => (left ?? Array.Empty<Guid>()).SequenceEqual(right ?? Array.Empty<Guid>()),
-            collection => (collection ?? Array.Empty<Guid>()).Aggregate(0, (accumulator, guid) => HashCode.Combine(accumulator, guid.GetHashCode())),
-            collection => (collection ?? Array.Empty<Guid>()).ToArray());
-
-        var secondaryDepartmentIdsConverter = new ValueConverter<IReadOnlyCollection<Guid>, string>(
-            ids => JsonSerializer.Serialize(ids ?? Array.Empty<Guid>(), jsonOptions),
-            json => string.IsNullOrWhiteSpace(json)
-                ? Array.Empty<Guid>()
-                : JsonSerializer.Deserialize<List<Guid>>(json, jsonOptions) ?? new List<Guid>());
-
-        builder.ComplexProperty(employee => employee.DepartmentAlignment, alignment =>
-        {
-            alignment.Property(department => department.PrimaryDepartmentId)
-                .HasColumnName("DepartmentAlignmentPrimaryDepartmentId")
-                .IsRequired();
-
-            var secondaryDepartmentsProperty = alignment.Property(department => department.SecondaryDepartmentIds)
-                .HasColumnName("DepartmentAlignmentSecondaryDepartmentIds")
-                .HasConversion(secondaryDepartmentIdsConverter);
-
-            secondaryDepartmentsProperty.Metadata.SetValueComparer(secondaryDepartmentIdsComparer);
-
-            alignment.Property(department => department.ReportingDepartmentId)
-                .HasColumnName("DepartmentAlignmentReportingDepartmentId");
-
-            alignment.Property(department => department.CostCenter)
-                .HasColumnName("DepartmentAlignmentCostCenter")
-                .HasMaxLength(100);
-
-            alignment.Property(department => department.BusinessUnit)
-                .HasColumnName("DepartmentAlignmentBusinessUnit")
-                .HasMaxLength(150);
-        });
 
         builder.ComplexProperty(employee => employee.JobArchitecture, architecture =>
         {
@@ -105,6 +60,15 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
                 .HasMaxLength(150);
         });
 
+        builder.HasMany(employee => employee.Departments)
+            .WithOne()
+            .HasForeignKey(department => department.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(employee => employee.Departments).AutoInclude();
+
         builder.Ignore(employee => employee.FullName);
+        builder.Ignore(employee => employee.DepartmentIds);
+        builder.Ignore(employee => employee.PrimaryDepartmentId);
     }
 }

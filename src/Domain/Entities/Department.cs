@@ -11,6 +11,8 @@ public sealed class Department
 
     public string Code { get; init; } = string.Empty;
 
+    public Guid OrganizationId { get; init; }
+
     public Guid? ParentDepartmentId { get; init; }
 
     public Guid? ManagerId { get; init; }

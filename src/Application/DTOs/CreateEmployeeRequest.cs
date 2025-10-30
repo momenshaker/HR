@@ -21,9 +21,6 @@ public sealed class CreateEmployeeRequest : IValidatableRequest
     public string Email { get; init; } = string.Empty;
 
     [Required]
-    public Guid DepartmentId { get; init; }
-
-    [Required]
     public DateOnly EmploymentStartDate { get; init; }
 
     [MaxLength(150)]
@@ -33,7 +30,8 @@ public sealed class CreateEmployeeRequest : IValidatableRequest
 
     public DateOnly? DateOfBirth { get; init; }
 
-    public EmployeeDepartmentAlignmentRequest? DepartmentAlignment { get; init; }
+    [Required]
+    public EmployeeDepartmentAssignmentRequest DepartmentAssignment { get; init; } = new();
 
     public EmployeeJobArchitectureRequest? JobArchitecture { get; init; }
 

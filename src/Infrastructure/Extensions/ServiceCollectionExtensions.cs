@@ -61,6 +61,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IEmployeeSearchService, EmployeeService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
         services.AddScoped<IPositionService, PositionService>();
         services.AddScoped<IReportingRelationshipService, ReportingRelationshipService>();
@@ -140,6 +141,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IEmployeeRepository, EntityFrameworkEmployeeRepository>();
         services.AddScoped<IDepartmentRepository, EntityFrameworkDepartmentRepository>();
+        services.AddScoped<IOrganizationRepository, EntityFrameworkOrganizationRepository>();
         services.AddScoped<IOrganizationUnitRepository, EntityFrameworkOrganizationUnitRepository>();
         services.AddScoped<IPositionRepository, EntityFrameworkPositionRepository>();
         services.AddScoped<IReportingRelationshipRepository, EntityFrameworkReportingRelationshipRepository>();
@@ -168,6 +170,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IEmployeeRepository, InMemoryEmployeeRepository>();
         services.AddSingleton<IDepartmentRepository, InMemoryDepartmentRepository>();
+        services.AddSingleton<IOrganizationRepository, InMemoryOrganizationRepository>();
         services.AddSingleton<IOrganizationUnitRepository, InMemoryOrganizationUnitRepository>();
         services.AddSingleton<IPositionRepository, InMemoryPositionRepository>();
         services.AddSingleton<IReportingRelationshipRepository, InMemoryReportingRelationshipRepository>();

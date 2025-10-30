@@ -25,6 +25,7 @@ public sealed class DepartmentServiceTests
         {
             Name = " People Ops ",
             Code = "hr",
+            OrganizationId = Guid.NewGuid(),
             Branch = "HQ",
             Location = "Cairo"
         };
@@ -43,6 +44,7 @@ public sealed class DepartmentServiceTests
         Assert.NotNull(persisted);
         Assert.Equal("People Ops", persisted!.Name);
         Assert.Equal("HR", persisted.Code);
+        Assert.Equal(request.OrganizationId, persisted.OrganizationId);
         Assert.Equal(persisted.Id, result.Id);
     }
 
@@ -53,7 +55,8 @@ public sealed class DepartmentServiceTests
         var request = new UpdateDepartmentRequest
         {
             Name = "Operations",
-            Code = "OPS"
+            Code = "OPS",
+            OrganizationId = Guid.NewGuid()
         };
 
         _repositoryMock

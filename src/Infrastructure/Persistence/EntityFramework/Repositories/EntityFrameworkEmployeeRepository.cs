@@ -1,5 +1,6 @@
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR.Infrastructure.Persistence.EntityFramework.Repositories;
 
@@ -12,12 +13,22 @@ internal sealed class EntityFrameworkEmployeeRepository : EntityFrameworkReposit
 
     public async Task<IReadOnlyCollection<Employee>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await GetAllInternalAsync(cancellationToken).ConfigureAwait(false);
+        return await DbContext.Employees
+            .AsNoTracking()
+            .Include(employee => employee.Departments)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task<Employee?> GetByIdAsync(Guid employeeId, CancellationToken cancellationToken = default)
+    public async Task<Employee?> GetByIdAsync(Guid employeeId, CancellationToken cancellationToken = default)
     {
-        return GetByIdInternalAsync(employeeId, cancellationToken);
+        var employee = await DbContext.Employees
+            .AsNoTracking()
+            .Include(entity => entity.Departments)
+            .FirstOrDefaultAsync(entity => entity.Id == employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return employee;
     }
 
     public Task<Employee> AddAsync(Employee employee, CancellationToken cancellationToken = default)

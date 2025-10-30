@@ -9,11 +9,11 @@ public sealed record EmployeeDto(
     string LastName,
     string Email,
     string JobTitle,
-    Guid DepartmentId,
+    Guid PrimaryDepartmentId,
+    IReadOnlyCollection<Guid> DepartmentIds,
     DateOnly EmploymentStartDate,
     DateOnly? EmploymentEndDate,
     DateOnly? DateOfBirth,
     EmployeeJobArchitectureDto JobArchitecture,
-    EmployeeDepartmentAlignmentDto DepartmentAlignment,
     IReadOnlyCollection<EmploymentContractDto> Contracts,
     IReadOnlyCollection<EmployeeComplianceDocumentDto> ComplianceDocuments);
