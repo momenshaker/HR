@@ -77,7 +77,7 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
 
         if (request.DepartmentId.HasValue)
         {
-            filteredEmployees = filteredEmployees.Where(employee => employee.DepartmentId == request.DepartmentId.Value);
+            filteredEmployees = filteredEmployees.Where(employee => employee.DepartmentIds.Contains(request.DepartmentId.Value));
         }
 
         if (!string.IsNullOrWhiteSpace(request.JobTitle))
@@ -187,11 +187,12 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
 
         var departmentLookup = departments.ToDictionary(department => department.Id, department => department.Name);
         var employeesPerDepartment = employees
-            .GroupBy(employee => employee.DepartmentId)
+            .SelectMany(employee => employee.DepartmentIds.Select(departmentId => (employee.Id, departmentId)))
+            .GroupBy(item => item.departmentId)
             .ToDictionary(group => group.Key, group => group.Count());
 
         var departmentHeadcounts = activeEmployees
-            .GroupBy(employee => employee.DepartmentId)
+            .GroupBy(employee => employee.PrimaryDepartmentId)
             .Select(group =>
             {
                 var departmentName = departmentLookup.TryGetValue(group.Key, out var name)

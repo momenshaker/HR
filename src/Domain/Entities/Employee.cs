@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -15,8 +18,6 @@ public sealed class Employee
 
     public DateOnly? DateOfBirth { get; init; }
 
-    public Guid DepartmentId { get; init; }
-
     public DateOnly EmploymentStartDate { get; init; }
 
     public DateOnly? EmploymentEndDate { get; init; }
@@ -24,9 +25,9 @@ public sealed class Employee
     public string JobTitle { get; init; } = string.Empty;
 
     /// <summary>
-    ///     Captures how the employee aligns to departments, business units, and cost centres.
+    ///     Represents the departments the employee belongs to along with their primary assignment.
     /// </summary>
-    public EmployeeDepartmentAlignment DepartmentAlignment { get; init; } = EmployeeDepartmentAlignment.Empty;
+    public ICollection<EmployeeDepartment> Departments { get; init; } = new List<EmployeeDepartment>();
 
     /// <summary>
     ///     Captures the job architecture metadata for the employee.
@@ -42,6 +43,31 @@ public sealed class Employee
     ///     Holds the compliance artefacts associated with the employee record.
     /// </summary>
     public IReadOnlyCollection<EmployeeComplianceDocument> ComplianceDocuments { get; init; } = Array.Empty<EmployeeComplianceDocument>();
+
+    /// <summary>
+    ///     Returns the identifier of the employee's primary department.
+    /// </summary>
+    public Guid PrimaryDepartmentId
+    {
+        get
+        {
+            var primaryDepartment = Departments.FirstOrDefault(department => department.IsPrimary);
+            if (primaryDepartment is not null)
+            {
+                return primaryDepartment.DepartmentId;
+            }
+
+            return Departments.FirstOrDefault()?.DepartmentId ?? Guid.Empty;
+        }
+    }
+
+    /// <summary>
+    ///     Returns a distinct collection of departments the employee belongs to.
+    /// </summary>
+    public IReadOnlyCollection<Guid> DepartmentIds => Departments
+        .Select(department => department.DepartmentId)
+        .Distinct()
+        .ToArray();
 
     /// <summary>
     ///     Returns the employee's full name for display purposes.

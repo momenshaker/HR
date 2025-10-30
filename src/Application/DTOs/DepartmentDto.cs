@@ -7,6 +7,7 @@ public sealed record DepartmentDto(
     Guid Id,
     string Name,
     string Code,
+    Guid OrganizationId,
     Guid? ParentDepartmentId,
     Guid? ManagerId,
     string Branch,

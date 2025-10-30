@@ -16,6 +16,9 @@ public sealed class UpdateDepartmentRequest : IValidatableRequest
     [MaxLength(20)]
     public string Code { get; init; } = string.Empty;
 
+    [Required]
+    public Guid OrganizationId { get; init; }
+
     public Guid? ParentDepartmentId { get; init; }
 
     public Guid? ManagerId { get; init; }

@@ -436,6 +436,163 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 b.ToTable("Invoices");
             });
 
+            modelBuilder.Entity("HR.Domain.Entities.Organization", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(1024)
+                    .HasColumnType("nvarchar(1024)");
+
+                b.Property<bool>("IsActive")
+                    .HasColumnType("bit")
+                    .HasDefaultValue(true);
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("Code")
+                    .IsUnique();
+
+                b.ToTable("Organizations");
+            });
+
+            modelBuilder.Entity("HR.Domain.Entities.Department", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("Branch")
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(1024)
+                    .HasColumnType("nvarchar(1024)");
+
+                b.Property<bool>("IsActive")
+                    .HasColumnType("bit")
+                    .HasDefaultValue(true);
+
+                b.Property<string>("Location")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<Guid?>("ManagerId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<Guid>("OrganizationId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<Guid?>("ParentDepartmentId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.HasKey("Id");
+
+                b.HasIndex("OrganizationId", "Code")
+                    .IsUnique();
+
+                b.HasIndex("ParentDepartmentId");
+
+                b.ToTable("Departments");
+            });
+
+            modelBuilder.Entity("HR.Domain.Entities.Employee", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<DateOnly?>("DateOfBirth")
+                    .HasColumnType("date");
+
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                b.Property<DateOnly?>("EmploymentEndDate")
+                    .HasColumnType("date");
+
+                b.Property<DateOnly>("EmploymentStartDate")
+                    .HasColumnType("date");
+
+                b.Property<string>("FirstName")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<string>("JobArchitectureCareerTrack")
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
+
+                b.Property<string>("JobArchitectureJobCode")
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<string>("JobArchitectureJobFamily")
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
+
+                b.Property<string>("JobArchitectureJobFunction")
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
+
+                b.Property<string>("JobArchitectureJobLevel")
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<string>("JobTitle")
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
+
+                b.Property<string>("LastName")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.HasKey("Id");
+
+                b.ToTable("Employees");
+            });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeDepartment", b =>
+            {
+                b.Property<Guid>("EmployeeId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<Guid>("DepartmentId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsPrimary")
+                    .HasColumnType("bit");
+
+                b.HasKey("EmployeeId", "DepartmentId");
+
+                b.HasIndex("DepartmentId");
+
+                b.ToTable("EmployeeDepartments");
+            });
+
             modelBuilder.Entity("HR.Domain.Entities.Subscription", b =>
             {
                 b.Property<Guid>("Id")
@@ -621,6 +778,35 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     .IsRequired();
 
                 b.ToTable("UsageCounters");
+            });
+
+            modelBuilder.Entity("HR.Domain.Entities.Department", b =>
+            {
+                b.HasOne("HR.Domain.Entities.Organization", null)
+                    .WithMany()
+                    .HasForeignKey("OrganizationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("HR.Domain.Entities.Department", null)
+                    .WithMany()
+                    .HasForeignKey("ParentDepartmentId")
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeDepartment", b =>
+            {
+                b.HasOne("HR.Domain.Entities.Department", null)
+                    .WithMany()
+                    .HasForeignKey("DepartmentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("HR.Domain.Entities.Employee", null)
+                    .WithMany()
+                    .HasForeignKey("EmployeeId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
             });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<Guid>", b =>
