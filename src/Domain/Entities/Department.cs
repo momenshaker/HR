@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -5,26 +8,51 @@ namespace HR.Domain.Entities;
 /// </summary>
 public sealed class Department
 {
-    public Guid Id { get; init; }
+    public Department(
+        Guid id,
+        Guid organizationId,
+        string name,
+        string path,
+        int level,
+        DateTime createdAtUtc,
+        bool isActive = true,
+        Guid? parentDepartmentId = null,
+        string? code = null)
+    {
+        Id = id;
+        OrganizationId = organizationId;
+        Name = name;
+        Path = path;
+        Level = level;
+        CreatedAtUtc = createdAtUtc;
+        IsActive = isActive;
+        ParentDepartmentId = parentDepartmentId;
+        Code = code;
+    }
 
-    public string Name { get; init; } = string.Empty;
+    public Guid Id { get; }
 
-    public string Code { get; init; } = string.Empty;
+    public Guid OrganizationId { get; }
 
-    public Guid OrganizationId { get; init; }
+    public Guid? ParentDepartmentId { get; }
 
-    public Guid? ParentDepartmentId { get; init; }
+    public string Name { get; }
 
-    public Guid? ManagerId { get; init; }
+    public string? Code { get; }
 
-    public string Branch { get; init; } = string.Empty;
+    public string Path { get; }
 
-    public string Location { get; init; } = string.Empty;
+    public int Level { get; }
 
-    public string Description { get; init; } = string.Empty;
+    public DateTime CreatedAtUtc { get; }
 
-    /// <summary>
-    ///     Indicates whether the department is currently active.
-    /// </summary>
-    public bool IsActive { get; init; } = true;
+    public bool IsActive { get; private set; }
+
+    public Organization? Organization { get; private set; }
+
+    public Department? Parent { get; private set; }
+
+    public ICollection<Department> Children { get; } = new List<Department>();
+
+    public ICollection<EmployeeDepartment> EmployeeDepartments { get; } = new List<EmployeeDepartment>();
 }

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -5,13 +8,21 @@ namespace HR.Domain.Entities;
 /// </summary>
 public sealed class Organization
 {
-    public Guid Id { get; init; }
+    public Organization(Guid id, string name, DateTime createdAtUtc, bool isActive = true)
+    {
+        Id = id;
+        Name = name;
+        CreatedAtUtc = createdAtUtc;
+        IsActive = isActive;
+    }
 
-    public string Name { get; init; } = string.Empty;
+    public Guid Id { get; }
 
-    public string Code { get; init; } = string.Empty;
+    public string Name { get; }
 
-    public string Description { get; init; } = string.Empty;
+    public DateTime CreatedAtUtc { get; }
 
-    public bool IsActive { get; init; } = true;
+    public bool IsActive { get; private set; }
+
+    public ICollection<Department> Departments { get; } = new List<Department>();
 }
