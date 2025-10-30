@@ -25,6 +25,8 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .IsRequired()
             .HasMaxLength(256);
 
+        builder.HasIndex(employee => employee.Email).IsUnique();
+
         builder.Property(employee => employee.JobTitle)
             .HasMaxLength(150);
 
@@ -61,7 +63,7 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         });
 
         builder.HasMany(employee => employee.Departments)
-            .WithOne()
+            .WithOne(employeeDepartment => employeeDepartment.Employee)
             .HasForeignKey(department => department.EmployeeId)
             .OnDelete(DeleteBehavior.Cascade);
 
