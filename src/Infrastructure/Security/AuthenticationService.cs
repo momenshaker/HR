@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
+using HR.Infrastructure.Persistence.EntityFramework;
+using System.Security.Cryptography;
 
 namespace HR.Infrastructure.Security;
 
@@ -25,6 +27,8 @@ public sealed class AuthenticationService : IAuthenticationService
     private readonly JwtSecurityTokenHandler _tokenHandler;
     private readonly TimeProvider _timeProvider;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly HrDbContext _dbContext;
+    private readonly IJwtTokenService _jwtTokenService;
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
@@ -32,7 +36,9 @@ public sealed class AuthenticationService : IAuthenticationService
         RoleManager<IdentityRole<Guid>> roleManager,
         IOptionsMonitor<AuthenticationOptions> authenticationOptions,
         IOptionsMonitor<JwtOptions> jwtOptions,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        HrDbContext dbContext,
+        IJwtTokenService jwtTokenService)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -41,19 +47,23 @@ public sealed class AuthenticationService : IAuthenticationService
         _jwtOptions = jwtOptions ?? throw new ArgumentNullException(nameof(jwtOptions));
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         _tokenHandler = new JwtSecurityTokenHandler();
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _jwtTokenService = jwtTokenService ?? throw new ArgumentNullException(nameof(jwtTokenService));
     }
 
     /// <inheritdoc />
-    public async Task<AuthenticationResult?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<AuthenticationResult?> AuthenticateAsync(string emailOrUsername, string password, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(emailOrUsername) || string.IsNullOrWhiteSpace(password))
         {
             return null;
         }
 
-        var user = await _userManager.FindByEmailAsync(email.Trim()).ConfigureAwait(false);
+        var trimmed = emailOrUsername.Trim();
+        var user = await _userManager.FindByEmailAsync(trimmed).ConfigureAwait(false)
+                   ?? await _userManager.FindByNameAsync(trimmed).ConfigureAwait(false);
         if (user is null)
         {
             return null;
@@ -74,27 +84,26 @@ public sealed class AuthenticationService : IAuthenticationService
         }
 
         var now = _timeProvider.GetUtcNow();
-        var expires = now.AddMinutes(_authenticationOptions.CurrentValue.TokenLifetimeMinutes);
+        var expires = now.AddMinutes(jwtOptions.AccessTokenMinutes);
 
         var claims = await BuildClaimsAsync(user, jwtOptions.CustomerClaim, cancellationToken).ConfigureAwait(false);
-        var signingCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
-            SecurityAlgorithms.HmacSha256);
+        var accessToken = _jwtTokenService.CreateAccessToken(claims);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
+        // Create refresh token and persist
+        var (refreshToken, refreshExpires) = _jwtTokenService.CreateRefreshToken();
+        var tokenHash = HashToken(refreshToken);
+
+        var entity = new UserRefreshToken
         {
-            Issuer = jwtOptions.Issuer,
-            Audience = jwtOptions.Audience,
-            Subject = new ClaimsIdentity(claims),
-            NotBefore = now.UtcDateTime,
-            Expires = expires.UtcDateTime,
-            SigningCredentials = signingCredentials
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            ExpiresAtUtc = refreshExpires
         };
+        _dbContext.UserRefreshTokens.Add(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        var securityToken = _tokenHandler.CreateToken(tokenDescriptor);
-        var accessToken = _tokenHandler.WriteToken(securityToken);
-
-        return new AuthenticationResult(accessToken, expires - now, "Bearer", null);
+        return new AuthenticationResult(accessToken, expires - now, "Bearer", refreshToken);
     }
 
     /// <inheritdoc />
@@ -416,6 +425,12 @@ public sealed class AuthenticationService : IAuthenticationService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
+        if (user.EmployeeId.HasValue)
+        {
+            var employeeClaimName = _jwtOptions.CurrentValue.EmployeeIdClaim;
+            claims.Add(new Claim(employeeClaimName, user.EmployeeId.Value.ToString()));
+        }
+
         var userClaims = await _userManager.GetClaimsAsync(user).ConfigureAwait(false);
         claims.AddRange(userClaims);
 
@@ -437,5 +452,13 @@ public sealed class AuthenticationService : IAuthenticationService
             Code = "user_not_found",
             Description = $"User '{userId}' was not found."
         };
+    }
+
+    private static string HashToken(string token)
+    {
+        using var sha256 = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(token);
+        var hash = sha256.ComputeHash(bytes);
+        return Convert.ToBase64String(hash);
     }
 }

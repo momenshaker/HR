@@ -25,5 +25,20 @@ public sealed class JwtOptions
     /// </summary>
     public string CustomerClaim { get; set; } = "cust";
 
+    /// <summary>
+    ///     The claim name that carries the Employee identifier in JWTs.
+    /// </summary>
+    public string EmployeeIdClaim { get; set; } = "employee_id";
+
+    /// <summary>
+    ///     Access token lifetime in minutes.
+    /// </summary>
+    public int AccessTokenMinutes { get; set; } = 15;
+
+    /// <summary>
+    ///     Refresh token lifetime in days.
+    /// </summary>
+    public int RefreshTokenDays { get; set; } = 30;
+
     public const string SectionName = "JWT";
 }

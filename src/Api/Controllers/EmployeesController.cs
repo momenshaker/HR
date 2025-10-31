@@ -2,6 +2,7 @@ using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
@@ -67,6 +68,7 @@ public sealed class EmployeesController(
     ///     Retrieves an employee by identifier.
     /// </summary>
     [HttpGet("{id:guid}")]
+    [Authorize(Policy = "EmployeeSelf")]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -82,6 +84,7 @@ public sealed class EmployeesController(
     ///     Updates an existing employee record.
     /// </summary>
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = "EmployeeSelf")]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]

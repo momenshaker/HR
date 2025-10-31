@@ -8,6 +8,7 @@ using HR.Api.Contracts;
 using HR.Api.Filters;
 using HR.Api.Idempotency;
 using HR.Api.Middleware;
+using HR.Api.Authorization;
 using HR.Api.Swagger;
 using HR.Api.Validation;
 using HR.Infrastructure.Extensions;
@@ -36,6 +37,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IIdempotencyStore, InMemoryIdempotencyStore>();
 builder.Services.AddScoped<AuditLoggingFilter>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -107,7 +109,13 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+    options.AddPolicy("OrgGuard", policy => policy.AddRequirements(new OrgGuardRequirement()));
+    options.AddPolicy("EmployeeSelf", policy => policy.AddRequirements(new EmployeeSelfRequirement()));
+    options.AddPolicy("OrgScoped", policy => policy.AddRequirements(new OrgScopedRequirement()));
 });
+builder.Services.AddSingleton<IAuthorizationHandler, OrgGuardHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, EmployeeSelfHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, OrgScopedHandler>();
 
 builder.Services.AddCors(options =>
 {
@@ -121,6 +129,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers(options =>
     {
         options.Filters.Add(new AuthorizeFilter());
+        options.Filters.Add(new AuthorizeFilter("OrgGuard"));
         options.Filters.AddService<AuditLoggingFilter>();
         options.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResponse), StatusCodes.Status401Unauthorized));
         options.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResponse), StatusCodes.Status403Forbidden));
@@ -225,6 +234,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+    if (response.StatusCode == StatusCodes.Status404NotFound && !response.HasStarted)
+    {
+        var payload = new ErrorResponse("not_found", "The requested resource was not found.", context.HttpContext.TraceIdentifier);
+        response.ContentType = "application/json";
+        await response.WriteAsJsonAsync(payload);
+    }
+});
 app.UseRateLimiter();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");

@@ -22,5 +22,9 @@ internal sealed class TimesheetEntryConfiguration : IEntityTypeConfiguration<Tim
             .WithMany()
             .HasForeignKey(x => x.DepartmentId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Common analytics filters: date range and department
+        builder.HasIndex(x => x.DateUtc);
+        builder.HasIndex(x => x.DepartmentId);
     }
 }

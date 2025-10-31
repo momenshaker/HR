@@ -38,5 +38,9 @@ internal sealed class LeaveRequestConfiguration : IEntityTypeConfiguration<Leave
 
         builder.Property(request => request.Reason)
             .HasMaxLength(1024);
+
+        // Common analytics filters: employee and date range
+        builder.HasIndex(request => request.EmployeeId);
+        builder.HasIndex(request => new { request.StartDate, request.EndDate });
     }
 }

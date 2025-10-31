@@ -11,4 +11,9 @@ public sealed class ApplicationUser : IdentityUser<Guid>
     ///     Gets or sets the tenant or customer identifier associated with the account.
     /// </summary>
     public string CustomerId { get; set; } = "demo-tenant";
+
+    /// <summary>
+    ///     Gets or sets the linked employee identifier when the account represents an employee.
+    /// </summary>
+    public Guid? EmployeeId { get; set; }
 }

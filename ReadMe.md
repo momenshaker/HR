@@ -198,6 +198,28 @@ Deployment Options:
 
 Azure Container Apps / AKS
 
+## Identity and Auth
+
+- ASP.NET Core Identity + EF Core 8 with `ApplicationUser` linked 1:1 to `Employee` via `ApplicationUser.EmployeeId` (unique when present).
+- JWT configuration in `appsettings.json` under `Jwt`: `Issuer`, `Audience`, `Key`, `AccessTokenMinutes`, `RefreshTokenDays`.
+- Endpoints under `api/v1.0/auth`:
+  - POST `/auth/register-employee` { email, userName, password, employeeId }
+  - POST `/auth/login` { email, password } (email can be username or email)
+  - POST `/auth/refresh` { refreshToken }
+  - GET `/auth/me`
+  - POST `/auth/change-password` { currentPassword, newPassword }
+  - POST `/auth/forgot-password` { email }
+  - POST `/auth/reset-password` { email, token, newPassword }
+  - POST `/auth/link-employee` (Admin) { email, userName, password, employeeId }
+
+Authorization:
+- Policy `EmployeeSelf`: self-only access to employee profile; Admin/Manager bypass.
+- Policy `OrgScoped`: if a token includes `org_id`, the route `organizationId` must match.
+
+Seeding:
+- Baseline roles created (Admin, Manager, Employee) and dev users from `Authentication` config.
+- A few employees are backfilled with accounts (dev password `DevUser!123`).
+
 GitHub Actions → Docker → Azure
 
 Auto migration and secret sync via CI/CD

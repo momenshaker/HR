@@ -22,6 +22,8 @@ security:
 tags:
   - name: System
     description: Platform diagnostics and metadata.
+  - name: Analytics
+    description: Read-only HR analytics endpoints for aggregates.
   - name: Authentication
     description: Identity and session management endpoints.
   - name: Audit
@@ -32,6 +34,10 @@ tags:
     description: Subscription lifecycle management.
   - name: Performance
     description: Goals, review cycles, and performance reviews.
+  - name: Training
+    description: Lightweight training courses, sessions, and enrollments.
+  - name: Communication
+    description: Organization and departmental announcements.
 paths:
   /api/health:
     get:
@@ -59,6 +65,200 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SystemVersionDto'
+  /api/analytics/headcount:
+    get:
+      tags: [Analytics]
+      summary: Headcount per department
+      description: Returns active employee headcount grouped by department (optionally scoped to a department subtree).
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: departmentId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Headcount per department.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HeadcountItem'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/analytics/utilization:
+    get:
+      tags: [Analytics]
+      summary: Timesheet utilization by period
+      description: Approved hours divided by capacity per weekly period within the date range.
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Utilization per week.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UtilizationPeriod'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/analytics/leave-usage:
+    get:
+      tags: [Analytics]
+      summary: Leave usage by type
+      description: Approved leave counts grouped by leave type for the specified year.
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Leave usage totals per leave type.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveUsageItem'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/analytics/payroll-totals:
+    get:
+      tags: [Analytics]
+      summary: Payroll totals per run and department
+      description: Aggregates gross and net totals for runs in range, with optional department breakdown.
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Payroll totals per run and per department.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollTotalsResponse'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/analytics/recruitment-funnel:
+    get:
+      tags: [Analytics]
+      summary: Recruitment funnel by stage
+      description: Counts of candidates/interviews per pipeline stage for the given vacancy.
+      parameters:
+        - name: jobId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Stage counts for vacancy.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StageCount'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/analytics/training-compliance:
+    get:
+      tags: [Analytics]
+      summary: Mandatory training compliance
+      description: Overall completion rate for mandatory lightweight courses.
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Training compliance summary.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingCompliance'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/audit:
     get:
       tags: [Audit]
@@ -414,6 +614,151 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/training/courses:
+    get:
+      tags: [Training]
+      summary: List courses for organization
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiteCourseDto'
+    post:
+      tags: [Training]
+      summary: Create a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLiteCourseRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiteCourseDto'
+  /api/training/courses/{id}/sessions:
+    get:
+      tags: [Training]
+      summary: List sessions for a course
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiteCourseSessionDto'
+  /api/training/sessions:
+    post:
+      tags: [Training]
+      summary: Create a course session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLiteCourseSessionRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiteCourseSessionDto'
+  /api/training/sessions/{sessionId}/enroll:
+    post:
+      tags: [Training]
+      summary: Enroll an employee in a session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Enrollment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiteEnrollmentDto'
+  /api/training/sessions/{sessionId}/complete:
+    post:
+      tags: [Training]
+      summary: Mark an enrollment as completed
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Enrollment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiteEnrollmentDto'
+  /api/training/sessions/{sessionId}/cancel:
+    post:
+      tags: [Training]
+      summary: Cancel an enrollment
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Enrollment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiteEnrollmentDto'
     post:
       tags: [Performance]
       summary: Create a review cycle
@@ -604,6 +949,161 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Review not found.
+  /api/comms/announcements:
+    get:
+      tags: [Communication]
+      summary: List announcements
+      description: |
+        Lists organization and department announcements. Pinned items appear first, then newest by publish time.
+        When `unreadForEmployeeId` is provided, returns only announcements not yet read by that employee
+        in the organization scope and any of their departments.
+      parameters:
+        - name: orgId
+          in: query
+          required: true
+          description: Organization identifier.
+          schema:
+            type: string
+            format: uuid
+        - name: departmentId
+          in: query
+          required: false
+          description: Optional department filter. Includes org-wide items when specified.
+          schema:
+            type: string
+            format: uuid
+        - name: unreadForEmployeeId
+          in: query
+          required: false
+          description: If provided, returns only unread announcements for the employee.
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: 1-based page index (defaults to 1).
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          description: Number of items to return per page (defaults to 25).
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 200
+            default: 25
+      responses:
+        '200':
+          description: Paged announcements list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CommsAnnouncementDto'
+                  page:
+                    type: integer
+                    format: int32
+                  pageSize:
+                    type: integer
+                    format: int32
+                  totalRecords:
+                    type: integer
+                    format: int64
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Communication]
+      summary: Publish announcement
+      description: Creates a new organization or department announcement.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommsAnnouncementRequest'
+      responses:
+        '201':
+          description: Created announcement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommsAnnouncementDto'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/comms/announcements/{id}:pin:
+    post:
+      tags: [Communication]
+      summary: Pin announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Announcement pinned.
+        '404':
+          description: Announcement not found.
+  /api/comms/announcements/{id}:unpin:
+    post:
+      tags: [Communication]
+      summary: Unpin announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Announcement unpinned.
+        '404':
+          description: Announcement not found.
+  /api/comms/announcements/{id}:read:
+    post:
+      tags: [Communication]
+      summary: Mark announcement read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Read receipt recorded.
+        '400':
+          description: Missing or invalid employeeId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
     BearerAuth:
@@ -632,6 +1132,82 @@ components:
         maximum: 200
         default: 25
   schemas:
+    HeadcountItem:
+      type: object
+      properties:
+        DepartmentId:
+          type: string
+          format: uuid
+        DepartmentName:
+          type: string
+        Count:
+          type: integer
+          format: int32
+    UtilizationPeriod:
+      type: object
+      properties:
+        PeriodStart:
+          type: string
+          format: date
+        PeriodEnd:
+          type: string
+          format: date
+        ApprovedHours:
+          type: number
+          format: double
+        CapacityHours:
+          type: number
+          format: double
+        UtilizationRate:
+          type: number
+          format: double
+          description: ApprovedHours/CapacityHours (0..1)
+    LeaveUsageItem:
+      type: object
+      properties:
+        LeaveType:
+          type: string
+        Days:
+          type: integer
+          format: int32
+    PayrollTotalsResponse:
+      type: object
+      properties:
+        Runs:
+          type: array
+          items:
+            type: object
+            properties:
+              RunId: { type: string, format: uuid }
+              PeriodStart: { type: string, format: date }
+              PeriodEnd: { type: string, format: date }
+              TotalGross: { type: number, format: double }
+              TotalNet: { type: number, format: double }
+        ByDepartment:
+          type: array
+          items:
+            type: object
+            properties:
+              DepartmentId: { type: string, format: uuid }
+              DepartmentName: { type: string }
+              TotalGross: { type: number, format: double }
+              TotalNet: { type: number, format: double }
+    StageCount:
+      type: object
+      properties:
+        Stage:
+          type: string
+        Count:
+          type: integer
+          format: int32
+    TrainingCompliance:
+      type: object
+      properties:
+        OrganizationId: { type: string, format: uuid }
+        MandatoryCourseCount: { type: integer, format: int32 }
+        ObservedEmployeeCount: { type: integer, format: int32 }
+        CompliantEmployeeCount: { type: integer, format: int32 }
+        ComplianceRate: { type: number, format: double }
     ErrorResponse:
       type: object
       required: [code, message]
@@ -671,6 +1247,52 @@ components:
           description: Token lifetime in seconds.
         refreshToken:
           type: string
+    CommsAnnouncementDto:
+      type: object
+      required: [id, organizationId, title, body, publishedAtUtc, publishedById, isPinned]
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+          format: uuid
+        departmentId:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        body:
+          type: string
+        publishedAtUtc:
+          type: string
+          format: date-time
+        publishedById:
+          type: string
+          format: uuid
+        isPinned:
+          type: boolean
+    CreateCommsAnnouncementRequest:
+      type: object
+      required: [organizationId, title, body, publishedById]
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        departmentId:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          maxLength: 5000
+        publishedById:
+          type: string
+          format: uuid
           description: Optional refresh token for session extension.
     GoalDto:
       type: object
@@ -758,6 +1380,57 @@ components:
         rating:
           type: integer
           format: int32
+    LiteCourseDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        code: { type: string }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        durationHours: { type: number }
+        isMandatory: { type: boolean }
+    CreateLiteCourseRequest:
+      type: object
+      required: [organizationId, code, title]
+      properties:
+        organizationId: { type: string, format: uuid }
+        code: { type: string }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        durationHours: { type: number }
+        isMandatory: { type: boolean }
+    LiteCourseSessionDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        courseId: { type: string, format: uuid }
+        startUtc: { type: string, format: date-time }
+        endUtc: { type: string, format: date-time }
+        location: { type: string, nullable: true }
+        meetingUrl: { type: string, nullable: true }
+        capacity: { type: integer, format: int32, nullable: true }
+    CreateLiteCourseSessionRequest:
+      type: object
+      required: [courseId, startUtc, endUtc]
+      properties:
+        courseId: { type: string, format: uuid }
+        startUtc: { type: string, format: date-time }
+        endUtc: { type: string, format: date-time }
+        location: { type: string, nullable: true }
+        meetingUrl: { type: string, nullable: true }
+        capacity: { type: integer, format: int32, nullable: true }
+    LiteEnrollmentDto:
+      type: object
+      properties:
+        sessionId: { type: string, format: uuid }
+        employeeId: { type: string, format: uuid }
+        enrolledAtUtc: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [Enrolled, Completed, Cancelled]
+        score: { type: number, nullable: true }
+        certificateUrl: { type: string, nullable: true }
           minimum: 1
           maximum: 5
         notes:

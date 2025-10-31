@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         ConfigureIdentityServices(services);
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IEmployeeSearchService, EmployeeService>();
         services.AddScoped<IEmployeeDepartmentService, EmployeeDepartmentService>();
@@ -77,16 +78,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPerformanceManagementService, PerformanceManagementService>();
         services.AddScoped<IRecruitmentService, RecruitmentService>();
         services.AddScoped<ITrainingService, TrainingService>();
+        services.AddScoped<ILightweightTrainingService, LightweightTrainingService>();
         services.AddScoped<IEmployeeSelfService, EmployeeSelfService>();
         services.AddScoped<ISelfServiceAccountService, SelfServiceAccountService>();
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<IAnalyticsQueryService, HR.Infrastructure.Services.EfAnalyticsQueryService>();
         services.AddScoped<ILeaveRolloverService, LeaveRolloverService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
         services.AddScoped<ITimesheetService, TimesheetService>();
+        services.AddScoped<ICommsService, CommsService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IInvoiceService, InvoiceService>();
         services.AddSingleton<IUsageService, UsageService>();
+
+        services.AddSingleton<IEmailSender, HR.Infrastructure.Services.ConsoleEmailSender>();
 
         services.AddScoped<ISubscriptionBillingService, SubscriptionBillingService>();
         services.AddScoped<IAuditLogger, AuditLogger>();
@@ -175,6 +181,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITimesheetRepository, EntityFrameworkTimesheetRepository>();
         services.AddScoped<IPayrollItemRepository, EntityFrameworkPayrollItemRepository>();
         services.AddScoped<IPayslipRepository, EntityFrameworkPayslipRepository>();
+        // Use in-memory implementations for comms until EF repositories are introduced
+        services.AddSingleton<ICommsAnnouncementRepository, InMemoryCommsAnnouncementRepository>();
+        services.AddSingleton<IAnnouncementReadRepository, InMemoryAnnouncementReadRepository>();
     }
 
     private static void RegisterInMemoryRepositories(IServiceCollection services)
@@ -197,11 +206,16 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITrainingCourseRepository, InMemoryTrainingCourseRepository>();
         services.AddSingleton<ICourseEnrollmentRepository, InMemoryCourseEnrollmentRepository>();
         services.AddSingleton<ICourseCertificationRepository, InMemoryCourseCertificationRepository>();
+        services.AddSingleton<ICourseRepository, InMemoryCourseRepository>();
+        services.AddSingleton<ICourseSessionRepository, InMemoryCourseSessionRepository>();
+        services.AddSingleton<ICourseSessionEnrollmentRepository, InMemoryCourseSessionEnrollmentRepository>();
         services.AddSingleton<IAnnouncementRepository, InMemoryAnnouncementRepository>();
         services.AddSingleton<IEngagementCampaignRepository, InMemoryEngagementCampaignRepository>();
         services.AddSingleton<IPulseSurveyRepository, InMemoryPulseSurveyRepository>();
         services.AddSingleton<IRecognitionProgramRepository, InMemoryRecognitionProgramRepository>();
         services.AddSingleton<IAnalyticsSnapshotRepository, InMemoryAnalyticsSnapshotRepository>();
+        services.AddSingleton<ICommsAnnouncementRepository, InMemoryCommsAnnouncementRepository>();
+        services.AddSingleton<IAnnouncementReadRepository, InMemoryAnnouncementReadRepository>();
         services.AddSingleton<IVacancyRepository, InMemoryVacancyRepository>();
         services.AddSingleton<IInterviewScheduleRepository, InMemoryInterviewScheduleRepository>();
         services.AddSingleton<ISelfServiceAccountRepository, InMemorySelfServiceAccountRepository>();
@@ -210,6 +224,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILeaveBalanceRepository, InMemoryLeaveBalanceRepository>();
         services.AddSingleton<IPayrollItemRepository, InMemoryPayrollItemRepository>();
         services.AddSingleton<IPayslipRepository, InMemoryPayslipRepository>();
+        services.AddScoped<IAnalyticsQueryService, HR.Infrastructure.Services.EfAnalyticsQueryService>();
     }
 
     private static void ConfigureIdentityServices(IServiceCollection services)

@@ -56,5 +56,8 @@ internal sealed class PayrollRunConfiguration : IEntityTypeConfiguration<Payroll
             .WithOne(ps => ps.Run!)
             .HasForeignKey(ps => ps.RunId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Common analytics filters: org and period
+        builder.HasIndex(run => new { run.OrganizationId, run.PeriodStart, run.PeriodEnd });
     }
 }

@@ -1,3 +1,4 @@
+using HR.Domain.Entities;
 using HR.Infrastructure.Security.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,11 +9,20 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
-        builder.Property(user => user.CustomerId)
-            .IsRequired()
-            .HasMaxLength(64)
-            .HasDefaultValue("demo-tenant");
+        builder.ToTable("AspNetUsers");
 
-        builder.HasIndex(user => user.CustomerId);
+        builder.Property(user => user.CustomerId)
+            .HasMaxLength(256);
+
+        builder.HasIndex(user => user.EmployeeId)
+            .IsUnique()
+            .HasFilter("[EmployeeId] IS NOT NULL");
+
+        // One-to-one between Employee and ApplicationUser via EmployeeId FK on user
+        builder.HasOne<Employee>()
+            .WithOne()
+            .HasForeignKey<ApplicationUser>(u => u.EmployeeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
+
