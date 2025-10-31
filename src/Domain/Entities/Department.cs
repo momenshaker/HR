@@ -55,4 +55,27 @@ public sealed class Department
     public ICollection<Department> Children { get; } = new List<Department>();
 
     public ICollection<EmployeeDepartment> EmployeeDepartments { get; } = new List<EmployeeDepartment>();
+
+    /// <summary>
+    ///     Creates a copy of the current department with updated hierarchy metadata.
+    /// </summary>
+    /// <param name="parentDepartmentId">The identifier of the new parent department or <c>null</c> for root.</param>
+    /// <param name="level">The zero-based depth of the department within its organization.</param>
+    /// <param name="path">The materialized path representing the department location.</param>
+    /// <returns>A new <see cref="Department" /> instance containing the updated hierarchy information.</returns>
+    public Department WithHierarchy(Guid? parentDepartmentId, int level, string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        return new Department(
+            Id,
+            OrganizationId,
+            Name,
+            path,
+            level,
+            CreatedAtUtc,
+            IsActive,
+            parentDepartmentId,
+            Code);
+    }
 }
