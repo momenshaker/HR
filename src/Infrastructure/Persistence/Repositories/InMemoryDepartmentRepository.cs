@@ -1,4 +1,8 @@
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 
@@ -21,6 +25,29 @@ public sealed class InMemoryDepartmentRepository : IDepartmentRepository
     {
         _departments.TryGetValue(departmentId, out var department);
         return Task.FromResult(department);
+    }
+
+    public Task<IReadOnlyCollection<Department>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> departmentIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(departmentIds);
+
+        if (departmentIds.Count == 0)
+        {
+            return Task.FromResult<IReadOnlyCollection<Department>>(Array.Empty<Department>());
+        }
+
+        var results = new List<Department>(departmentIds.Count);
+        foreach (var departmentId in departmentIds)
+        {
+            if (_departments.TryGetValue(departmentId, out var department))
+            {
+                results.Add(department);
+            }
+        }
+
+        return Task.FromResult<IReadOnlyCollection<Department>>(results);
     }
 
     public Task<Department> AddAsync(Department department, CancellationToken cancellationToken = default)
