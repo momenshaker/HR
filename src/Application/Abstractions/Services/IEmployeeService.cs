@@ -25,6 +25,13 @@ public partial interface IEmployeeService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Retrieves employees that belong to the specified department.
+    /// </summary>
+    Task<IReadOnlyCollection<EmployeeDto>> GetByDepartmentAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Creates a new employee and returns the created representation.
     /// </summary>
     Task<EmployeeDto> CreateAsync(CreateEmployeeRequest request, CancellationToken cancellationToken = default);

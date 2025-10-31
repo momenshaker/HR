@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HR.Api.Controllers;
 
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
-[ApiVersion("1.0")]
+[Route("api/organizations")]
 public sealed class OrganizationsController(IOrganizationService organizationService) : ControllerBase
 {
     private readonly IOrganizationService _organizationService = organizationService;
