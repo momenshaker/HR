@@ -23,7 +23,9 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     }
 
     public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Department> Departments => Set<Department>();
+    public DbSet<EmployeeDepartment> EmployeeDepartments => Set<EmployeeDepartment>();
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
     public DbSet<ReportingRelationship> ReportingRelationships => Set<ReportingRelationship>();
@@ -61,5 +63,6 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrDbContext).Assembly);
 
         PlanCatalogSeeder.Seed(modelBuilder);
+        OrganizationStructureSeeder.Seed(modelBuilder);
     }
 }

@@ -1,84 +1,151 @@
-using HR.Api.Filters;
+using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
-using HR.Application.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Api.Controllers;
 
 /// <summary>
-///     Provides REST endpoints for managing organizational departments.
+///     Provides REST endpoints for managing departments scoped to an organization.
 /// </summary>
 [ApiController]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR")]
-[AuditResource("Department")]
-[FeatureRequirement(HrFeature.OrganizationStructure)]
+[Route("api/organizations/{organizationId:guid}/departments")]
 public sealed class DepartmentsController(IDepartmentService departmentService) : ControllerBase
 {
     private readonly IDepartmentService _departmentService = departmentService;
 
     /// <summary>
-    ///     Retrieves all departments registered in the platform.
+    ///     Retrieves the departments for the specified organization either as a flat collection or a hierarchy.
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyCollection<DepartmentDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAsync(
+        Guid organizationId,
+        [FromQuery] bool hierarchy = false,
+        CancellationToken cancellationToken = default)
     {
-        var departments = await _departmentService.GetAsync(cancellationToken).ConfigureAwait(false);
+        if (hierarchy)
+        {
+            var tree = await _departmentService
+                .GetHierarchyAsync(organizationId, cancellationToken)
+                .ConfigureAwait(false);
+
+            return Ok(tree);
+        }
+
+        var departments = await _departmentService
+            .GetByOrganizationAsync(organizationId, cancellationToken)
+            .ConfigureAwait(false);
+
         return Ok(departments);
     }
 
     /// <summary>
-    ///     Retrieves a department by its identifier.
+    ///     Creates a department for the specified organization.
     /// </summary>
-    [HttpGet("{id:guid}")]
+    [HttpPost]
+    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> PostAsync(
+        Guid organizationId,
+        [FromBody] CreateDepartmentRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var created = await _departmentService
+            .CreateAsync(organizationId, request, cancellationToken)
+            .ConfigureAwait(false);
+
+        return CreatedAtAction(
+            nameof(GetByIdAsync),
+            new { organizationId, departmentId = created.Id },
+            created);
+    }
+
+    /// <summary>
+    ///     Retrieves a single department within the specified organization.
+    /// </summary>
+    [HttpGet("{departmentId:guid}")]
     [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByIdAsync(
+        Guid organizationId,
+        Guid departmentId,
+        CancellationToken cancellationToken = default)
     {
-        var department = await _departmentService.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var department = await _departmentService
+            .GetByIdAsync(organizationId, departmentId, cancellationToken)
+            .ConfigureAwait(false);
+
         return department is null ? NotFound() : Ok(department);
     }
 
     /// <summary>
-    ///     Creates a new department.
+    ///     Updates a department scoped to the specified organization.
     /// </summary>
-    [HttpPost]
-    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> PostAsync([FromBody] CreateDepartmentRequest request, CancellationToken cancellationToken)
-    {
-
-        var createdDepartment = await _departmentService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = createdDepartment.Id }, createdDepartment);
-    }
-
-    /// <summary>
-    ///     Updates an existing department.
-    /// </summary>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{departmentId:guid}")]
     [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateDepartmentRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> PutAsync(
+        Guid organizationId,
+        Guid departmentId,
+        [FromBody] UpdateDepartmentRequest request,
+        CancellationToken cancellationToken = default)
     {
+        var updated = await _departmentService
+            .UpdateAsync(organizationId, departmentId, request, cancellationToken)
+            .ConfigureAwait(false);
 
-        var updatedDepartment = await _departmentService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);
-        return updatedDepartment is null ? NotFound() : Ok(updatedDepartment);
+        return updated is null ? NotFound() : Ok(updated);
     }
 
     /// <summary>
-    ///     Deletes an existing department.
+    ///     Moves a department under a new parent within the same organization.
     /// </summary>
-    [HttpDelete("{id:guid}")]
+    [HttpPost("{departmentId:guid}:move")]
+    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> MoveAsync(
+        Guid organizationId,
+        Guid departmentId,
+        [FromBody] MoveDepartmentRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var moved = await _departmentService
+            .MoveAsync(organizationId, departmentId, request.NewParentDepartmentId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return moved is null ? NotFound() : Ok(moved);
+    }
+
+    /// <summary>
+    ///     Deletes a department if it has no children unless cascade deletion is requested.
+    /// </summary>
+    [HttpDelete("{departmentId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DeleteAsync(
+        Guid organizationId,
+        Guid departmentId,
+        [FromQuery] bool cascade = false,
+        CancellationToken cancellationToken = default)
     {
-        var deleted = await _departmentService.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
-        return deleted ? NoContent() : NotFound();
+        var result = await _departmentService
+            .DeleteAsync(organizationId, departmentId, cascade, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (result.NotFound)
+        {
+            return NotFound();
+        }
+
+        if (result.BlockedByChildren)
+        {
+            return Conflict(new { message = "Department has child departments. Use cascade=true to delete the subtree." });
+        }
+
+        return NoContent();
     }
 }

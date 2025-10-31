@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace HR.Domain.Entities;
 
 /// <summary>
@@ -7,44 +11,39 @@ public sealed class Employee
 {
     public Guid Id { get; init; }
 
+    public string Email { get; init; } = string.Empty;
+
     public string FirstName { get; init; } = string.Empty;
 
     public string LastName { get; init; } = string.Empty;
 
-    public string Email { get; init; } = string.Empty;
-
-    public DateOnly? DateOfBirth { get; init; }
-
-    public Guid DepartmentId { get; init; }
+    public string JobTitle { get; init; } = string.Empty;
 
     public DateOnly EmploymentStartDate { get; init; }
 
     public DateOnly? EmploymentEndDate { get; init; }
 
-    public string JobTitle { get; init; } = string.Empty;
+    public DateOnly? DateOfBirth { get; init; }
 
-    /// <summary>
-    ///     Captures how the employee aligns to departments, business units, and cost centres.
-    /// </summary>
-    public EmployeeDepartmentAlignment DepartmentAlignment { get; init; } = EmployeeDepartmentAlignment.Empty;
+    public bool IsActive { get; init; } = true;
 
-    /// <summary>
-    ///     Captures the job architecture metadata for the employee.
-    /// </summary>
+    public DateTime CreatedAtUtc { get; init; }
+
     public EmployeeJobArchitecture JobArchitecture { get; init; } = EmployeeJobArchitecture.Empty;
 
-    /// <summary>
-    ///     Holds the collection of contracts that describe the employee's engagement history.
-    /// </summary>
-    public IReadOnlyCollection<EmploymentContract> Contracts { get; init; } = Array.Empty<EmploymentContract>();
+    public ICollection<EmployeeDepartment> Departments { get; init; } = new List<EmployeeDepartment>();
 
-    /// <summary>
-    ///     Holds the compliance artefacts associated with the employee record.
-    /// </summary>
-    public IReadOnlyCollection<EmployeeComplianceDocument> ComplianceDocuments { get; init; } = Array.Empty<EmployeeComplianceDocument>();
+    public ICollection<EmploymentContract> Contracts { get; init; } = new List<EmploymentContract>();
 
-    /// <summary>
-    ///     Returns the employee's full name for display purposes.
-    /// </summary>
+    public ICollection<EmployeeComplianceDocument> ComplianceDocuments { get; init; } = new List<EmployeeComplianceDocument>();
+
     public string FullName => string.Join(" ", new[] { FirstName, LastName }.Where(part => !string.IsNullOrWhiteSpace(part)));
+
+    public IReadOnlyCollection<Guid> DepartmentIds => Departments
+        .Select(membership => membership.DepartmentId)
+        .ToArray();
+
+    public Guid? PrimaryDepartmentId => Departments
+        .FirstOrDefault(membership => membership.IsPrimary)
+        ?.DepartmentId;
 }

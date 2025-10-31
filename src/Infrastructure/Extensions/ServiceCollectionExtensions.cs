@@ -60,7 +60,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IEmployeeSearchService, EmployeeService>();
+        services.AddScoped<IEmployeeDepartmentService, EmployeeDepartmentService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IDepartmentTreeService, DepartmentTreeService>();
+        services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
         services.AddScoped<IPositionService, PositionService>();
         services.AddScoped<IReportingRelationshipService, ReportingRelationshipService>();
@@ -139,7 +142,9 @@ public static class ServiceCollectionExtensions
     private static void RegisterEntityFrameworkRepositories(IServiceCollection services)
     {
         services.AddScoped<IEmployeeRepository, EntityFrameworkEmployeeRepository>();
+        services.AddScoped<IEmployeeDepartmentRepository, EntityFrameworkEmployeeDepartmentRepository>();
         services.AddScoped<IDepartmentRepository, EntityFrameworkDepartmentRepository>();
+        services.AddScoped<IOrganizationRepository, EntityFrameworkOrganizationRepository>();
         services.AddScoped<IOrganizationUnitRepository, EntityFrameworkOrganizationUnitRepository>();
         services.AddScoped<IPositionRepository, EntityFrameworkPositionRepository>();
         services.AddScoped<IReportingRelationshipRepository, EntityFrameworkReportingRelationshipRepository>();
@@ -167,7 +172,9 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<HrDbContext>(options => options.UseInMemoryDatabase("hr-platform-identity"));
 
         services.AddSingleton<IEmployeeRepository, InMemoryEmployeeRepository>();
+        services.AddSingleton<IEmployeeDepartmentRepository, InMemoryEmployeeDepartmentRepository>();
         services.AddSingleton<IDepartmentRepository, InMemoryDepartmentRepository>();
+        services.AddSingleton<IOrganizationRepository, InMemoryOrganizationRepository>();
         services.AddSingleton<IOrganizationUnitRepository, InMemoryOrganizationUnitRepository>();
         services.AddSingleton<IPositionRepository, InMemoryPositionRepository>();
         services.AddSingleton<IReportingRelationshipRepository, InMemoryReportingRelationshipRepository>();

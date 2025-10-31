@@ -16,4 +16,5 @@ public sealed record ErrorResponse(string Code, string Message, string? TraceId 
 /// </summary>
 /// <param name="Field">The field that produced the error.</param>
 /// <param name="Message">Human readable description of the failure.</param>
-public sealed record ErrorDetail(string Field, string Message);
+/// <param name="Code">Machine-readable error code describing the failure.</param>
+public sealed record ErrorDetail(string Field, string Message, string? Code = null);

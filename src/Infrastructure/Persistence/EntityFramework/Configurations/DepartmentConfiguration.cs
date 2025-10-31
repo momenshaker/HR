@@ -18,8 +18,20 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
             .HasMaxLength(200);
 
         builder.Property(department => department.Code)
-            .IsRequired()
             .HasMaxLength(50);
+
+        builder.Property(department => department.Path)
+            .IsRequired()
+            .HasMaxLength(512);
+
+        builder.Property(department => department.Level)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(department => department.OrganizationId)
+            .IsRequired();
+
+        builder.Property(department => department.ManagerId);
 
         builder.Property(department => department.Branch)
             .HasMaxLength(100);
@@ -33,6 +45,29 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
         builder.Property(department => department.IsActive)
             .HasDefaultValue(true);
 
-        builder.HasIndex(department => department.Code).IsUnique();
+        builder.Property(department => department.CreatedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(department => department.UpdatedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.HasOne(department => department.Organization)
+            .WithMany(organization => organization.Departments)
+            .HasForeignKey(department => department.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(department => department.Parent)
+            .WithMany(parent => parent.Children)
+            .HasForeignKey(department => department.ParentDepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(department => department.Path);
+
+        builder.HasIndex(department => new { department.OrganizationId, department.ParentDepartmentId, department.Name })
+            .IsUnique();
+
+        builder.HasIndex(department => new { department.OrganizationId, department.Code })
+            .HasFilter("[Code] IS NOT NULL AND [Code] <> ''")
+            .IsUnique();
     }
 }

@@ -23,6 +23,7 @@ public sealed class EmployeeServiceTests
     public async Task GetAsync_ReturnsEmployeesFromRepository()
     {
         // Arrange
+        var departmentId = Guid.NewGuid();
         var employees = new List<Employee>
         {
             new()
@@ -31,9 +32,12 @@ public sealed class EmployeeServiceTests
                 FirstName = "Jane",
                 LastName = "Doe",
                 Email = "jane.doe@example.com",
-                DepartmentId = Guid.NewGuid(),
                 EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                JobTitle = "HR Specialist"
+                JobTitle = "HR Specialist",
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentId, IsPrimary = true }
+                }
             }
         };
 
@@ -48,6 +52,7 @@ public sealed class EmployeeServiceTests
         var dto = result.Single();
         Assert.Equal(employees[0].Id, dto.Id);
         Assert.Equal(employees[0].FirstName, dto.FirstName);
+        Assert.Equal(departmentId, dto.PrimaryDepartmentId);
     }
 
     [Fact]
@@ -75,15 +80,12 @@ public sealed class EmployeeServiceTests
             FirstName = "John",
             LastName = "Smith",
             Email = "john.smith@example.com",
-            DepartmentId = departmentId,
             EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             JobTitle = "Software Engineer",
-            DepartmentAlignment = new EmployeeDepartmentAlignmentRequest
+            DepartmentAssignment = new EmployeeDepartmentAssignmentRequest
             {
                 PrimaryDepartmentId = departmentId,
-                SecondaryDepartmentIds = new[] { secondaryDepartmentId },
-                CostCenter = "IT100",
-                BusinessUnit = "Technology"
+                SecondaryDepartmentIds = new[] { secondaryDepartmentId }
             },
             JobArchitecture = new EmployeeJobArchitectureRequest
             {
@@ -104,7 +106,7 @@ public sealed class EmployeeServiceTests
                     WorkLocation = "London",
                     CompensationCurrency = "GBP",
                     AnnualCompensation = 85000m,
-                    Notes = "Initial hire"
+                    Notes = "Initial hire",
                 }
             },
             ComplianceDocuments = new[]
@@ -136,14 +138,14 @@ public sealed class EmployeeServiceTests
         Assert.Equal(request.JobArchitecture!.JobFamily, persistedEmployee!.JobArchitecture.JobFamily);
         Assert.Single(persistedEmployee.Contracts);
         Assert.Single(persistedEmployee.ComplianceDocuments);
-        Assert.Equal(departmentId, persistedEmployee.DepartmentAlignment.PrimaryDepartmentId);
-        Assert.Equal("Technology", persistedEmployee.DepartmentAlignment.BusinessUnit);
+        Assert.Equal(departmentId, persistedEmployee.PrimaryDepartmentId);
+        Assert.Contains(secondaryDepartmentId, persistedEmployee.DepartmentIds);
 
         Assert.Equal(request.JobArchitecture.JobFamily, result.JobArchitecture.JobFamily);
         Assert.Single(result.Contracts);
         Assert.Single(result.ComplianceDocuments);
-        Assert.Equal(departmentId, result.DepartmentAlignment.PrimaryDepartmentId);
-        Assert.Contains(secondaryDepartmentId, result.DepartmentAlignment.SecondaryDepartmentIds);
+        Assert.Equal(departmentId, result.PrimaryDepartmentId);
+        Assert.Contains(secondaryDepartmentId, result.DepartmentIds);
 
         _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Employee>(), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -160,9 +162,12 @@ public sealed class EmployeeServiceTests
             FirstName = "Existing",
             LastName = "Employee",
             Email = "existing.employee@example.com",
-            DepartmentId = departmentId,
             EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            JobTitle = "Analyst"
+            JobTitle = "Analyst",
+            Departments = new List<EmployeeDepartment>
+            {
+                new() { DepartmentId = departmentId, IsPrimary = true }
+            }
         };
 
         var request = new UpdateEmployeeRequest
@@ -170,15 +175,14 @@ public sealed class EmployeeServiceTests
             FirstName = "Updated",
             LastName = "Employee",
             Email = "updated.employee@example.com",
-            DepartmentId = departmentId,
             EmploymentStartDate = existingEmployee.EmploymentStartDate,
             JobTitle = "Senior Analyst",
             EmploymentEndDate = null,
             DateOfBirth = existingEmployee.DateOfBirth,
-            DepartmentAlignment = new EmployeeDepartmentAlignmentRequest
+            DepartmentAssignment = new EmployeeDepartmentAssignmentRequest
             {
                 PrimaryDepartmentId = departmentId,
-                CostCenter = "CST-200"
+                SecondaryDepartmentIds = Array.Empty<Guid>()
             },
             JobArchitecture = new EmployeeJobArchitectureRequest
             {
@@ -230,7 +234,7 @@ public sealed class EmployeeServiceTests
         Assert.NotNull(updatedEntity);
         Assert.Equal(employeeId, updatedEntity!.Id);
         Assert.Equal("Ops", result.JobArchitecture.JobFamily);
-        Assert.Equal("CST-200", result.DepartmentAlignment.CostCenter);
+        Assert.Equal(departmentId, result.PrimaryDepartmentId);
         Assert.Single(result.Contracts);
         Assert.Single(result.ComplianceDocuments);
 
@@ -247,9 +251,12 @@ public sealed class EmployeeServiceTests
             FirstName = "Updated",
             LastName = "Employee",
             Email = "updated.employee@example.com",
-            DepartmentId = Guid.NewGuid(),
             EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            JobTitle = "Senior Analyst"
+            JobTitle = "Senior Analyst",
+            DepartmentAssignment = new EmployeeDepartmentAssignmentRequest
+            {
+                PrimaryDepartmentId = Guid.NewGuid()
+            }
         };
 
         _repositoryMock
@@ -296,10 +303,12 @@ public sealed class EmployeeServiceTests
                 FirstName = "Alice",
                 LastName = "Johnson",
                 Email = "alice.johnson@example.com",
-                DepartmentId = departmentId,
                 JobTitle = "HR Manager",
                 EmploymentStartDate = today.AddDays(-400),
-                EmploymentEndDate = null
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentId, IsPrimary = true }
+                }
             },
             new()
             {
@@ -307,10 +316,12 @@ public sealed class EmployeeServiceTests
                 FirstName = "Bob",
                 LastName = "Smith",
                 Email = "bob.smith@example.com",
-                DepartmentId = departmentId,
                 JobTitle = "HR Associate",
                 EmploymentStartDate = today.AddDays(-200),
-                EmploymentEndDate = null
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentId, IsPrimary = true }
+                }
             },
             new()
             {
@@ -318,10 +329,13 @@ public sealed class EmployeeServiceTests
                 FirstName = "Charlie",
                 LastName = "Adams",
                 Email = "charlie.adams@example.com",
-                DepartmentId = Guid.NewGuid(),
                 JobTitle = "Finance Analyst",
                 EmploymentStartDate = today.AddDays(-100),
-                EmploymentEndDate = today.AddDays(-10)
+                EmploymentEndDate = today.AddDays(-10),
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = Guid.NewGuid(), IsPrimary = true }
+                }
             }
         };
 
@@ -365,9 +379,12 @@ public sealed class EmployeeServiceTests
                 FirstName = "Active",
                 LastName = "One",
                 Email = "active.one@example.com",
-                DepartmentId = departmentA,
                 JobTitle = "Consultant",
-                EmploymentStartDate = today.AddDays(-15)
+                EmploymentStartDate = today.AddDays(-15),
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentA, IsPrimary = true }
+                }
             },
             new()
             {
@@ -375,10 +392,13 @@ public sealed class EmployeeServiceTests
                 FirstName = "Active",
                 LastName = "Two",
                 Email = "active.two@example.com",
-                DepartmentId = departmentA,
                 JobTitle = "Consultant",
                 EmploymentStartDate = today.AddDays(-200),
-                EmploymentEndDate = today.AddDays(10)
+                EmploymentEndDate = today.AddDays(10),
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentA, IsPrimary = true }
+                }
             },
             new()
             {
@@ -386,9 +406,13 @@ public sealed class EmployeeServiceTests
                 FirstName = "Active",
                 LastName = "Three",
                 Email = "active.three@example.com",
-                DepartmentId = departmentB,
                 JobTitle = "Lead",
-                EmploymentStartDate = today.AddDays(-800)
+                EmploymentStartDate = today.AddDays(-800),
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentB, IsPrimary = true },
+                    new() { DepartmentId = departmentA, IsPrimary = false }
+                }
             },
             new()
             {
@@ -396,17 +420,20 @@ public sealed class EmployeeServiceTests
                 FirstName = "Former",
                 LastName = "Employee",
                 Email = "former.employee@example.com",
-                DepartmentId = departmentB,
                 JobTitle = "Lead",
                 EmploymentStartDate = today.AddDays(-500),
-                EmploymentEndDate = today.AddDays(-5)
+                EmploymentEndDate = today.AddDays(-5),
+                Departments = new List<EmployeeDepartment>
+                {
+                    new() { DepartmentId = departmentB, IsPrimary = true }
+                }
             }
         };
 
         var departments = new List<Department>
         {
-            new() { Id = departmentA, Name = "People Ops" },
-            new() { Id = departmentB, Name = "Finance" }
+            new() { Id = departmentA, Name = "People Ops", OrganizationId = Guid.NewGuid() },
+            new() { Id = departmentB, Name = "Finance", OrganizationId = Guid.NewGuid() }
         };
 
         _repositoryMock
@@ -430,6 +457,6 @@ public sealed class EmployeeServiceTests
 
         var peopleOps = snapshot.DepartmentHeadcounts.Single(dto => dto.DepartmentName == "People Ops");
         Assert.Equal(2, peopleOps.ActiveEmployees);
-        Assert.Equal(2, peopleOps.TotalEmployees);
+        Assert.Equal(3, peopleOps.TotalEmployees);
     }
 }

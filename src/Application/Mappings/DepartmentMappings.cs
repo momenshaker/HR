@@ -1,3 +1,5 @@
+using System;
+using HR.Application.Common;
 using HR.Application.DTOs;
 using HR.Domain.Entities;
 
@@ -12,37 +14,56 @@ public static class DepartmentMappings
     {
         ArgumentNullException.ThrowIfNull(department);
 
-        return new DepartmentDto(
-            department.Id,
-            department.Name,
-            department.Code,
-            department.ParentDepartmentId,
-            department.ManagerId,
-            department.Branch,
-            department.Location,
-            department.Description,
-            department.IsActive);
+        return new DepartmentDto
+        {
+            Id = department.Id,
+            Name = department.Name,
+            Code = department.Code,
+            OrganizationId = department.OrganizationId,
+            ParentDepartmentId = department.ParentDepartmentId,
+            ManagerId = department.ManagerId,
+            Branch = department.Branch,
+            Location = department.Location,
+            Description = department.Description,
+            IsActive = department.IsActive,
+            Path = department.Path,
+            Level = department.Level,
+            Children = Array.Empty<DepartmentDto>()
+        };
     }
 
-    public static Department ToEntity(this CreateDepartmentRequest request)
+    public static Department ToEntity(
+        this CreateDepartmentRequest request,
+        Guid departmentId,
+        string path,
+        int level,
+        DateTime createdAtUtc)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         return new Department
         {
-            Id = Guid.NewGuid(),
+            Id = departmentId,
             Name = request.Name.Trim(),
             Code = request.Code.Trim().ToUpperInvariant(),
+            OrganizationId = request.OrganizationId,
             ParentDepartmentId = request.ParentDepartmentId,
             ManagerId = request.ManagerId,
             Branch = request.Branch.Trim(),
             Location = request.Location.Trim(),
             Description = request.Description.Trim(),
-            IsActive = request.IsActive
+            IsActive = request.IsActive,
+            Path = path,
+            Level = level,
+            CreatedAtUtc = createdAtUtc
         };
     }
 
-    public static Department ApplyUpdates(this UpdateDepartmentRequest request, Department existing)
+    public static Department ApplyUpdates(
+        this UpdateDepartmentRequest request,
+        Department existing,
+        string path,
+        int level)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(existing);
@@ -52,12 +73,17 @@ public static class DepartmentMappings
             Id = existing.Id,
             Name = request.Name.Trim(),
             Code = request.Code.Trim().ToUpperInvariant(),
+            OrganizationId = request.OrganizationId,
             ParentDepartmentId = request.ParentDepartmentId,
             ManagerId = request.ManagerId,
             Branch = request.Branch.Trim(),
             Location = request.Location.Trim(),
             Description = request.Description.Trim(),
-            IsActive = request.IsActive
+            IsActive = request.IsActive,
+            Path = path,
+            Level = level,
+            CreatedAtUtc = existing.CreatedAtUtc,
+            UpdatedAtUtc = DateTime.UtcNow
         };
     }
 }

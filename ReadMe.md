@@ -74,6 +74,31 @@ Testing: xUnit, Jest, React Testing Library
 
 DevOps: GitHub Actions / Azure Pipelines
 
+🏗️ Organization hierarchy model
+
+### Materialized path strategy
+
+- Departments are stored using a **materialized path** with the format `/org/{organizationId}/dept/{departmentId}/...`. The `Level` column mirrors the depth encoded in the path so tree traversal and sorting can be performed directly inside SQL queries.
+- Each node keeps immutable audit metadata (`CreatedAtUtc`, `UpdatedAtUtc`) and the path is recomputed whenever a department is moved so that every descendant inherits the updated prefix.
+- The canonical sample data (Acme Corp, Head Office → Engineering → Platform/Applications, HR) is seeded through `OrganizationStructureSeeder` and mirrored in the EF migration to keep the database and tests aligned.
+
+### Department API overview
+
+| Route | Description |
+| --- | --- |
+| `GET /api/organizations/{organizationId}/departments?hierarchy=true` | Returns the full hierarchy with nested `Children` collections ordered by materialized path. |
+| `POST /api/organizations/{organizationId}/departments` | Creates a department and automatically computes `Path`, `Level`, and timestamps. |
+| `POST /api/organizations/{organizationId}/departments/{departmentId}:move` | Reparents a department (and its subtree) within the same organization. |
+| `PUT /api/organizations/{organizationId}/departments/{departmentId}` | Updates metadata; parent changes are blocked and must go through the move endpoint. |
+| `DELETE /api/organizations/{organizationId}/departments/{departmentId}?cascade=true` | Removes a department or its entire subtree when cascading. |
+
+### Hierarchy invariants
+
+- Department names are unique per `(OrganizationId, ParentDepartmentId)` and codes are unique per organization (empty codes are ignored).
+- Cross-organization moves and assignments are rejected; every hierarchy mutation validates that the target parent belongs to the same organization.
+- The move workflow prevents cycles (a department cannot become its own ancestor) and updates both `Path` and `Level` for every affected descendant.
+- Employees may belong to multiple departments, but assignment operations deduplicate identifiers and enforce that all chosen departments originate from the same organization.
+
 🚀 Getting Started
 🧰 Prerequisites
 Requirement	Version
