@@ -52,6 +52,8 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<UsageCounter> UsageCounters => Set<UsageCounter>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Timesheet> Timesheets => Set<Timesheet>();
+    public DbSet<TimesheetEntry> TimesheetEntries => Set<TimesheetEntry>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

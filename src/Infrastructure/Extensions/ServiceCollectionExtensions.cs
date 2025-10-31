@@ -79,6 +79,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
+        services.AddScoped<ITimesheetService, TimesheetService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IInvoiceService, InvoiceService>();
         services.AddSingleton<IUsageService, UsageService>();
@@ -165,6 +166,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IVacancyRepository, EntityFrameworkVacancyRepository>();
         services.AddScoped<IInterviewScheduleRepository, EntityFrameworkInterviewScheduleRepository>();
         services.AddScoped<ISelfServiceAccountRepository, EntityFrameworkSelfServiceAccountRepository>();
+        services.AddScoped<ITimesheetRepository, EntityFrameworkTimesheetRepository>();
     }
 
     private static void RegisterInMemoryRepositories(IServiceCollection services)
@@ -195,6 +197,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IVacancyRepository, InMemoryVacancyRepository>();
         services.AddSingleton<IInterviewScheduleRepository, InMemoryInterviewScheduleRepository>();
         services.AddSingleton<ISelfServiceAccountRepository, InMemorySelfServiceAccountRepository>();
+        services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
     }
 
     private static void ConfigureIdentityServices(IServiceCollection services)
