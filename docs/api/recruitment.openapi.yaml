@@ -1,0 +1,531 @@
+openapi: 3.0.3
+info:
+  title: HR API - Recruitment Module
+  version: 1.0.0
+  description: |
+    Recruitment tracking module covering Jobs, Candidates, Applications, and Interviews.
+    Includes stage progression, interview scheduling/feedback, and hiring flow.
+servers:
+  - url: /
+tags:
+  - name: Recruitment
+  - name: Jobs
+  - name: Applications
+  - name: Interviews
+  - name: Candidates
+paths:
+  /api/recruitment/jobs:
+    get:
+      tags: [Jobs]
+      summary: List jobs
+      parameters:
+        - $ref: '#/components/parameters/OrgId'
+        - $ref: '#/components/parameters/JobStatus'
+      responses:
+        '200':
+          description: Job list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+    post:
+      tags: [Jobs]
+      summary: Create a job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreate'
+      responses:
+        '201':
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400': { $ref: '#/components/responses/ValidationError' }
+  /api/recruitment/jobs/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    put:
+      tags: [Jobs]
+      summary: Update a job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobUpdate'
+      responses:
+        '200':
+          description: Job updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+  /api/recruitment/jobs/{id}:close:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    post:
+      tags: [Jobs]
+      summary: Close a job
+      responses:
+        '200':
+          description: Job closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/recruitment/applications:
+    get:
+      tags: [Applications]
+      summary: List applications
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+        - $ref: '#/components/parameters/ApplicationStage'
+      responses:
+        '200':
+          description: Application list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+    post:
+      tags: [Applications]
+      summary: Create application (with existing candidate or new)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+      responses:
+        '201':
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409':
+          description: Candidate email already exists (when creating new candidate)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/recruitment/applications/{id}:advance:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    post:
+      tags: [Applications]
+      summary: Advance application to next stage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationAdvance'
+      responses:
+        '200':
+          description: Stage advanced
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422':
+          description: Invalid stage transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/recruitment/interviews:
+    post:
+      tags: [Interviews]
+      summary: Schedule interview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewCreate'
+      responses:
+        '201':
+          description: Interview scheduled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interview'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/recruitment/interviews/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    put:
+      tags: [Interviews]
+      summary: Update interview (e.g., record feedback)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewUpdate'
+      responses:
+        '200':
+          description: Interview updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interview'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  parameters:
+    PathId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/UUID'
+    OrgId:
+      name: orgId
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/UUID'
+    JobStatus:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/JobStatus'
+    JobId:
+      name: jobId
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/UUID'
+    ApplicationStage:
+      name: stage
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/ApplicationStage'
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+      example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+    DateTime:
+      type: string
+      format: date-time
+      example: 2025-01-15T13:45:30Z
+
+    JobStatus:
+      type: string
+      enum: [Open, Closed]
+
+    Seniority:
+      type: string
+      enum: [Intern, Junior, Mid, Senior, Lead, Principal]
+
+    EmploymentType:
+      type: string
+      enum: [FullTime, PartTime, Contract, Internship, Temporary]
+
+    ApplicationStage:
+      type: string
+      enum: [Applied, Screen, Interview, Offer, Hired, Rejected]
+
+    InterviewOutcome:
+      type: string
+      enum: [Pass, Fail, Hold]
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+    ValidationError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            errors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+
+    Job:
+      type: object
+      required: [id, organizationId, title, openings, status, postedAtUtc]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        organizationId: { $ref: '#/components/schemas/UUID' }
+        departmentId:
+          allOf: [{ $ref: '#/components/schemas/UUID' }]
+          nullable: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        seniority:
+          $ref: '#/components/schemas/Seniority'
+        employmentType:
+          $ref: '#/components/schemas/EmploymentType'
+        openings:
+          type: integer
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        postedAtUtc:
+          $ref: '#/components/schemas/DateTime'
+
+    JobCreate:
+      type: object
+      required: [organizationId, title, openings]
+      properties:
+        organizationId: { $ref: '#/components/schemas/UUID' }
+        departmentId:
+          allOf: [{ $ref: '#/components/schemas/UUID' }]
+          nullable: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        seniority:
+          $ref: '#/components/schemas/Seniority'
+        employmentType:
+          $ref: '#/components/schemas/EmploymentType'
+        openings:
+          type: integer
+          minimum: 1
+
+    JobUpdate:
+      type: object
+      description: Update allowed fields; status can be set only to Closed via close action.
+      properties:
+        departmentId:
+          allOf: [{ $ref: '#/components/schemas/UUID' }]
+          nullable: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        seniority:
+          $ref: '#/components/schemas/Seniority'
+        employmentType:
+          $ref: '#/components/schemas/EmploymentType'
+        openings:
+          type: integer
+          minimum: 1
+
+    Candidate:
+      type: object
+      required: [id, fullName, email, createdAtUtc]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        fullName:
+          type: string
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          description: Must be unique across all candidates.
+        phone:
+          type: string
+          nullable: true
+        cvUrl:
+          type: string
+          format: uri
+          nullable: true
+        source:
+          type: string
+          nullable: true
+        createdAtUtc:
+          $ref: '#/components/schemas/DateTime'
+
+    CandidateInput:
+      type: object
+      description: Candidate payload when creating along with an application.
+      required: [fullName, email]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          nullable: true
+        cvUrl:
+          type: string
+          format: uri
+          nullable: true
+        source:
+          type: string
+          nullable: true
+
+    Application:
+      type: object
+      required: [id, jobId, candidateId, stage, updatedAtUtc]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        jobId: { $ref: '#/components/schemas/UUID' }
+        candidateId: { $ref: '#/components/schemas/UUID' }
+        stage: { $ref: '#/components/schemas/ApplicationStage' }
+        ownerId:
+          allOf: [{ $ref: '#/components/schemas/UUID' }]
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        updatedAtUtc: { $ref: '#/components/schemas/DateTime' }
+
+    ApplicationCreate:
+      type: object
+      required: [jobId]
+      properties:
+        jobId: { $ref: '#/components/schemas/UUID' }
+        candidateId:
+          allOf: [{ $ref: '#/components/schemas/UUID' }]
+          nullable: true
+        candidate:
+          allOf: [{ $ref: '#/components/schemas/CandidateInput' }]
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      oneOf:
+        - required: [candidateId]
+        - required: [candidate]
+      description: |
+        Provide either an existing `candidateId` or a `candidate` payload. If creating a new
+        candidate, email must be unique; otherwise 409 is returned.
+
+    ApplicationAdvance:
+      type: object
+      required: [nextStage]
+      properties:
+        nextStage: { $ref: '#/components/schemas/ApplicationStage' }
+        createEmployee:
+          type: boolean
+          default: false
+      description: |
+        Server validates allowed transitions: Applied→Screen→Interview→Offer→Hired or Rejected at any time.
+        When moving to Hired and `createEmployee=true`, the service will create an Employee record.
+
+    Interview:
+      type: object
+      required: [id, applicationId, scheduledAtUtc, durationMin, interviewerId]
+      properties:
+        id: { $ref: '#/components/schemas/UUID' }
+        applicationId: { $ref: '#/components/schemas/UUID' }
+        scheduledAtUtc: { $ref: '#/components/schemas/DateTime' }
+        durationMin:
+          type: integer
+          minimum: 1
+        interviewerId: { $ref: '#/components/schemas/UUID' }
+        location:
+          type: string
+          nullable: true
+        meetingUrl:
+          type: string
+          format: uri
+          nullable: true
+        feedback:
+          type: string
+          nullable: true
+        outcome:
+          allOf: [{ $ref: '#/components/schemas/InterviewOutcome' }]
+          nullable: true
+      allOf:
+        - type: object
+          description: Exactly one of location or meetingUrl must be provided.
+
+    InterviewCreate:
+      type: object
+      required: [applicationId, scheduledAtUtc, durationMin, interviewerId]
+      properties:
+        applicationId: { $ref: '#/components/schemas/UUID' }
+        scheduledAtUtc: { $ref: '#/components/schemas/DateTime' }
+        durationMin:
+          type: integer
+          minimum: 1
+        interviewerId: { $ref: '#/components/schemas/UUID' }
+        location:
+          type: string
+          nullable: true
+        meetingUrl:
+          type: string
+          format: uri
+          nullable: true
+      oneOf:
+        - required: [location]
+        - required: [meetingUrl]
+
+    InterviewUpdate:
+      type: object
+      properties:
+        scheduledAtUtc:
+          allOf: [{ $ref: '#/components/schemas/DateTime' }]
+          nullable: true
+        durationMin:
+          type: integer
+          minimum: 1
+        location:
+          type: string
+          nullable: true
+        meetingUrl:
+          type: string
+          format: uri
+          nullable: true
+        feedback:
+          type: string
+          nullable: true
+        outcome:
+          allOf: [{ $ref: '#/components/schemas/InterviewOutcome' }]
+          nullable: true

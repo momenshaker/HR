@@ -30,6 +30,8 @@ tags:
     description: Billing integrations, plans, and consumption reporting.
   - name: Subscriptions
     description: Subscription lifecycle management.
+  - name: Performance
+    description: Goals, review cycles, and performance reviews.
 paths:
   /api/health:
     get:
@@ -386,6 +388,222 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/performance/cycles:
+    get:
+      tags: [Performance]
+      summary: List review cycles
+      description: Retrieves performance review cycles with optional open-state filter.
+      parameters:
+        - name: isOpen
+          in: query
+          description: Optional filter to return only open or only closed cycles.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: A collection of review cycles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewCycleDto'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Performance]
+      summary: Create a review cycle
+      description: Creates a new performance review cycle.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewCycleRequest'
+      responses:
+        '201':
+          description: Newly created review cycle.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCycleDto'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/performance/cycles/{id}:open:
+    post:
+      tags: [Performance]
+      summary: Open a review cycle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Review cycle identifier.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Opened review cycle.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCycleDto'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Review cycle not found.
+  /api/performance/cycles/{id}:close:
+    post:
+      tags: [Performance]
+      summary: Close a review cycle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Review cycle identifier.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Closed review cycle.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCycleDto'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Review cycle not found.
+  /api/performance/reviews:
+    get:
+      tags: [Performance]
+      summary: List reviews
+      description: Retrieves performance reviews filtered by cycle, employee, and/or manager.
+      parameters:
+        - name: cycleId
+          in: query
+          description: Optional cycle identifier to filter reviews.
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: query
+          description: Optional employee identifier to filter reviews.
+          schema:
+            type: string
+            format: uuid
+        - name: managerId
+          in: query
+          description: Optional manager identifier to filter reviews.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A collection of reviews.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewDto'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Performance]
+      summary: Create or submit a review
+      description: Creates a new review draft or submits a review with ratings and comments.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Created review.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewDto'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/performance/reviews/{id}:
+    put:
+      tags: [Performance]
+      summary: Update review ratings and comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Review identifier.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReviewRequest'
+      responses:
+        '200':
+          description: Updated review.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewDto'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Review not found.
 components:
   securitySchemes:
     BearerAuth:
@@ -454,6 +672,218 @@ components:
         refreshToken:
           type: string
           description: Optional refresh token for session extension.
+    GoalDto:
+      type: object
+      required: [id, employeeId, title, startDate, dueDate, status, weight]
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          format: date
+        dueDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [Active, Completed, Cancelled]
+        weight:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        rowVersion:
+          type: string
+          description: Concurrency token for optimistic updates.
+    ReviewCycleDto:
+      type: object
+      required: [id, organizationId, name, periodStart, periodEnd, isOpen]
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        isOpen:
+          type: boolean
+    CreateReviewCycleRequest:
+      type: object
+      required: [organizationId, name, periodStart, periodEnd]
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+    ReviewKpiDto:
+      type: object
+      required: [id, name, rating]
+      properties:
+        id:
+          type: string
+          format: uuid
+        reviewId:
+          type: string
+          format: uuid
+        goalId:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+        rating:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 5
+        notes:
+          type: string
+          nullable: true
+    ReviewDto:
+      type: object
+      required: [id, cycleId, employeeId, managerId]
+      properties:
+        id:
+          type: string
+          format: uuid
+        cycleId:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        managerId:
+          type: string
+          format: uuid
+        overallRating:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 5
+          nullable: true
+        comments:
+          type: string
+          nullable: true
+        submittedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        rowVersion:
+          type: string
+          description: Concurrency token for optimistic updates.
+        kpis:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewKpiDto'
+    CreateReviewRequest:
+      type: object
+      required: [cycleId, employeeId, managerId]
+      properties:
+        cycleId:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        managerId:
+          type: string
+          format: uuid
+        overallRating:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 5
+          nullable: true
+        comments:
+          type: string
+          nullable: true
+        submittedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        kpis:
+          type: array
+          items:
+            type: object
+            required: [name, rating]
+            properties:
+              goalId:
+                type: string
+                format: uuid
+                nullable: true
+              name:
+                type: string
+              rating:
+                type: integer
+                format: int32
+                minimum: 1
+                maximum: 5
+              notes:
+                type: string
+                nullable: true
+    UpdateReviewRequest:
+      type: object
+      properties:
+        overallRating:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 5
+          nullable: true
+        comments:
+          type: string
+          nullable: true
+        submittedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        kpis:
+          type: array
+          items:
+            type: object
+            required: [id, rating]
+            properties:
+              id:
+                type: string
+                format: uuid
+              goalId:
+                type: string
+                format: uuid
+                nullable: true
+              name:
+                type: string
+              rating:
+                type: integer
+                format: int32
+                minimum: 1
+                maximum: 5
+              notes:
+                type: string
+                nullable: true
     SubscriptionDto:
       type: object
       required: [id, planId, status, seats, createdAt]
