@@ -17,6 +17,11 @@ public sealed class EmployeeSearchRequest
     public string? Query { get; init; }
 
     /// <summary>
+    ///     Restricts results to employees belonging to the specified organization.
+    /// </summary>
+    public Guid? OrganizationId { get; init; }
+
+    /// <summary>
     ///     Restricts results to a specific department.
     /// </summary>
     public Guid? DepartmentId { get; init; }

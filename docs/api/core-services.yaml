@@ -9,22 +9,120 @@ info:
 servers:
   - url: https://localhost:5001
 paths:
-  /api/departments:
+  /api/organizations:
     get:
-      summary: Retrieve all departments
+      summary: Retrieve organizations
       tags: [Organization]
       responses:
         '200':
-          description: A list of departments
+          description: A list of organizations
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DepartmentDto'
+                  $ref: '#/components/schemas/OrganizationDto'
     post:
-      summary: Create a department
+      summary: Create an organization
       tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationRequest'
+      responses:
+        '201':
+          description: Newly created organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationDto'
+  /api/organizations/{id}:
+    get:
+      summary: Retrieve an organization by id
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Organization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationDto'
+        '404':
+          description: Organization not found
+    put:
+      summary: Update an organization
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationRequest'
+      responses:
+        '200':
+          description: Updated organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationDto'
+        '404':
+          description: Organization not found
+    delete:
+      summary: Delete an organization
+      tags: [Organization]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Organization deleted
+        '404':
+          description: Organization not found
+  /api/organizations/{organizationId}/departments:
+    get:
+      summary: Retrieve departments for an organization
+      tags: [Organization]
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: hierarchy
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: When true returns the hierarchy instead of a flat list.
+      responses:
+        '200':
+          description: Organization departments
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/DepartmentDto'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/DepartmentHierarchyDto'
+    post:
+      summary: Create a department within an organization
+      tags: [Organization]
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -38,14 +136,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DepartmentDto'
-        '400':
-          description: Validation failure
-  /api/departments/{id}:
+  /api/organizations/{organizationId}/departments/{departmentId}:
     get:
-      summary: Retrieve a department by id
+      summary: Retrieve a department within an organization
       tags: [Organization]
       parameters:
-        - $ref: '#/components/parameters/ResourceId'
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: Department details
@@ -56,10 +163,21 @@ paths:
         '404':
           description: Department not found
     put:
-      summary: Update a department
+      summary: Update a department within an organization
       tags: [Organization]
       parameters:
-        - $ref: '#/components/parameters/ResourceId'
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -73,18 +191,67 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DepartmentDto'
-        '400':
-          description: Validation failure
         '404':
           description: Department not found
     delete:
-      summary: Delete a department
+      summary: Delete a department within an organization
       tags: [Organization]
       parameters:
-        - $ref: '#/components/parameters/ResourceId'
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cascade
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: When true deletes child departments recursively.
       responses:
         '204':
           description: Department deleted
+        '404':
+          description: Department not found
+        '409':
+          description: Delete blocked because the department has children
+  /api/organizations/{organizationId}/departments/{departmentId}:move:
+    post:
+      summary: Move a department under a new parent within an organization
+      tags: [Organization]
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveDepartmentRequest'
+      responses:
+        '200':
+          description: Updated department hierarchy metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentDto'
         '404':
           description: Department not found
   /api/organization-units:
@@ -534,17 +701,43 @@ paths:
           description: Delegated authority not found
   /api/employees:
     get:
-      summary: Retrieve all employees
+      summary: Retrieve employees with optional organization scope
       tags: [Employees]
+      parameters:
+        - in: query
+          name: orgId
+          schema:
+            type: string
+            format: uuid
+          description: Filters employees to a specific organization based on departmental assignments.
+        - in: query
+          name: q
+          schema:
+            type: string
+            maxLength: 200
+          description: Free-text search across employee name, email, and job title.
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 1-based page index.
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+          description: Number of records to return per page.
       responses:
         '200':
-          description: A list of employees
+          description: Paged employees matching the supplied filters
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EmployeeDto'
+                $ref: '#/components/schemas/PaginatedEmployeeResponse'
     post:
       summary: Create an employee
       tags: [Employees]
@@ -610,96 +803,106 @@ paths:
           description: Employee deleted
         '404':
           description: Employee not found
-  /api/employees/search:
+  /api/departments/{departmentId}/employees:
     get:
-      summary: Search employees with filters and pagination
+      summary: Retrieve employees assigned to a department
       tags: [Employees]
       parameters:
-        - in: query
-          name: query
-          schema:
-            type: string
-            maxLength: 200
-          description: Free-text search across name, email, and job title
-        - in: query
-          name: departmentId
+        - name: departmentId
+          in: path
+          required: true
           schema:
             type: string
             format: uuid
-          description: Limit results to a specific department
-        - in: query
-          name: jobTitle
-          schema:
-            type: string
-            maxLength: 150
-          description: Restrict results to a given job title fragment
-        - in: query
-          name: isActive
-          schema:
-            type: boolean
-          description: Filter by active (true) or inactive (false) employees
-        - in: query
-          name: hiredFrom
-          schema:
-            type: string
-            format: date
-          description: Only include employees hired on or after this date
-        - in: query
-          name: hiredTo
-          schema:
-            type: string
-            format: date
-          description: Only include employees hired on or before this date
-        - in: query
-          name: employmentEndFrom
-          schema:
-            type: string
-            format: date
-          description: Include employees whose employment ended on or after this date
-        - in: query
-          name: employmentEndTo
-          schema:
-            type: string
-            format: date
-          description: Include employees whose employment ended on or before this date
-        - in: query
-          name: pageNumber
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-          description: 1-based page index
-        - in: query
-          name: pageSize
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 200
-            default: 25
-          description: Number of records to return per page
-        - in: query
-          name: sortBy
-          schema:
-            type: string
-            enum: [lastName, employmentStartDate, employmentEndDate, jobTitle, tenure]
-            default: lastName
-          description: Field used to sort results
-        - in: query
-          name: sortDirection
-          schema:
-            type: string
-            enum: [ascending, descending]
-            default: ascending
-          description: Direction to apply when ordering results
       responses:
         '200':
-          description: Paged employees matching the supplied filters
+          description: Employees belonging to the specified department
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedEmployeeResponse'
-        '400':
-          description: Validation failure
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeDto'
+  /api/employees/{employeeId}/departments:
+    get:
+      summary: Retrieve departments assigned to an employee
+      tags: [Employees]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Departments for the employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DepartmentDto'
+  /api/employees/{employeeId}/departments:assign:
+    post:
+      summary: Assign an employee to additional departments
+      tags: [Employees]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDepartmentIdentifiersRequest'
+      responses:
+        '204':
+          description: Assignment completed
+  /api/employees/{employeeId}/departments:replace:
+    post:
+      summary: Replace department assignments for an employee
+      tags: [Employees]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDepartmentIdentifiersRequest'
+      responses:
+        '204':
+          description: Assignments replaced
+  /api/employees/{employeeId}/departments:unassign:
+    post:
+      summary: Remove department assignments from an employee
+      tags: [Employees]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDepartmentIdentifiersRequest'
+      responses:
+        '204':
+          description: Assignments removed
   /api/employees/{employeeId}/self-service/leave-requests:
     get:
       summary: Retrieve leave requests submitted by an employee
@@ -1847,6 +2050,62 @@ components:
         isActive:
           type: boolean
       required: [name, code, isActive]
+    DepartmentHierarchyDto:
+      type: object
+      properties:
+        department:
+          $ref: '#/components/schemas/DepartmentDto'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentHierarchyDto'
+      required: [department, children]
+    MoveDepartmentRequest:
+      type: object
+      properties:
+        newParentDepartmentId:
+          type: string
+          format: uuid
+          nullable: true
+    OrganizationDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [id, name, code, isActive]
+    CreateOrganizationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [name, code]
+    UpdateOrganizationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+      required: [name, code]
     OrganizationUnitDto:
       type: object
       properties:
@@ -2435,6 +2694,15 @@ components:
         businessUnit:
           type: string
       required: [primaryDepartmentId]
+    EmployeeDepartmentIdentifiersRequest:
+      type: object
+      properties:
+        departmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required: [departmentIds]
     EmployeeJobArchitectureRequest:
       type: object
       properties:

@@ -40,9 +40,11 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
         ArgumentNullException.ThrowIfNull(request);
 
         var allEmployees = await _employeeRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var departments = await _departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var departmentsById = departments.ToDictionary(department => department.Id);
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var filteredEmployees = ApplyFilters(allEmployees, request, today);
+        var filteredEmployees = ApplyFilters(allEmployees, request, today, departmentsById);
         var orderedEmployees = ApplySorting(filteredEmployees, request, today).ToList();
 
         var totalCount = orderedEmployees.Count;
@@ -56,10 +58,28 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
         return new PaginatedResponse<EmployeeDto>(request.PageNumber, request.PageSize, totalCount, pageItems);
     }
 
+    public async Task<IReadOnlyCollection<EmployeeDto>> GetByDepartmentAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken = default)
+    {
+        if (departmentId == Guid.Empty)
+        {
+            throw new ArgumentException("Department identifier must be provided.", nameof(departmentId));
+        }
+
+        var employees = await _employeeRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        return employees
+            .Where(employee => employee.DepartmentIds.Contains(departmentId))
+            .Select(employee => employee.ToDto())
+            .ToArray();
+    }
+
     private static IEnumerable<Employee> ApplyFilters(
         IEnumerable<Employee> employees,
         EmployeeSearchRequest request,
-        DateOnly referenceDate)
+        DateOnly referenceDate,
+        IReadOnlyDictionary<Guid, Department> departmentsById)
     {
         ArgumentNullException.ThrowIfNull(employees);
 
@@ -78,6 +98,14 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
         if (request.DepartmentId.HasValue)
         {
             filteredEmployees = filteredEmployees.Where(employee => employee.DepartmentIds.Contains(request.DepartmentId.Value));
+        }
+
+        if (request.OrganizationId.HasValue)
+        {
+            var organizationId = request.OrganizationId.Value;
+            filteredEmployees = filteredEmployees.Where(employee => employee.DepartmentIds.Any(departmentId =>
+                departmentsById.TryGetValue(departmentId, out var department) &&
+                department.OrganizationId == organizationId));
         }
 
         if (!string.IsNullOrWhiteSpace(request.JobTitle))

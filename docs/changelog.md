@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Exposed organization, department, and employee assignment endpoints with nested routing, pagination, and documented OpenAPI updates for hierarchy management workflows.
 - Enriched employee master data with contract history, compliance documentation, job architecture, and department alignment surfaced through the Employees API and DTOs.
 - Introduced a development authentication endpoint issuing JWTs for Postman and manual testing, backed by configurable in-memory accounts and documented default credentials.
 - Delivered platform system diagnostics endpoints for health and version reporting alongside integration test coverage.
