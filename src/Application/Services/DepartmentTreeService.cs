@@ -193,16 +193,16 @@ public sealed class DepartmentTreeService : IDepartmentTreeService
         return (department, ancestors);
     }
 
-    private static Dictionary<Guid?, List<Department>> BuildChildrenLookup(IEnumerable<Department> departments)
+    private static Dictionary<Guid, List<Department>> BuildChildrenLookup(IEnumerable<Department> departments)
     {
         return departments
-            .GroupBy(department => department.ParentDepartmentId)
+            .GroupBy(department => department.ParentDepartmentId ?? Guid.Empty)
             .ToDictionary(group => group.Key, group => group.ToList());
     }
 
     private static HashSet<Guid> CollectDescendantIds(
         Guid rootDepartmentId,
-        IReadOnlyDictionary<Guid?, List<Department>> childrenLookup)
+        IReadOnlyDictionary<Guid, List<Department>> childrenLookup)
     {
         var descendants = new HashSet<Guid>();
 

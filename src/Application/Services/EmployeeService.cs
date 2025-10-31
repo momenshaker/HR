@@ -241,7 +241,7 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
             .ToDictionary(group => group.Key, group => group.Count());
 
         var departmentHeadcounts = activeEmployees
-            .GroupBy(employee => employee.PrimaryDepartmentId)
+            .GroupBy(employee => employee.PrimaryDepartmentId ?? Guid.Empty)
             .Select(group =>
             {
                 var departmentName = departmentLookup.TryGetValue(group.Key, out var name)

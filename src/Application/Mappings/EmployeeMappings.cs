@@ -29,7 +29,7 @@ public static class EmployeeMappings
             employee.LastName,
             employee.Email,
             employee.JobTitle,
-            primaryDepartmentId,
+            primaryDepartmentId ?? Guid.Empty,
             departmentIds,
             employee.EmploymentStartDate,
             employee.EmploymentEndDate,
@@ -62,8 +62,8 @@ public static class EmployeeMappings
             DateOfBirth = request.DateOfBirth,
             Departments = departments,
             JobArchitecture = jobArchitecture,
-            Contracts = contracts,
-            ComplianceDocuments = complianceDocuments
+            Contracts = contracts.ToList(),
+            ComplianceDocuments = complianceDocuments.ToList()
         };
     }
 
@@ -91,8 +91,8 @@ public static class EmployeeMappings
             DateOfBirth = request.DateOfBirth,
             Departments = departments,
             JobArchitecture = jobArchitecture,
-            Contracts = contracts,
-            ComplianceDocuments = complianceDocuments
+            Contracts = contracts.ToList(),
+            ComplianceDocuments = complianceDocuments.ToList()
         };
     }
 
@@ -200,7 +200,7 @@ public static class EmployeeMappings
         return requests
             .Select(contract => new EmploymentContract
             {
-                Id = contract.Id == Guid.Empty ? Guid.NewGuid() : contract.Id,
+                Id = contract.Id.GetValueOrDefault() == Guid.Empty ? Guid.NewGuid() : contract.Id.GetValueOrDefault(),
                 ContractType = contract.ContractType?.Trim() ?? string.Empty,
                 ContractNumber = contract.ContractNumber?.Trim() ?? string.Empty,
                 Status = contract.Status?.Trim() ?? string.Empty,
@@ -226,7 +226,7 @@ public static class EmployeeMappings
         return requests
             .Select(document => new EmployeeComplianceDocument
             {
-                Id = document.Id == Guid.Empty ? Guid.NewGuid() : document.Id,
+                Id = document.Id.GetValueOrDefault() == Guid.Empty ? Guid.NewGuid() : document.Id.GetValueOrDefault(),
                 DocumentType = document.DocumentType?.Trim() ?? string.Empty,
                 ReferenceNumber = document.ReferenceNumber?.Trim() ?? string.Empty,
                 Status = document.Status?.Trim() ?? string.Empty,

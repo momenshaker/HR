@@ -52,7 +52,12 @@ internal sealed class EntityFrameworkEmployeeDepartmentRepository : IEmployeeDep
         var existingSet = existingAssignments.ToHashSet();
         var assignmentsToAdd = targetDepartmentIds
             .Where(departmentId => !existingSet.Contains(departmentId))
-            .Select(departmentId => new EmployeeDepartment(employeeId, departmentId))
+            .Select(departmentId => new EmployeeDepartment
+            {
+                EmployeeId = employeeId,
+                DepartmentId = departmentId,
+                IsPrimary = false
+            })
             .ToArray();
 
         if (assignmentsToAdd.Length == 0)
@@ -96,7 +101,12 @@ internal sealed class EntityFrameworkEmployeeDepartmentRepository : IEmployeeDep
 
         var assignmentsToAdd = desiredDepartmentIds
             .Except(existingIds)
-            .Select(departmentId => new EmployeeDepartment(employeeId, departmentId))
+            .Select(departmentId => new EmployeeDepartment
+            {
+                EmployeeId = employeeId,
+                DepartmentId = departmentId,
+                IsPrimary = false
+            })
             .ToArray();
 
         if (assignmentsToAdd.Length > 0)
