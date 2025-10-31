@@ -18,13 +18,6 @@ public partial interface IEmployeeService
     Task<EmployeeDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Performs an advanced employee search using filtering, sorting, and paging semantics.
-    /// </summary>
-    Task<PaginatedResponse<EmployeeDto>> SearchAsync(
-        EmployeeSearchRequest request,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
     ///     Retrieves employees that belong to the specified department.
     /// </summary>
     Task<IReadOnlyCollection<EmployeeDto>> GetByDepartmentAsync(
