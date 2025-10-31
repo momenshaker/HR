@@ -33,6 +33,8 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     public DbSet<SelfServiceAccount> SelfServiceAccounts => Set<SelfServiceAccount>();
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
     public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
+    public DbSet<LeaveType> LeaveTypes => Set<LeaveType>();
+    public DbSet<LeaveBalance> LeaveBalances => Set<LeaveBalance>();
     public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();
     public DbSet<PerformanceReview> PerformanceReviews => Set<PerformanceReview>();
     public DbSet<Candidate> Candidates => Set<Candidate>();

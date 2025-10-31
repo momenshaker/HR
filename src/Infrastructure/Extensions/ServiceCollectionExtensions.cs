@@ -70,6 +70,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDelegatedAuthorityService, DelegatedAuthorityService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<ILeaveManagementService, LeaveManagementService>();
+        services.AddSingleton<IWorkdayCalendar, DefaultWorkdayCalendar>();
+        services.AddScoped<ILeaveService, LeaveService>();
         services.AddScoped<IPayrollService, PayrollService>();
         services.AddScoped<IPerformanceManagementService, PerformanceManagementService>();
         services.AddScoped<IRecruitmentService, RecruitmentService>();
@@ -78,6 +80,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISelfServiceAccountService, SelfServiceAccountService>();
         services.AddScoped<ICommunicationService, CommunicationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<ILeaveRolloverService, LeaveRolloverService>();
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
         services.AddScoped<ITimesheetService, TimesheetService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
@@ -163,6 +166,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPulseSurveyRepository, EntityFrameworkPulseSurveyRepository>();
         services.AddScoped<IRecognitionProgramRepository, EntityFrameworkRecognitionProgramRepository>();
         services.AddScoped<IAnalyticsSnapshotRepository, EntityFrameworkAnalyticsSnapshotRepository>();
+        services.AddScoped<ILeaveTypeRepository, EntityFrameworkLeaveTypeRepository>();
+        services.AddScoped<ILeaveBalanceRepository, EntityFrameworkLeaveBalanceRepository>();
         services.AddScoped<IVacancyRepository, EntityFrameworkVacancyRepository>();
         services.AddScoped<IInterviewScheduleRepository, EntityFrameworkInterviewScheduleRepository>();
         services.AddScoped<ISelfServiceAccountRepository, EntityFrameworkSelfServiceAccountRepository>();
@@ -198,6 +203,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IInterviewScheduleRepository, InMemoryInterviewScheduleRepository>();
         services.AddSingleton<ISelfServiceAccountRepository, InMemorySelfServiceAccountRepository>();
         services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
+        services.AddSingleton<ILeaveTypeRepository, InMemoryLeaveTypeRepository>();
+        services.AddSingleton<ILeaveBalanceRepository, InMemoryLeaveBalanceRepository>();
     }
 
     private static void ConfigureIdentityServices(IServiceCollection services)
