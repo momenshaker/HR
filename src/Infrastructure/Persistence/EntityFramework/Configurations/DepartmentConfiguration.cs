@@ -22,13 +22,16 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
 
         builder.Property(department => department.Path)
             .IsRequired()
-            .HasDefaultValue(string.Empty);
+            .HasMaxLength(512);
 
         builder.Property(department => department.Level)
+            .IsRequired()
             .HasDefaultValue(0);
 
         builder.Property(department => department.OrganizationId)
             .IsRequired();
+
+        builder.Property(department => department.ManagerId);
 
         builder.Property(department => department.Branch)
             .HasMaxLength(100);
@@ -42,6 +45,12 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
         builder.Property(department => department.IsActive)
             .HasDefaultValue(true);
 
+        builder.Property(department => department.CreatedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(department => department.UpdatedAtUtc)
+            .HasColumnType("datetime2");
+
         builder.HasOne(department => department.Organization)
             .WithMany(organization => organization.Departments)
             .HasForeignKey(department => department.OrganizationId)
@@ -52,11 +61,13 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
             .HasForeignKey(department => department.ParentDepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasIndex(department => department.Path);
+
         builder.HasIndex(department => new { department.OrganizationId, department.ParentDepartmentId, department.Name })
             .IsUnique();
 
         builder.HasIndex(department => new { department.OrganizationId, department.Code })
-            .HasFilter($"{nameof(Department.Code)} IS NOT NULL")
+            .HasFilter("[Code] IS NOT NULL AND [Code] <> ''")
             .IsUnique();
     }
 }

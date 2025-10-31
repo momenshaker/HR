@@ -1,10 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
+using HR.Application.Common;
+using HR.Application.Common.Exceptions;
 using HR.Application.DTOs;
 using HR.Application.Mappings;
-using HR.Application.Common.Exceptions;
 using HR.Domain.Entities;
 
 namespace HR.Application.Services;
@@ -37,7 +43,7 @@ public sealed class DepartmentService : IDepartmentService
         return departments
             .Where(department => department.OrganizationId == organizationId)
             .Select(department => department.ToDto())
-            .OrderBy(dto => dto.Name, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(dto => dto.Path, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -49,6 +55,7 @@ public sealed class DepartmentService : IDepartmentService
         var departments = await _departmentRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var scopedDepartments = departments
             .Where(department => department.OrganizationId == organizationId)
+            .OrderBy(department => department.Path, StringComparer.Ordinal)
             .ToArray();
 
         var builders = scopedDepartments.ToDictionary(
@@ -73,7 +80,7 @@ public sealed class DepartmentService : IDepartmentService
         }
 
         return roots
-            .OrderBy(node => node.Department.Name, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(node => node.Department.Path, StringComparer.Ordinal)
             .Select(node => node.ToDto())
             .ToArray();
     }
@@ -102,12 +109,13 @@ public sealed class DepartmentService : IDepartmentService
         ArgumentNullException.ThrowIfNull(request);
 
         var normalizedRequest = NormalizeCreateRequest(organizationId, request);
-        await EnsureValidParentAsync(
-            organizationId,
-            normalizedRequest.ParentDepartmentId,
-            currentDepartmentId: null,
-            nameof(CreateDepartmentRequest.ParentDepartmentId),
-            cancellationToken).ConfigureAwait(false);
+        var parent = await EnsureValidParentAsync(
+                organizationId,
+                normalizedRequest.ParentDepartmentId,
+                currentDepartmentId: null,
+                nameof(CreateDepartmentRequest.ParentDepartmentId),
+                cancellationToken)
+            .ConfigureAwait(false);
 
         await EnsureDepartmentIsUniqueAsync(
                 organizationId,
@@ -118,7 +126,10 @@ public sealed class DepartmentService : IDepartmentService
                 cancellationToken)
             .ConfigureAwait(false);
 
-        var entity = normalizedRequest.ToEntity();
+        var departmentId = Guid.NewGuid();
+        var level = parent is null ? 0 : parent.Level + 1;
+        var path = DepartmentHierarchyPath.Build(organizationId, departmentId, parent?.Path);
+        var entity = normalizedRequest.ToEntity(departmentId, path, level, DateTime.UtcNow);
         var created = await _departmentRepository.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
         return created.ToDto();
@@ -141,11 +152,20 @@ public sealed class DepartmentService : IDepartmentService
 
         var normalizedRequest = NormalizeUpdateRequest(organizationId, request);
         await EnsureValidParentAsync(
-            organizationId,
-            normalizedRequest.ParentDepartmentId,
-            existing.Id,
-            nameof(UpdateDepartmentRequest.ParentDepartmentId),
-            cancellationToken).ConfigureAwait(false);
+                organizationId,
+                normalizedRequest.ParentDepartmentId,
+                existing.Id,
+                nameof(UpdateDepartmentRequest.ParentDepartmentId),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (normalizedRequest.ParentDepartmentId != existing.ParentDepartmentId)
+        {
+            throw CreateValidationException(
+                nameof(UpdateDepartmentRequest.ParentDepartmentId),
+                "Use the move endpoint to change the department parent.",
+                "HierarchyMutation");
+        }
 
         await EnsureDepartmentIsUniqueAsync(
                 organizationId,
@@ -156,7 +176,7 @@ public sealed class DepartmentService : IDepartmentService
                 cancellationToken)
             .ConfigureAwait(false);
 
-        var updatedEntity = normalizedRequest.ApplyUpdates(existing);
+        var updatedEntity = normalizedRequest.ApplyUpdates(existing, existing.Path, existing.Level);
         var persisted = await _departmentRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
 
         return persisted?.ToDto();
@@ -176,17 +196,18 @@ public sealed class DepartmentService : IDepartmentService
         }
 
         await EnsureValidParentAsync(
-            organizationId,
-            newParentDepartmentId,
-            department.Id,
-            nameof(MoveDepartmentRequest.NewParentDepartmentId),
-            cancellationToken).ConfigureAwait(false);
+                organizationId,
+                newParentDepartmentId,
+                department.Id,
+                nameof(MoveDepartmentRequest.NewParentDepartmentId),
+                cancellationToken)
+            .ConfigureAwait(false);
 
         await EnsureDepartmentIsUniqueAsync(
                 organizationId,
                 newParentDepartmentId,
                 department.Name,
-                department.Code ?? string.Empty,
+                department.Code,
                 department.Id,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -269,7 +290,7 @@ public sealed class DepartmentService : IDepartmentService
 
         return departments
             .Select(department => department.ToDto())
-            .OrderBy(dto => dto.Name, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(dto => dto.Path, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -342,7 +363,7 @@ public sealed class DepartmentService : IDepartmentService
         return new ValidationException(new[] { failure });
     }
 
-    private async Task EnsureValidParentAsync(
+    private async Task<Department?> EnsureValidParentAsync(
         Guid organizationId,
         Guid? parentDepartmentId,
         Guid? currentDepartmentId,
@@ -351,7 +372,7 @@ public sealed class DepartmentService : IDepartmentService
     {
         if (!parentDepartmentId.HasValue)
         {
-            return;
+            return null;
         }
 
         var parent = await _departmentRepository
@@ -368,7 +389,7 @@ public sealed class DepartmentService : IDepartmentService
 
         if (!currentDepartmentId.HasValue)
         {
-            return;
+            return parent;
         }
 
         if (parentDepartmentId.Value == currentDepartmentId.Value)
@@ -390,6 +411,8 @@ public sealed class DepartmentService : IDepartmentService
                 "Assigning the selected parent would create a hierarchy cycle.",
                 "HierarchyCycle");
         }
+
+        return parent;
     }
 
     private async Task EnsureDepartmentIsUniqueAsync(
@@ -450,7 +473,7 @@ public sealed class DepartmentService : IDepartmentService
         public DepartmentDto ToDto()
         {
             var orderedChildren = Children
-                .OrderBy(child => child.Department.Name, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(child => child.Department.Path, StringComparer.Ordinal)
                 .Select(child => child.ToDto())
                 .ToArray();
 

@@ -39,6 +39,9 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(employee => employee.DateOfBirth)
             .HasColumnType("date");
 
+        builder.Property(employee => employee.CreatedAtUtc)
+            .HasColumnType("datetime2");
+
         builder.ComplexProperty(employee => employee.JobArchitecture, architecture =>
         {
             architecture.Property(job => job.JobFamily)

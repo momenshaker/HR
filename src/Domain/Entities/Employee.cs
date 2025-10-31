@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HR.Domain.Entities;
 
@@ -8,27 +9,41 @@ namespace HR.Domain.Entities;
 /// </summary>
 public sealed class Employee
 {
-    public Employee(Guid id, string email, string firstName, string lastName, DateTime createdAtUtc, bool isActive = true)
-    {
-        Id = id;
-        Email = email;
-        FirstName = firstName;
-        LastName = lastName;
-        CreatedAtUtc = createdAtUtc;
-        IsActive = isActive;
-    }
+    public Guid Id { get; init; }
 
-    public Guid Id { get; }
+    public string Email { get; init; } = string.Empty;
 
-    public string Email { get; }
+    public string FirstName { get; init; } = string.Empty;
 
-    public string FirstName { get; }
+    public string LastName { get; init; } = string.Empty;
 
-    public string LastName { get; }
+    public string JobTitle { get; init; } = string.Empty;
 
-    public bool IsActive { get; private set; }
+    public DateOnly EmploymentStartDate { get; init; }
 
-    public DateTime CreatedAtUtc { get; }
+    public DateOnly? EmploymentEndDate { get; init; }
 
-    public ICollection<EmployeeDepartment> EmployeeDepartments { get; } = new List<EmployeeDepartment>();
+    public DateOnly? DateOfBirth { get; init; }
+
+    public bool IsActive { get; init; } = true;
+
+    public DateTime CreatedAtUtc { get; init; }
+
+    public EmployeeJobArchitecture JobArchitecture { get; init; } = EmployeeJobArchitecture.Empty;
+
+    public ICollection<EmployeeDepartment> Departments { get; init; } = new List<EmployeeDepartment>();
+
+    public ICollection<EmploymentContract> Contracts { get; init; } = new List<EmploymentContract>();
+
+    public ICollection<EmployeeComplianceDocument> ComplianceDocuments { get; init; } = new List<EmployeeComplianceDocument>();
+
+    public string FullName => string.Join(" ", new[] { FirstName, LastName }.Where(part => !string.IsNullOrWhiteSpace(part)));
+
+    public IReadOnlyCollection<Guid> DepartmentIds => Departments
+        .Select(membership => membership.DepartmentId)
+        .ToArray();
+
+    public Guid? PrimaryDepartmentId => Departments
+        .FirstOrDefault(membership => membership.IsPrimary)
+        ?.DepartmentId;
 }

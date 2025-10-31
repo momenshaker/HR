@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HR.Application.DTOs;
 
 /// <summary>
@@ -24,6 +27,10 @@ public sealed record DepartmentDto
     public string Description { get; init; } = string.Empty;
 
     public bool IsActive { get; init; }
+
+    public string Path { get; init; } = string.Empty;
+
+    public int Level { get; init; }
 
     /// <summary>
     ///     Child departments when the hierarchy representation is requested.

@@ -19,7 +19,7 @@ internal sealed class EmployeeDepartmentConfiguration : IEntityTypeConfiguration
         builder.HasIndex(membership => membership.DepartmentId);
 
         builder.HasOne(membership => membership.Employee)
-            .WithMany(employee => employee.EmployeeDepartments)
+            .WithMany(employee => employee.Departments)
             .HasForeignKey(membership => membership.EmployeeId)
             .OnDelete(DeleteBehavior.Cascade);
 

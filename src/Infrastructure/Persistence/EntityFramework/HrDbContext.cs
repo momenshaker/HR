@@ -63,5 +63,6 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrDbContext).Assembly);
 
         PlanCatalogSeeder.Seed(modelBuilder);
+        OrganizationStructureSeeder.Seed(modelBuilder);
     }
 }
