@@ -24,4 +24,17 @@ public interface IDepartmentRepository
     Task<Department?> UpdateAsync(Department department, CancellationToken cancellationToken = default);
 
     Task<bool> RemoveAsync(Guid departmentId, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByNameAsync(
+        Guid organizationId,
+        Guid? parentDepartmentId,
+        string name,
+        Guid? excludingDepartmentId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByCodeAsync(
+        Guid organizationId,
+        string code,
+        Guid? excludingDepartmentId = null,
+        CancellationToken cancellationToken = default);
 }

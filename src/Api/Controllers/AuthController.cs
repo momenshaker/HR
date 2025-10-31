@@ -366,7 +366,7 @@ public sealed class AuthController : ControllerBase
     private ErrorResponse CreateIdentityErrorResponse(IdentityResult result, string errorCode, string message)
     {
         var details = result.Errors
-            .Select(error => new ErrorDetail(error.Code, error.Description))
+            .Select(error => new ErrorDetail(string.Empty, error.Description, error.Code))
             .ToArray();
 
         return new ErrorResponse(errorCode, message, HttpContext.TraceIdentifier)

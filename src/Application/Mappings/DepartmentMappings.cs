@@ -12,17 +12,20 @@ public static class DepartmentMappings
     {
         ArgumentNullException.ThrowIfNull(department);
 
-        return new DepartmentDto(
-            department.Id,
-            department.Name,
-            department.Code,
-            department.OrganizationId,
-            department.ParentDepartmentId,
-            department.ManagerId,
-            department.Branch,
-            department.Location,
-            department.Description,
-            department.IsActive);
+        return new DepartmentDto
+        {
+            Id = department.Id,
+            Name = department.Name,
+            Code = department.Code ?? string.Empty,
+            OrganizationId = department.OrganizationId,
+            ParentDepartmentId = department.ParentDepartmentId,
+            ManagerId = department.ManagerId,
+            Branch = department.Branch ?? string.Empty,
+            Location = department.Location ?? string.Empty,
+            Description = department.Description ?? string.Empty,
+            IsActive = department.IsActive,
+            Children = Array.Empty<DepartmentDto>()
+        };
     }
 
     public static Department ToEntity(this CreateDepartmentRequest request)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HR.Application.Abstractions.Repositories;
@@ -78,5 +79,59 @@ public sealed class InMemoryDepartmentRepository : IDepartmentRepository
     public Task<bool> RemoveAsync(Guid departmentId, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_departments.TryRemove(departmentId, out _));
+    }
+
+    public Task<bool> ExistsByNameAsync(
+        Guid organizationId,
+        Guid? parentDepartmentId,
+        string name,
+        Guid? excludingDepartmentId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        var trimmedName = name.Trim();
+        var exists = _departments.Values.Any(department =>
+            department.OrganizationId == organizationId &&
+            (!excludingDepartmentId.HasValue || department.Id != excludingDepartmentId.Value) &&
+            AreParentsEqual(department.ParentDepartmentId, parentDepartmentId) &&
+            string.Equals(department.Name, trimmedName, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(exists);
+    }
+
+    public Task<bool> ExistsByCodeAsync(
+        Guid organizationId,
+        string code,
+        Guid? excludingDepartmentId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return Task.FromResult(false);
+        }
+
+        var normalizedCode = code.Trim().ToUpperInvariant();
+        var exists = _departments.Values.Any(department =>
+            department.OrganizationId == organizationId &&
+            (!excludingDepartmentId.HasValue || department.Id != excludingDepartmentId.Value) &&
+            string.Equals(department.Code, normalizedCode, StringComparison.Ordinal));
+
+        return Task.FromResult(exists);
+    }
+
+    private static bool AreParentsEqual(Guid? left, Guid? right)
+    {
+        if (!left.HasValue && !right.HasValue)
+        {
+            return true;
+        }
+
+        if (!left.HasValue || !right.HasValue)
+        {
+            return false;
+        }
+
+        return left.Value == right.Value;
     }
 }

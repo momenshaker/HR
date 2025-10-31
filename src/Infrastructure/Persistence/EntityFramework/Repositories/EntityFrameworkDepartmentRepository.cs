@@ -58,4 +58,61 @@ internal sealed class EntityFrameworkDepartmentRepository : EntityFrameworkRepos
     {
         return RemoveInternalAsync(departmentId, cancellationToken);
     }
+
+    public async Task<bool> ExistsByNameAsync(
+        Guid organizationId,
+        Guid? parentDepartmentId,
+        string name,
+        Guid? excludingDepartmentId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        var normalizedName = name.Trim().ToUpperInvariant();
+        var query = DbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.OrganizationId == organizationId)
+            .Where(department => department.Name.ToUpper() == normalizedName);
+
+        if (parentDepartmentId.HasValue)
+        {
+            query = query.Where(department => department.ParentDepartmentId == parentDepartmentId.Value);
+        }
+        else
+        {
+            query = query.Where(department => department.ParentDepartmentId == null);
+        }
+
+        if (excludingDepartmentId.HasValue)
+        {
+            query = query.Where(department => department.Id != excludingDepartmentId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> ExistsByCodeAsync(
+        Guid organizationId,
+        string code,
+        Guid? excludingDepartmentId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return false;
+        }
+
+        var normalizedCode = code.Trim().ToUpperInvariant();
+        var query = DbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.OrganizationId == organizationId)
+            .Where(department => department.Code == normalizedCode);
+
+        if (excludingDepartmentId.HasValue)
+        {
+            query = query.Where(department => department.Id != excludingDepartmentId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken).ConfigureAwait(false);
+    }
 }

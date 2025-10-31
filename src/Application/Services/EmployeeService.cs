@@ -1,5 +1,6 @@
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
+using HR.Application.Common.Exceptions;
 using HR.Application.DTOs;
 using HR.Application.Mappings;
 using HR.Domain.Entities;
@@ -150,6 +151,8 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        await EnsureEmployeeEmailIsUniqueAsync(request.Email, null, cancellationToken).ConfigureAwait(false);
+
         var entity = request.ToEntity();
         var createdEmployee = await _employeeRepository.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
@@ -167,6 +170,9 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
             return null;
         }
 
+        await EnsureEmployeeEmailIsUniqueAsync(request.Email, existingEmployee.Id, cancellationToken)
+            .ConfigureAwait(false);
+
         var updatedEntity = request.ApplyUpdates(existingEmployee);
         var persistedEmployee = await _employeeRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
 
@@ -177,6 +183,21 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _employeeRepository.RemoveAsync(id, cancellationToken);
+    }
+
+    private async Task EnsureEmployeeEmailIsUniqueAsync(
+        string email,
+        Guid? excludingEmployeeId,
+        CancellationToken cancellationToken)
+    {
+        var trimmedEmail = email.Trim();
+
+        if (await _employeeRepository
+                .ExistsByEmailAsync(trimmedEmail, excludingEmployeeId, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            throw new UniqueConstraintViolationException("Employee", "Email", trimmedEmail);
+        }
     }
 
     /// <inheritdoc />

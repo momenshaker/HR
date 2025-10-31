@@ -1,3 +1,4 @@
+using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,7 @@ public sealed class OrganizationsController(IOrganizationService organizationSer
 
     [HttpPost]
     [ProducesResponseType(typeof(OrganizationDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostAsync([FromBody] CreateOrganizationRequest request, CancellationToken cancellationToken)
     {
         var created = await _organizationService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
@@ -38,6 +40,7 @@ public sealed class OrganizationsController(IOrganizationService organizationSer
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(OrganizationDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PutAsync(Guid id, [FromBody] UpdateOrganizationRequest request, CancellationToken cancellationToken)
     {
         var updated = await _organizationService.UpdateAsync(id, request, cancellationToken).ConfigureAwait(false);

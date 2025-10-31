@@ -1,6 +1,7 @@
 using System.Linq;
 using FluentValidation;
 using HR.Api.Contracts;
+using HR.Application.Common.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace HR.Api.Middleware;
@@ -23,6 +24,10 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
         {
             await WriteValidationFailureAsync(context, validationException).ConfigureAwait(false);
         }
+        catch (UniqueConstraintViolationException uniqueException)
+        {
+            await WriteConflictAsync(context, uniqueException).ConfigureAwait(false);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception occurred during request processing.");
@@ -33,22 +38,38 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
     private Task WriteValidationFailureAsync(HttpContext context, ValidationException validationException)
     {
         var details = validationException.Errors
-            .Select(error => new ErrorDetail(error.PropertyName, error.ErrorMessage))
+            .Select(error => new ErrorDetail(error.PropertyName, error.ErrorMessage, error.ErrorCode))
             .ToArray();
 
-        var response = new ErrorResponse("validation_failed", "One or more validation errors occurred.", context.TraceIdentifier)
-        {
-            Details = details
-        };
-
-        context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
-        context.Response.ContentType = "application/json";
-        return context.Response.WriteAsJsonAsync(response);
+        return WriteErrorAsync(
+            context,
+            StatusCodes.Status422UnprocessableEntity,
+            "validation_failed",
+            "One or more validation errors occurred.",
+            details);
     }
 
-    private Task WriteErrorAsync(HttpContext context, int statusCode, string code, string message)
+    private Task WriteConflictAsync(HttpContext context, UniqueConstraintViolationException exception)
     {
-        var response = new ErrorResponse(code, message, context.TraceIdentifier);
+        var details = new[]
+        {
+            new ErrorDetail(exception.Field, $"Value '{exception.Value}' already exists.", "UniqueViolation")
+        };
+
+        return WriteErrorAsync(context, StatusCodes.Status409Conflict, "conflict", exception.Message, details);
+    }
+
+    private Task WriteErrorAsync(
+        HttpContext context,
+        int statusCode,
+        string code,
+        string message,
+        IReadOnlyCollection<ErrorDetail>? details = null)
+    {
+        var response = new ErrorResponse(code, message, context.TraceIdentifier)
+        {
+            Details = details ?? Array.Empty<ErrorDetail>()
+        };
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
         return context.Response.WriteAsJsonAsync(response);

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 
@@ -49,5 +50,35 @@ public sealed class InMemoryOrganizationRepository : IOrganizationRepository
     public Task<bool> RemoveAsync(Guid organizationId, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_organizations.TryRemove(organizationId, out _));
+    }
+
+    public Task<bool> ExistsByNameAsync(
+        string name,
+        Guid? excludingOrganizationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        var trimmed = name.Trim();
+        var exists = _organizations.Values.Any(organization =>
+            (!excludingOrganizationId.HasValue || organization.Id != excludingOrganizationId.Value) &&
+            string.Equals(organization.Name, trimmed, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(exists);
+    }
+
+    public Task<bool> ExistsByCodeAsync(
+        string code,
+        Guid? excludingOrganizationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+
+        var normalizedCode = code.Trim().ToUpperInvariant();
+        var exists = _organizations.Values.Any(organization =>
+            (!excludingOrganizationId.HasValue || organization.Id != excludingOrganizationId.Value) &&
+            string.Equals(organization.Code, normalizedCode, StringComparison.Ordinal));
+
+        return Task.FromResult(exists);
     }
 }
