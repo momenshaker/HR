@@ -1,3 +1,4 @@
+using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,6 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyCollection<DepartmentDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(IReadOnlyCollection<DepartmentHierarchyDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAsync(
         Guid organizationId,
         [FromQuery] bool hierarchy = false,
@@ -45,6 +45,7 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostAsync(
         Guid organizationId,
         [FromBody] CreateDepartmentRequest request,
@@ -84,6 +85,7 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
     [HttpPut("{departmentId:guid}")]
     [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PutAsync(
         Guid organizationId,
         Guid departmentId,
@@ -103,6 +105,7 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
     [HttpPost("{departmentId:guid}:move")]
     [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> MoveAsync(
         Guid organizationId,
         Guid departmentId,

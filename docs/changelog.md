@@ -23,6 +23,10 @@
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 - Clarified attendance and time tracking narratives across platform configuration and API documentation to emphasise shift
   orchestration, time capture, entitlement policies, approval flows, and real-time balance reconciliation.
+- Introduced pre-validation for organization, department, and employee uniqueness to surface 409 Conflict responses before
+  persistence and mapped detailed 422 validation codes for hierarchy consistency checks.
+- Updated department DTOs to emit child collections for hierarchy views and aligned API documentation with the new payload shape
+  and error responses.
 
 ### Fixed
 - Added an Entity Framework Core migration to provision ASP.NET Core Identity tables so seeded admin accounts can be created without runtime SQL errors.

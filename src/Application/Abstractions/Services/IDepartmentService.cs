@@ -11,7 +11,7 @@ public interface IDepartmentService
         Guid organizationId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<DepartmentHierarchyDto>> GetHierarchyAsync(
+    Task<IReadOnlyCollection<DepartmentDto>> GetHierarchyAsync(
         Guid organizationId,
         CancellationToken cancellationToken = default);
 

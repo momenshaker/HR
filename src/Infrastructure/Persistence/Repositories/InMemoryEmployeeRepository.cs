@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 
@@ -52,5 +53,20 @@ public sealed class InMemoryEmployeeRepository : IEmployeeRepository
     public Task<bool> RemoveAsync(Guid employeeId, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_employees.TryRemove(employeeId, out _));
+    }
+
+    public Task<bool> ExistsByEmailAsync(
+        string email,
+        Guid? excludingEmployeeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+
+        var normalizedEmail = email.Trim();
+        var exists = _employees.Values.Any(employee =>
+            (!excludingEmployeeId.HasValue || employee.Id != excludingEmployeeId.Value) &&
+            string.Equals(employee.Email, normalizedEmail, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(exists);
     }
 }

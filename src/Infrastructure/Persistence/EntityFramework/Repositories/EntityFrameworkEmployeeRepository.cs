@@ -1,3 +1,4 @@
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -44,5 +45,25 @@ internal sealed class EntityFrameworkEmployeeRepository : EntityFrameworkReposit
     public Task<bool> RemoveAsync(Guid employeeId, CancellationToken cancellationToken = default)
     {
         return RemoveInternalAsync(employeeId, cancellationToken);
+    }
+
+    public async Task<bool> ExistsByEmailAsync(
+        string email,
+        Guid? excludingEmployeeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+
+        var normalizedEmail = email.Trim().ToUpperInvariant();
+        var query = DbContext.Employees
+            .AsNoTracking()
+            .Where(employee => employee.Email.ToUpper() == normalizedEmail);
+
+        if (excludingEmployeeId.HasValue)
+        {
+            query = query.Where(employee => employee.Id != excludingEmployeeId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken).ConfigureAwait(false);
     }
 }

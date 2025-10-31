@@ -31,4 +31,12 @@ public interface IEmployeeRepository
     ///     Removes an employee from the system.
     /// </summary>
     Task<bool> RemoveAsync(Guid employeeId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Determines whether an employee with the specified email address already exists.
+    /// </summary>
+    Task<bool> ExistsByEmailAsync(
+        string email,
+        Guid? excludingEmployeeId = null,
+        CancellationToken cancellationToken = default);
 }

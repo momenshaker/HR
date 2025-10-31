@@ -1,3 +1,4 @@
+using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,7 @@ public sealed class EmployeesController(
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostAsync(
         [FromBody] CreateEmployeeRequest request,
         CancellationToken cancellationToken = default)
@@ -82,6 +84,7 @@ public sealed class EmployeesController(
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PutAsync(
         Guid id,
         [FromBody] UpdateEmployeeRequest request,

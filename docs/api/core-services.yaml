@@ -38,6 +38,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrganizationDto'
+        '409':
+          description: Organization name or code already exists
+        '422':
+          description: Validation failed
   /api/organizations/{id}:
     get:
       summary: Retrieve an organization by id
@@ -73,6 +77,10 @@ paths:
                 $ref: '#/components/schemas/OrganizationDto'
         '404':
           description: Organization not found
+        '409':
+          description: Organization name or code already exists
+        '422':
+          description: Validation failed
     delete:
       summary: Delete an organization
       tags: [Organization]
@@ -106,13 +114,9 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: array
-                    items:
-                      $ref: '#/components/schemas/DepartmentDto'
-                  - type: array
-                    items:
-                      $ref: '#/components/schemas/DepartmentHierarchyDto'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DepartmentDto'
     post:
       summary: Create a department within an organization
       tags: [Organization]
@@ -136,6 +140,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DepartmentDto'
+        '409':
+          description: Department name or code already exists within the organization
+        '422':
+          description: Validation failed (e.g. parent outside organization)
   /api/organizations/{organizationId}/departments/{departmentId}:
     get:
       summary: Retrieve a department within an organization
@@ -193,6 +201,10 @@ paths:
                 $ref: '#/components/schemas/DepartmentDto'
         '404':
           description: Department not found
+        '409':
+          description: Department name or code already exists within the organization
+        '422':
+          description: Validation failed
     delete:
       summary: Delete a department within an organization
       tags: [Organization]
@@ -254,6 +266,10 @@ paths:
                 $ref: '#/components/schemas/DepartmentDto'
         '404':
           description: Department not found
+        '409':
+          description: Department name or code would conflict at the destination
+        '422':
+          description: Validation failed (OrgMismatch or HierarchyCycle)
   /api/organization-units:
     get:
       summary: Retrieve all organization units
@@ -754,7 +770,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmployeeDto'
-        '400':
+        '409':
+          description: Employee email already exists
+        '422':
           description: Validation failure
   /api/employees/{id}:
     get:
@@ -789,7 +807,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmployeeDto'
-        '400':
+        '409':
+          description: Employee email already exists
+        '422':
           description: Validation failure
         '404':
           description: Employee not found
@@ -2021,6 +2041,10 @@ components:
           type: string
         isActive:
           type: boolean
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentDto'
       required: [id, name, code, isActive]
     CreateDepartmentRequest:
       allOf:
@@ -2050,15 +2074,6 @@ components:
         isActive:
           type: boolean
       required: [name, code, isActive]
-    DepartmentHierarchyDto:
-      type: object
-      properties:
-        department:
-          $ref: '#/components/schemas/DepartmentDto'
-        children:
-          type: array
-          items:
-            $ref: '#/components/schemas/DepartmentHierarchyDto'
       required: [department, children]
     MoveDepartmentRequest:
       type: object

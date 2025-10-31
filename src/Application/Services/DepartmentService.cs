@@ -1,8 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using FluentValidation.Results;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Mappings;
+using HR.Application.Common.Exceptions;
+using HR.Domain.Entities;
 
 namespace HR.Application.Services;
 
@@ -39,7 +42,7 @@ public sealed class DepartmentService : IDepartmentService
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyCollection<DepartmentHierarchyDto>> GetHierarchyAsync(
+    public async Task<IReadOnlyCollection<DepartmentDto>> GetHierarchyAsync(
         Guid organizationId,
         CancellationToken cancellationToken = default)
     {
@@ -99,6 +102,22 @@ public sealed class DepartmentService : IDepartmentService
         ArgumentNullException.ThrowIfNull(request);
 
         var normalizedRequest = NormalizeCreateRequest(organizationId, request);
+        await EnsureValidParentAsync(
+            organizationId,
+            normalizedRequest.ParentDepartmentId,
+            currentDepartmentId: null,
+            nameof(CreateDepartmentRequest.ParentDepartmentId),
+            cancellationToken).ConfigureAwait(false);
+
+        await EnsureDepartmentIsUniqueAsync(
+                organizationId,
+                normalizedRequest.ParentDepartmentId,
+                normalizedRequest.Name,
+                normalizedRequest.Code,
+                excludingDepartmentId: null,
+                cancellationToken)
+            .ConfigureAwait(false);
+
         var entity = normalizedRequest.ToEntity();
         var created = await _departmentRepository.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
@@ -121,6 +140,22 @@ public sealed class DepartmentService : IDepartmentService
         }
 
         var normalizedRequest = NormalizeUpdateRequest(organizationId, request);
+        await EnsureValidParentAsync(
+            organizationId,
+            normalizedRequest.ParentDepartmentId,
+            existing.Id,
+            nameof(UpdateDepartmentRequest.ParentDepartmentId),
+            cancellationToken).ConfigureAwait(false);
+
+        await EnsureDepartmentIsUniqueAsync(
+                organizationId,
+                normalizedRequest.ParentDepartmentId,
+                normalizedRequest.Name,
+                normalizedRequest.Code,
+                existing.Id,
+                cancellationToken)
+            .ConfigureAwait(false);
+
         var updatedEntity = normalizedRequest.ApplyUpdates(existing);
         var persisted = await _departmentRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
 
@@ -140,17 +175,21 @@ public sealed class DepartmentService : IDepartmentService
             return null;
         }
 
-        if (newParentDepartmentId.HasValue)
-        {
-            var parent = await _departmentRepository
-                .GetByIdAsync(newParentDepartmentId.Value, cancellationToken)
-                .ConfigureAwait(false);
+        await EnsureValidParentAsync(
+            organizationId,
+            newParentDepartmentId,
+            department.Id,
+            nameof(MoveDepartmentRequest.NewParentDepartmentId),
+            cancellationToken).ConfigureAwait(false);
 
-            if (parent is null || parent.OrganizationId != organizationId)
-            {
-                throw new ValidationException("The new parent department must exist within the same organization.");
-            }
-        }
+        await EnsureDepartmentIsUniqueAsync(
+                organizationId,
+                newParentDepartmentId,
+                department.Name,
+                department.Code ?? string.Empty,
+                department.Id,
+                cancellationToken)
+            .ConfigureAwait(false);
 
         await _departmentTreeService
             .MoveDepartmentAsync(departmentId, newParentDepartmentId, cancellationToken)
@@ -290,6 +329,113 @@ public sealed class DepartmentService : IDepartmentService
         };
     }
 
+    private static ValidationException CreateValidationException(
+        string propertyName,
+        string message,
+        string errorCode)
+    {
+        var failure = new ValidationFailure(propertyName, message)
+        {
+            ErrorCode = errorCode
+        };
+
+        return new ValidationException(new[] { failure });
+    }
+
+    private async Task EnsureValidParentAsync(
+        Guid organizationId,
+        Guid? parentDepartmentId,
+        Guid? currentDepartmentId,
+        string propertyName,
+        CancellationToken cancellationToken)
+    {
+        if (!parentDepartmentId.HasValue)
+        {
+            return;
+        }
+
+        var parent = await _departmentRepository
+            .GetByIdAsync(parentDepartmentId.Value, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (parent is null || parent.OrganizationId != organizationId)
+        {
+            throw CreateValidationException(
+                propertyName,
+                "The specified parent department must belong to the same organization.",
+                "OrgMismatch");
+        }
+
+        if (!currentDepartmentId.HasValue)
+        {
+            return;
+        }
+
+        if (parentDepartmentId.Value == currentDepartmentId.Value)
+        {
+            throw CreateValidationException(
+                propertyName,
+                "A department cannot be assigned as its own parent.",
+                "HierarchyCycle");
+        }
+
+        var subtree = await _departmentTreeService
+            .GetSubtreeAsync(currentDepartmentId.Value, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (subtree.Skip(1).Any(node => node.Id == parentDepartmentId.Value))
+        {
+            throw CreateValidationException(
+                propertyName,
+                "Assigning the selected parent would create a hierarchy cycle.",
+                "HierarchyCycle");
+        }
+    }
+
+    private async Task EnsureDepartmentIsUniqueAsync(
+        Guid organizationId,
+        Guid? parentDepartmentId,
+        string name,
+        string code,
+        Guid? excludingDepartmentId,
+        CancellationToken cancellationToken)
+    {
+        var normalizedName = name.Trim();
+        var normalizedCode = code.Trim().ToUpperInvariant();
+
+        var nameExists = await _departmentRepository
+            .ExistsByNameAsync(
+                organizationId,
+                parentDepartmentId,
+                normalizedName,
+                excludingDepartmentId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (nameExists)
+        {
+            throw new UniqueConstraintViolationException("Department", "Name", normalizedName);
+        }
+
+        if (string.IsNullOrWhiteSpace(normalizedCode))
+        {
+            return;
+        }
+
+        var codeExists = await _departmentRepository
+            .ExistsByCodeAsync(
+                organizationId,
+                normalizedCode,
+                excludingDepartmentId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (codeExists)
+        {
+            throw new UniqueConstraintViolationException("Department", "Code", normalizedCode);
+        }
+    }
+
     private sealed class DepartmentHierarchyBuilder
     {
         public DepartmentHierarchyBuilder(DepartmentDto department)
@@ -301,14 +447,14 @@ public sealed class DepartmentService : IDepartmentService
 
         public List<DepartmentHierarchyBuilder> Children { get; } = new();
 
-        public DepartmentHierarchyDto ToDto()
+        public DepartmentDto ToDto()
         {
             var orderedChildren = Children
                 .OrderBy(child => child.Department.Name, StringComparer.OrdinalIgnoreCase)
                 .Select(child => child.ToDto())
                 .ToArray();
 
-            return new DepartmentHierarchyDto(Department, orderedChildren);
+            return Department with { Children = orderedChildren };
         }
     }
 }

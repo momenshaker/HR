@@ -1,5 +1,6 @@
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
+using HR.Application.Common.Exceptions;
 using HR.Application.DTOs;
 using HR.Application.Mappings;
 
@@ -34,6 +35,8 @@ public sealed class OrganizationService : IOrganizationService
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        await EnsureOrganizationIsUniqueAsync(request.Name, request.Code, null, cancellationToken).ConfigureAwait(false);
+
         var entity = request.ToEntity();
         var created = await _organizationRepository.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
@@ -51,6 +54,9 @@ public sealed class OrganizationService : IOrganizationService
             return null;
         }
 
+        await EnsureOrganizationIsUniqueAsync(request.Name, request.Code, existing.Id, cancellationToken)
+            .ConfigureAwait(false);
+
         var updatedEntity = request.ApplyUpdates(existing);
         var persisted = await _organizationRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
 
@@ -61,5 +67,29 @@ public sealed class OrganizationService : IOrganizationService
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _organizationRepository.RemoveAsync(id, cancellationToken);
+    }
+
+    private async Task EnsureOrganizationIsUniqueAsync(
+        string name,
+        string code,
+        Guid? excludingOrganizationId,
+        CancellationToken cancellationToken)
+    {
+        var trimmedName = name.Trim();
+        var normalizedCode = code.Trim().ToUpperInvariant();
+
+        if (await _organizationRepository
+                .ExistsByNameAsync(trimmedName, excludingOrganizationId, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            throw new UniqueConstraintViolationException("Organization", "Name", trimmedName);
+        }
+
+        if (await _organizationRepository
+                .ExistsByCodeAsync(normalizedCode, excludingOrganizationId, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            throw new UniqueConstraintViolationException("Organization", "Code", normalizedCode);
+        }
     }
 }

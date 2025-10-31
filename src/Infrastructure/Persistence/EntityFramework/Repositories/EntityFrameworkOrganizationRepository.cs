@@ -1,3 +1,4 @@
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -37,5 +38,45 @@ internal sealed class EntityFrameworkOrganizationRepository : EntityFrameworkRep
     public Task<bool> RemoveAsync(Guid organizationId, CancellationToken cancellationToken = default)
     {
         return RemoveInternalAsync(organizationId, cancellationToken);
+    }
+
+    public async Task<bool> ExistsByNameAsync(
+        string name,
+        Guid? excludingOrganizationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        var normalizedName = name.Trim().ToUpperInvariant();
+        var query = DbContext.Organizations
+            .AsNoTracking()
+            .Where(organization => organization.Name.ToUpper() == normalizedName);
+
+        if (excludingOrganizationId.HasValue)
+        {
+            query = query.Where(organization => organization.Id != excludingOrganizationId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> ExistsByCodeAsync(
+        string code,
+        Guid? excludingOrganizationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+
+        var normalizedCode = code.Trim().ToUpperInvariant();
+        var query = DbContext.Organizations
+            .AsNoTracking()
+            .Where(organization => organization.Code == normalizedCode);
+
+        if (excludingOrganizationId.HasValue)
+        {
+            query = query.Where(organization => organization.Id != excludingOrganizationId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken).ConfigureAwait(false);
     }
 }
