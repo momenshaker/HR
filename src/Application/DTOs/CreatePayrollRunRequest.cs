@@ -9,19 +9,13 @@ namespace HR.Application.DTOs;
 public sealed class CreatePayrollRunRequest : IValidatableRequest
 {
     [Required]
+    public Guid OrganizationId { get; init; }
+
+    [Required]
     public DateOnly PeriodStart { get; init; }
 
     [Required]
     public DateOnly PeriodEnd { get; init; }
-
-    [MaxLength(50)]
-    public string Status { get; init; } = string.Empty;
-
-    [Range(0, double.MaxValue)]
-    public decimal TotalGrossPay { get; init; }
-
-    [Range(0, double.MaxValue)]
-    public decimal TotalNetPay { get; init; }
 
     [MaxLength(500)]
     public string Notes { get; init; } = string.Empty;

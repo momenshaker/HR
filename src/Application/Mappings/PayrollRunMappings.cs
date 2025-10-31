@@ -14,10 +14,13 @@ public static class PayrollRunMappings
 
         return new PayrollRunDto(
             payrollRun.Id,
+            payrollRun.OrganizationId,
             payrollRun.PeriodStart,
             payrollRun.PeriodEnd,
-            payrollRun.ProcessedAtUtc,
             payrollRun.Status,
+            payrollRun.CreatedAtUtc,
+            payrollRun.ApprovedAtUtc,
+            payrollRun.PaidAtUtc,
             payrollRun.TotalGrossPay,
             payrollRun.TotalNetPay,
             payrollRun.Notes);
@@ -30,31 +33,37 @@ public static class PayrollRunMappings
         return new PayrollRun
         {
             Id = Guid.NewGuid(),
+            OrganizationId = request.OrganizationId,
             PeriodStart = request.PeriodStart,
             PeriodEnd = request.PeriodEnd,
-            ProcessedAtUtc = DateTime.UtcNow,
-            Status = request.Status.Trim(),
-            TotalGrossPay = request.TotalGrossPay,
-            TotalNetPay = request.TotalNetPay,
-            Notes = request.Notes.Trim()
+            CreatedAtUtc = DateTime.UtcNow,
+            Status = "Draft",
+            Notes = request.Notes.Trim(),
+            TotalGrossPay = 0,
+            TotalNetPay = 0
         };
     }
 
-    public static PayrollRun ApplyUpdates(this UpdatePayrollRunRequest request, PayrollRun existing)
+    public static PayrollItemDto ToDto(this PayrollItem item)
     {
-        ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(existing);
+        return new PayrollItemDto(
+            item.Id,
+            item.RunId,
+            item.EmployeeId,
+            item.Gross,
+            item.Deductions,
+            item.Net,
+            item.Currency,
+            item.Breakdown);
+    }
 
-        return new PayrollRun
-        {
-            Id = existing.Id,
-            PeriodStart = request.PeriodStart,
-            PeriodEnd = request.PeriodEnd,
-            ProcessedAtUtc = request.ProcessedAtUtc,
-            Status = request.Status.Trim(),
-            TotalGrossPay = request.TotalGrossPay,
-            TotalNetPay = request.TotalNetPay,
-            Notes = request.Notes.Trim()
-        };
+    public static PayslipDto ToDto(this Payslip slip)
+    {
+        return new PayslipDto(
+            slip.Id,
+            slip.RunId,
+            slip.EmployeeId,
+            slip.PublicUrl,
+            slip.GeneratedAtUtc);
     }
 }

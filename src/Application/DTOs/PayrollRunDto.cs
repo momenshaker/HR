@@ -5,10 +5,13 @@ namespace HR.Application.DTOs;
 /// </summary>
 public sealed record PayrollRunDto(
     Guid Id,
+    Guid OrganizationId,
     DateOnly PeriodStart,
     DateOnly PeriodEnd,
-    DateTime ProcessedAtUtc,
     string Status,
+    DateTime CreatedAtUtc,
+    DateTime? ApprovedAtUtc,
+    DateTime? PaidAtUtc,
     decimal TotalGrossPay,
     decimal TotalNetPay,
     string Notes);

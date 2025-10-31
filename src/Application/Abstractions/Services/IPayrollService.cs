@@ -7,17 +7,25 @@ namespace HR.Application.Abstractions.Services;
 /// </summary>
 public interface IPayrollService
 {
-    Task<IReadOnlyCollection<PayrollRunDto>> GetAsync(CancellationToken cancellationToken = default);
+    // New API per spec
+    Task<PayrollRunDto> CreateRun(Guid organizationId, DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken = default);
 
-    Task<PayrollRunDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<PayrollRunDto> Calculate(Guid runId, CancellationToken cancellationToken = default);
 
-    Task<PayrollRunDto> CreateAsync(CreatePayrollRunRequest request, CancellationToken cancellationToken = default);
+    Task<PayrollRunDto> Approve(Guid runId, CancellationToken cancellationToken = default);
 
-    Task<PayrollRunDto?> UpdateAsync(Guid id, UpdatePayrollRunRequest request, CancellationToken cancellationToken = default);
+    Task<PayrollRunDto> MarkPaid(Guid runId, CancellationToken cancellationToken = default);
 
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<PayslipDto>> GeneratePayslips(Guid runId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<SalarySlipDto>> GetSalarySlipsAsync(
-        Guid employeeId,
-        CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<PayrollRunDto>> GetRuns(Guid? organizationId, string? status, CancellationToken cancellationToken = default);
+
+    Task<PayrollRunDto?> GetRun(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PayrollItemDto>> GetItems(Guid runId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PayslipDto>> GetPayslips(Guid employeeId, DateOnly? periodStart, DateOnly? periodEnd, CancellationToken cancellationToken = default);
+
+    // Back-compat for employee self-service
+    Task<IReadOnlyCollection<SalarySlipDto>> GetSalarySlipsAsync(Guid employeeId, CancellationToken cancellationToken = default);
 }

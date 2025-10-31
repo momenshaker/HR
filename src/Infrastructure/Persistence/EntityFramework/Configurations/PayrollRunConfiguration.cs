@@ -10,29 +10,51 @@ internal sealed class PayrollRunConfiguration : IEntityTypeConfiguration<Payroll
     {
         builder.ToTable("PayrollRuns");
 
-        builder.HasKey(payroll => payroll.Id);
-        builder.Property(payroll => payroll.Id).ValueGeneratedNever();
+        builder.HasKey(run => run.Id);
+        builder.Property(run => run.Id).ValueGeneratedNever();
 
-        builder.Property(payroll => payroll.PeriodStart)
+        builder.Property(run => run.OrganizationId)
+            .IsRequired();
+
+        builder.Property(run => run.PeriodStart)
             .HasColumnType("date");
 
-        builder.Property(payroll => payroll.PeriodEnd)
+        builder.Property(run => run.PeriodEnd)
             .HasColumnType("date");
 
-        builder.Property(payroll => payroll.ProcessedAtUtc)
+        builder.Property(run => run.CreatedAtUtc)
             .HasColumnType("datetime2");
 
-        builder.Property(payroll => payroll.Status)
+        builder.Property(run => run.ApprovedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(run => run.PaidAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(run => run.Status)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(32);
 
-        builder.Property(payroll => payroll.TotalGrossPay)
+        builder.Property(run => run.TotalGrossPay)
             .HasColumnType("decimal(18,2)");
 
-        builder.Property(payroll => payroll.TotalNetPay)
+        builder.Property(run => run.TotalNetPay)
             .HasColumnType("decimal(18,2)");
 
-        builder.Property(payroll => payroll.Notes)
+        builder.Property(run => run.Notes)
             .HasMaxLength(1024);
+
+        builder.Property(run => run.RowVersion)
+            .IsRowVersion();
+
+        builder.HasMany(run => run.Items)
+            .WithOne(item => item.Run!)
+            .HasForeignKey(item => item.RunId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(run => run.Payslips)
+            .WithOne(ps => ps.Run!)
+            .HasForeignKey(ps => ps.RunId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

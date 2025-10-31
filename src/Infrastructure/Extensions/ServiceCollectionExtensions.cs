@@ -73,6 +73,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IWorkdayCalendar, DefaultWorkdayCalendar>();
         services.AddScoped<ILeaveService, LeaveService>();
         services.AddScoped<IPayrollService, PayrollService>();
+        services.AddScoped<IPayrollCalculator, DefaultPayrollCalculator>();
         services.AddScoped<IPerformanceManagementService, PerformanceManagementService>();
         services.AddScoped<IRecruitmentService, RecruitmentService>();
         services.AddScoped<ITrainingService, TrainingService>();
@@ -172,6 +173,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IInterviewScheduleRepository, EntityFrameworkInterviewScheduleRepository>();
         services.AddScoped<ISelfServiceAccountRepository, EntityFrameworkSelfServiceAccountRepository>();
         services.AddScoped<ITimesheetRepository, EntityFrameworkTimesheetRepository>();
+        services.AddScoped<IPayrollItemRepository, EntityFrameworkPayrollItemRepository>();
+        services.AddScoped<IPayslipRepository, EntityFrameworkPayslipRepository>();
     }
 
     private static void RegisterInMemoryRepositories(IServiceCollection services)
@@ -205,6 +208,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
         services.AddSingleton<ILeaveTypeRepository, InMemoryLeaveTypeRepository>();
         services.AddSingleton<ILeaveBalanceRepository, InMemoryLeaveBalanceRepository>();
+        services.AddSingleton<IPayrollItemRepository, InMemoryPayrollItemRepository>();
+        services.AddSingleton<IPayslipRepository, InMemoryPayslipRepository>();
     }
 
     private static void ConfigureIdentityServices(IServiceCollection services)
