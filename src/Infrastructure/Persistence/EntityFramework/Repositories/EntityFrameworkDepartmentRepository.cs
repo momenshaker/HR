@@ -1,5 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR.Infrastructure.Persistence.EntityFramework.Repositories;
 
@@ -18,6 +24,24 @@ internal sealed class EntityFrameworkDepartmentRepository : EntityFrameworkRepos
     public Task<Department?> GetByIdAsync(Guid departmentId, CancellationToken cancellationToken = default)
     {
         return GetByIdInternalAsync(departmentId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<Department>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> departmentIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(departmentIds);
+
+        if (departmentIds.Count == 0)
+        {
+            return Array.Empty<Department>();
+        }
+
+        return await DbContext.Departments
+            .Where(department => departmentIds.Contains(department.Id))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public Task<Department> AddAsync(Department department, CancellationToken cancellationToken = default)
