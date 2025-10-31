@@ -28,5 +28,6 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Organ
             .HasDefaultValue(true);
 
         builder.HasIndex(organization => organization.Code).IsUnique();
+        builder.HasIndex(organization => organization.Name).IsUnique();
     }
 }

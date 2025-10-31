@@ -15,8 +15,16 @@ internal sealed class EmployeeDepartmentConfiguration : IEntityTypeConfiguration
         builder.Property(membership => membership.IsPrimary)
             .IsRequired();
 
-        builder.HasOne<Department>()
-            .WithMany()
+        builder.HasIndex(membership => membership.EmployeeId);
+        builder.HasIndex(membership => membership.DepartmentId);
+
+        builder.HasOne(membership => membership.Employee)
+            .WithMany(employee => employee.EmployeeDepartments)
+            .HasForeignKey(membership => membership.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(membership => membership.Department)
+            .WithMany(department => department.EmployeeDepartments)
             .HasForeignKey(membership => membership.DepartmentId)
             .OnDelete(DeleteBehavior.Cascade);
     }

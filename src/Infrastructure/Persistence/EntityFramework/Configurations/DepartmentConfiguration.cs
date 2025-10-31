@@ -18,8 +18,14 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
             .HasMaxLength(200);
 
         builder.Property(department => department.Code)
-            .IsRequired()
             .HasMaxLength(50);
+
+        builder.Property(department => department.Path)
+            .IsRequired()
+            .HasDefaultValue(string.Empty);
+
+        builder.Property(department => department.Level)
+            .HasDefaultValue(0);
 
         builder.Property(department => department.OrganizationId)
             .IsRequired();
@@ -36,16 +42,21 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
         builder.Property(department => department.IsActive)
             .HasDefaultValue(true);
 
-        builder.HasOne<Organization>()
-            .WithMany()
+        builder.HasOne(department => department.Organization)
+            .WithMany(organization => organization.Departments)
             .HasForeignKey(department => department.OrganizationId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne<Department>()
-            .WithMany()
+        builder.HasOne(department => department.Parent)
+            .WithMany(parent => parent.Children)
             .HasForeignKey(department => department.ParentDepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(department => new { department.OrganizationId, department.Code }).IsUnique();
+        builder.HasIndex(department => new { department.OrganizationId, department.ParentDepartmentId, department.Name })
+            .IsUnique();
+
+        builder.HasIndex(department => new { department.OrganizationId, department.Code })
+            .HasFilter($"{nameof(Department.Code)} IS NOT NULL")
+            .IsUnique();
     }
 }
