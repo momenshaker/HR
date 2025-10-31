@@ -31,7 +31,7 @@ public sealed class AuthenticatedApiFactory : WebApplicationFactory<Program>
                 ["Authentication:Users:0:Roles:0"] = "Admin",
                 ["Authentication:Users:0:Roles:1"] = "HR",
                 ["Authentication:Users:0:CustomerId"] = "test-tenant",
-                ["RateLimit:RequestsPerWindow"] = "3",
+                ["RateLimit:RequestsPerWindow"] = "100",
                 ["RateLimit:WindowSeconds"] = "60",
                 ["Idempotency:WindowHours"] = "24"
             });

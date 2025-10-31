@@ -8,21 +8,19 @@ namespace HR.Domain.Entities;
 /// </summary>
 public sealed class Organization
 {
-    public Organization(Guid id, string name, DateTime createdAtUtc, bool isActive = true)
-    {
-        Id = id;
-        Name = name;
-        CreatedAtUtc = createdAtUtc;
-        IsActive = isActive;
-    }
+    public Guid Id { get; init; }
 
-    public Guid Id { get; }
+    public string Name { get; init; } = string.Empty;
 
-    public string Name { get; }
+    public string Code { get; init; } = string.Empty;
 
-    public DateTime CreatedAtUtc { get; }
+    public string Description { get; init; } = string.Empty;
 
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; init; } = true;
 
-    public ICollection<Department> Departments { get; } = new List<Department>();
+    public DateTime CreatedAtUtc { get; init; }
+
+    public DateTime? UpdatedAtUtc { get; init; }
+
+    public ICollection<Department> Departments { get; init; } = new List<Department>();
 }

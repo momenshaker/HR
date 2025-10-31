@@ -1,3 +1,4 @@
+using System;
 using HR.Application.DTOs;
 using HR.Domain.Entities;
 
@@ -30,7 +31,8 @@ public static class OrganizationMappings
             Name = request.Name.Trim(),
             Code = request.Code.Trim().ToUpperInvariant(),
             Description = request.Description.Trim(),
-            IsActive = request.IsActive
+            IsActive = request.IsActive,
+            CreatedAtUtc = DateTime.UtcNow
         };
     }
 
@@ -45,7 +47,9 @@ public static class OrganizationMappings
             Name = request.Name.Trim(),
             Code = request.Code.Trim().ToUpperInvariant(),
             Description = request.Description.Trim(),
-            IsActive = request.IsActive
+            IsActive = request.IsActive,
+            CreatedAtUtc = existing.CreatedAtUtc,
+            UpdatedAtUtc = DateTime.UtcNow
         };
     }
 }

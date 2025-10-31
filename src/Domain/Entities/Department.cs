@@ -8,53 +8,41 @@ namespace HR.Domain.Entities;
 /// </summary>
 public sealed class Department
 {
-    public Department(
-        Guid id,
-        Guid organizationId,
-        string name,
-        string path,
-        int level,
-        DateTime createdAtUtc,
-        bool isActive = true,
-        Guid? parentDepartmentId = null,
-        string? code = null)
-    {
-        Id = id;
-        OrganizationId = organizationId;
-        Name = name;
-        Path = path;
-        Level = level;
-        CreatedAtUtc = createdAtUtc;
-        IsActive = isActive;
-        ParentDepartmentId = parentDepartmentId;
-        Code = code;
-    }
+    public Guid Id { get; init; }
 
-    public Guid Id { get; }
+    public Guid OrganizationId { get; init; }
 
-    public Guid OrganizationId { get; }
+    public Guid? ParentDepartmentId { get; init; }
 
-    public Guid? ParentDepartmentId { get; }
+    public string Name { get; init; } = string.Empty;
 
-    public string Name { get; }
+    public string Code { get; init; } = string.Empty;
 
-    public string? Code { get; }
+    public Guid? ManagerId { get; init; }
 
-    public string Path { get; }
+    public string Branch { get; init; } = string.Empty;
 
-    public int Level { get; }
+    public string Location { get; init; } = string.Empty;
 
-    public DateTime CreatedAtUtc { get; }
+    public string Description { get; init; } = string.Empty;
 
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; init; } = true;
 
-    public Organization? Organization { get; private set; }
+    public string Path { get; init; } = string.Empty;
 
-    public Department? Parent { get; private set; }
+    public int Level { get; init; }
 
-    public ICollection<Department> Children { get; } = new List<Department>();
+    public DateTime CreatedAtUtc { get; init; }
 
-    public ICollection<EmployeeDepartment> EmployeeDepartments { get; } = new List<EmployeeDepartment>();
+    public DateTime? UpdatedAtUtc { get; init; }
+
+    public Organization? Organization { get; init; }
+
+    public Department? Parent { get; init; }
+
+    public ICollection<Department> Children { get; init; } = new List<Department>();
+
+    public ICollection<EmployeeDepartment> EmployeeDepartments { get; init; } = new List<EmployeeDepartment>();
 
     /// <summary>
     ///     Creates a copy of the current department with updated hierarchy metadata.
@@ -67,15 +55,22 @@ public sealed class Department
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
-        return new Department(
-            Id,
-            OrganizationId,
-            Name,
-            path,
-            level,
-            CreatedAtUtc,
-            IsActive,
-            parentDepartmentId,
-            Code);
+        return new Department
+        {
+            Id = Id,
+            OrganizationId = OrganizationId,
+            ParentDepartmentId = parentDepartmentId,
+            Name = Name,
+            Code = Code,
+            ManagerId = ManagerId,
+            Branch = Branch,
+            Location = Location,
+            Description = Description,
+            IsActive = IsActive,
+            Path = path,
+            Level = level,
+            CreatedAtUtc = CreatedAtUtc,
+            UpdatedAtUtc = DateTime.UtcNow
+        };
     }
 }

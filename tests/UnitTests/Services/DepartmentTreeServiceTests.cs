@@ -159,15 +159,18 @@ public sealed class DepartmentTreeServiceTests
 
         var path = $"{basePath}/{id}";
 
-        return new Department(
-            id,
-            organizationId,
-            $"Department-{id.ToString()[..8]}",
-            path,
-            level,
-            DateTime.UtcNow,
-            true,
-            parentDepartmentId);
+        return new Department
+        {
+            Id = id,
+            OrganizationId = organizationId,
+            ParentDepartmentId = parentDepartmentId,
+            Name = $"Department-{id.ToString()[..8]}",
+            Code = $"DEPT-{id.ToString()[..6].ToUpperInvariant()}",
+            Path = path,
+            Level = level,
+            CreatedAtUtc = DateTime.UtcNow,
+            IsActive = true
+        };
     }
 
     private async Task SeedAsync(params Department[] departments)

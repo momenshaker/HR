@@ -321,13 +321,16 @@ public sealed class EmployeeDepartmentServiceTests
 
     private static Department CreateDepartment(Guid id, Guid organizationId)
     {
-        return new Department(
-            id,
-            organizationId,
-            $"Department-{id}",
-            $"/department/{id}",
-            level: 1,
-            createdAtUtc: DateTime.UtcNow,
-            isActive: true);
+        return new Department
+        {
+            Id = id,
+            OrganizationId = organizationId,
+            Name = $"Department-{id}",
+            Code = $"DEPT-{id.ToString()[..6].ToUpperInvariant()}",
+            Path = $"/org/{organizationId}/dept/{id}",
+            Level = 0,
+            CreatedAtUtc = DateTime.UtcNow,
+            IsActive = true
+        };
     }
 }

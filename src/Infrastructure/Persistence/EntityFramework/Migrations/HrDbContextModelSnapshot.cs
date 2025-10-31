@@ -446,6 +446,9 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
+                b.Property<DateTime>("CreatedAtUtc")
+                    .HasColumnType("datetime2");
+
                 b.Property<string>("Description")
                     .HasMaxLength(1024)
                     .HasColumnType("nvarchar(1024)");
@@ -459,12 +462,29 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     .HasMaxLength(200)
                     .HasColumnType("nvarchar(200)");
 
+                b.Property<DateTime?>("UpdatedAtUtc")
+                    .HasColumnType("datetime2");
+
                 b.HasKey("Id");
 
                 b.HasIndex("Code")
                     .IsUnique();
 
+                b.HasIndex("Name")
+                    .IsUnique();
+
                 b.ToTable("Organizations");
+
+                b.HasData(
+                    new
+                    {
+                        Id = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                        Code = "ACME",
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Description = "Acme Corp demo organization",
+                        IsActive = true,
+                        Name = "Acme Corp"
+                    });
             });
 
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
@@ -477,9 +497,11 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<string>("Code")
-                    .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
+
+                b.Property<DateTime>("CreatedAtUtc")
+                    .HasColumnType("datetime2");
 
                 b.Property<string>("Description")
                     .HasMaxLength(1024)
@@ -488,6 +510,10 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit")
                     .HasDefaultValue(true);
+
+                b.Property<int>("Level")
+                    .HasColumnType("int")
+                    .HasDefaultValue(0);
 
                 b.Property<string>("Location")
                     .HasMaxLength(200)
@@ -504,23 +530,116 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 b.Property<Guid>("OrganizationId")
                     .HasColumnType("uniqueidentifier");
 
+                b.Property<string>("Path")
+                    .IsRequired()
+                    .HasMaxLength(512)
+                    .HasColumnType("nvarchar(512)");
+
                 b.Property<Guid?>("ParentDepartmentId")
                     .HasColumnType("uniqueidentifier");
 
+                b.Property<DateTime?>("UpdatedAtUtc")
+                    .HasColumnType("datetime2");
+
                 b.HasKey("Id");
 
-                b.HasIndex("OrganizationId", "Code")
+                b.HasIndex("OrganizationId", "ParentDepartmentId", "Name")
                     .IsUnique();
+
+                b.HasIndex("OrganizationId", "Code")
+                    .IsUnique()
+                    .HasFilter("[Code] IS NOT NULL AND [Code] <> ''");
 
                 b.HasIndex("ParentDepartmentId");
 
+                b.HasIndex("Path");
+
                 b.ToTable("Departments");
+
+                b.HasData(
+                    new
+                    {
+                        Id = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                        Branch = "Global",
+                        Code = "HQ",
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Description = "Corporate headquarters",
+                        IsActive = true,
+                        Level = 0,
+                        Location = "New York",
+                        Name = "Head Office",
+                        OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                        Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"
+                    },
+                    new
+                    {
+                        Id = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                        Branch = "Product",
+                        Code = "ENG",
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Description = "Platform and application engineering",
+                        IsActive = true,
+                        Level = 1,
+                        Location = "Seattle",
+                        Name = "Engineering",
+                        OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                        ParentDepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                        Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"
+                    },
+                    new
+                    {
+                        Id = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
+                        Branch = "Technology",
+                        Code = "PLAT",
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Description = "Platform services and infrastructure",
+                        IsActive = true,
+                        Level = 2,
+                        Location = "Seattle",
+                        Name = "Platform",
+                        OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                        ParentDepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                        Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"
+                    },
+                    new
+                    {
+                        Id = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
+                        Branch = "Product",
+                        Code = "APPS",
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Description = "Customer-facing application development",
+                        IsActive = true,
+                        Level = 2,
+                        Location = "Austin",
+                        Name = "Applications",
+                        OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                        ParentDepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                        Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/13d7a3fd-91c0-44d3-9d63-7f53820f9bde"
+                    },
+                    new
+                    {
+                        Id = new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"),
+                        Branch = "Corporate",
+                        Code = "HR",
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Description = "People operations",
+                        IsActive = true,
+                        Level = 1,
+                        Location = "New York",
+                        Name = "HR",
+                        OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                        ParentDepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                        Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"
+                    });
             });
 
             modelBuilder.Entity("HR.Domain.Entities.Employee", b =>
             {
                 b.Property<Guid>("Id")
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<DateTime>("CreatedAtUtc")
+                    .HasColumnType("datetime2");
 
                 b.Property<DateOnly?>("DateOfBirth")
                     .HasColumnType("date");
@@ -570,9 +689,55 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)");
 
+                b.Property<bool>("IsActive")
+                    .HasColumnType("bit")
+                    .HasDefaultValue(true);
+
                 b.HasKey("Id");
 
                 b.ToTable("Employees");
+
+                b.HasData(
+                    new
+                    {
+                        Id = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Email = "alice.johnson@acme.test",
+                        EmploymentStartDate = new DateOnly(2020, 1, 6),
+                        FirstName = "Alice",
+                        JobTitle = "Director of Engineering",
+                        LastName = "Johnson"
+                    },
+                    new
+                    {
+                        Id = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Email = "bob.smith@acme.test",
+                        EmploymentStartDate = new DateOnly(2020, 4, 6),
+                        FirstName = "Bob",
+                        JobTitle = "Senior Platform Engineer",
+                        LastName = "Smith"
+                    },
+                    new
+                    {
+                        Id = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Email = "carol.lee@acme.test",
+                        EmploymentStartDate = new DateOnly(2020, 7, 6),
+                        FirstName = "Carol",
+                        JobTitle = "Applications Lead",
+                        LastName = "Lee"
+                    },
+                    new
+                    {
+                        Id = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                        CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        Email = "david.patel@acme.test",
+                        EmploymentStartDate = new DateOnly(2020, 3, 6),
+                        FirstName = "David",
+                        JobTitle = "HR Business Partner",
+                        LastName = "Patel"
+                    });
             });
 
             modelBuilder.Entity("HR.Domain.Entities.EmployeeDepartment", b =>
@@ -591,6 +756,56 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 b.HasIndex("DepartmentId");
 
                 b.ToTable("EmployeeDepartments");
+
+                b.HasData(
+                    new
+                    {
+                        DepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                        EmployeeId = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                        IsPrimary = true
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
+                        EmployeeId = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                        IsPrimary = false
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
+                        EmployeeId = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                        IsPrimary = true
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
+                        EmployeeId = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                        IsPrimary = false
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
+                        EmployeeId = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                        IsPrimary = true
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                        EmployeeId = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                        IsPrimary = false
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"),
+                        EmployeeId = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                        IsPrimary = true
+                    },
+                    new
+                    {
+                        DepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                        EmployeeId = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                        IsPrimary = false
+                    });
             });
 
             modelBuilder.Entity("HR.Domain.Entities.Subscription", b =>

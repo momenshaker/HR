@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
+using HR.Application.Common;
 using HR.Domain.Entities;
 
 namespace HR.Application.Services;
@@ -65,11 +66,13 @@ public sealed class DepartmentTreeService : IDepartmentTreeService
             }
         }
 
-        var parentPath = newParent is null ? GetRootPathPrefix(department.OrganizationId) : newParent.Path;
+        var parentPath = newParent is null
+            ? DepartmentHierarchyPath.RootPrefix(department.OrganizationId)
+            : newParent.Path;
         var newLevel = newParent is null ? 0 : newParent.Level + 1;
         var updatedDepartments = new List<Department>();
 
-        var updatedRoot = department.WithHierarchy(newParentDepartmentId, newLevel, $"{parentPath}/{department.Id}");
+        var updatedRoot = department.WithHierarchy(newParentDepartmentId, newLevel, DepartmentHierarchyPath.Combine(parentPath, department.Id));
         updatedDepartments.Add(updatedRoot);
 
         var queue = new Queue<Department>();
@@ -91,7 +94,8 @@ public sealed class DepartmentTreeService : IDepartmentTreeService
                     continue;
                 }
 
-                var updatedChild = child.WithHierarchy(child.ParentDepartmentId, current.Level + 1, $"{current.Path}/{child.Id}");
+                var childPath = DepartmentHierarchyPath.Combine(current.Path, child.Id);
+                var updatedChild = child.WithHierarchy(child.ParentDepartmentId, current.Level + 1, childPath);
                 updatedDepartments.Add(updatedChild);
                 queue.Enqueue(updatedChild);
             }
@@ -230,10 +234,5 @@ public sealed class DepartmentTreeService : IDepartmentTreeService
         }
 
         return descendants;
-    }
-
-    private static string GetRootPathPrefix(Guid organizationId)
-    {
-        return $"/org/{organizationId}/dept";
     }
 }

@@ -27,6 +27,12 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Organ
         builder.Property(organization => organization.IsActive)
             .HasDefaultValue(true);
 
+        builder.Property(organization => organization.CreatedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(organization => organization.UpdatedAtUtc)
+            .HasColumnType("datetime2");
+
         builder.HasIndex(organization => organization.Code).IsUnique();
         builder.HasIndex(organization => organization.Name).IsUnique();
     }
