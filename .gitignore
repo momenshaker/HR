@@ -18,3 +18,4 @@
 /tests/ApiTests/bin/Debug/net8.0
 /tests/ApiTests/obj
 /tests/ApiTests/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+/out/build
