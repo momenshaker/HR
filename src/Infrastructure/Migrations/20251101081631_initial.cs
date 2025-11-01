@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
+namespace HR.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class intial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -60,32 +60,6 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false, defaultValue: "demo-tenant"),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -234,47 +208,24 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Departments",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ParentDepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Departments", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Employees",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
-                    DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    JobTitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     EmploymentStartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EmploymentEndDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    JobTitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    DepartmentAlignmentBusinessUnit = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    DepartmentAlignmentCostCenter = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    DepartmentAlignmentPrimaryDepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DepartmentAlignmentReportingDepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DepartmentAlignmentSecondaryDepartmentIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    JobArchitectureCareerTrack = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    JobArchitectureJobCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    JobArchitectureJobFamily = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    JobArchitectureJobFunction = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    JobArchitectureJobLevel = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    JobArchitectureCareerTrack = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, defaultValue: ""),
+                    JobArchitectureJobCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, defaultValue: ""),
+                    JobArchitectureJobFamily = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, defaultValue: ""),
+                    JobArchitectureJobFunction = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, defaultValue: ""),
+                    JobArchitectureJobLevel = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, defaultValue: "")
                 },
                 constraints: table =>
                 {
@@ -323,6 +274,24 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LeaveBalances",
+                columns: table => new
+                {
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Opening = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    Accrued = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    Taken = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    CarriedOver = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaveBalances", x => new { x.EmployeeId, x.LeaveTypeId, x.Year });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LeaveRequests",
                 columns: table => new
                 {
@@ -340,6 +309,39 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LeaveRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeaveTypes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    RequiresApproval = table.Column<bool>(type: "bit", nullable: false),
+                    AnnualAllowanceDays = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    CarryOverDays = table.Column<decimal>(type: "decimal(5,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaveTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Organizations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Organizations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -367,13 +369,17 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PeriodStart = table.Column<DateOnly>(type: "date", nullable: false),
                     PeriodEnd = table.Column<DateOnly>(type: "date", nullable: false),
-                    ProcessedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ApprovedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PaidAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     TotalGrossPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalNetPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false)
+                    Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -498,6 +504,25 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Timesheets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WeekStartUtc = table.Column<DateOnly>(type: "date", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    SubmittedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    ApprovedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    ManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Timesheets", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TrainingCourses",
                 columns: table => new
                 {
@@ -567,91 +592,6 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Subscriptions",
                 columns: table => new
                 {
@@ -681,6 +621,39 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -731,6 +704,88 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         column: x => x.EmployeeId,
                         principalTable: "Employees",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Departments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ParentDepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Branch = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    Path = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Departments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Departments_Departments_ParentDepartmentId",
+                        column: x => x.ParentDepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Departments_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PayrollItems",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RunId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Gross = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Deductions = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Net = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Currency = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    Breakdown = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayrollItems_PayrollRuns_RunId",
+                        column: x => x.RunId,
+                        principalTable: "PayrollRuns",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payslips",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RunId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicUrl = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    GeneratedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payslips", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payslips_PayrollRuns_RunId",
+                        column: x => x.RunId,
+                        principalTable: "PayrollRuns",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -919,6 +974,183 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "AspNetUserClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserLogins",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserTokens",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TokenHash = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    ExpiresAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RevokedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserRefreshTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmployeeDepartments",
+                columns: table => new
+                {
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsPrimary = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeDepartments", x => new { x.EmployeeId, x.DepartmentId });
+                    table.ForeignKey(
+                        name: "FK_EmployeeDepartments_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EmployeeDepartments_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimesheetEntries",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TimesheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DateUtc = table.Column<DateOnly>(type: "date", nullable: false),
+                    DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ProjectCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    TaskCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Hours = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimesheetEntries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimesheetEntries_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TimesheetEntries_Timesheets_TimesheetId",
+                        column: x => x.TimesheetId,
+                        principalTable: "Timesheets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "Id", "CreatedAtUtc", "DateOfBirth", "Email", "EmploymentEndDate", "EmploymentStartDate", "FirstName", "IsActive", "JobTitle", "LastName" },
+                values: new object[,]
+                {
+                    { new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "david.patel@acme.test", null, new DateOnly(2020, 3, 6), "David", true, "HR Business Partner", "Patel" },
+                    { new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "carol.lee@acme.test", null, new DateOnly(2020, 7, 6), "Carol", true, "Applications Lead", "Lee" },
+                    { new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "bob.smith@acme.test", null, new DateOnly(2020, 4, 6), "Bob", true, "Senior Platform Engineer", "Smith" },
+                    { new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "alice.johnson@acme.test", null, new DateOnly(2020, 1, 6), "Alice", true, "Director of Engineering", "Johnson" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Organizations",
+                columns: new[] { "Id", "Code", "CreatedAtUtc", "Description", "IsActive", "Name", "UpdatedAtUtc" },
+                values: new object[] { new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), "ACME", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Acme Corp demo organization", true, "Acme Corp", null });
+
             migrationBuilder.InsertData(
                 table: "SubscriptionEntitlements",
                 columns: new[] { "Id", "CreatedAtUtc", "Description", "DisplayName", "EffectiveFrom", "EffectiveTo", "FeatureKey", "IsEnabled", "MeasurementUnit", "PlanCode", "Quantity", "SubscriptionId" },
@@ -930,6 +1162,48 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     { new Guid("b166d8de-9a48-45d4-81a5-07fdfb5b467b"), new DateTimeOffset(new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Maximum number of active employee records for the Professional plan.", "Active employee seats", new DateOnly(2025, 1, 1), null, "core.users", true, "seats", "professional", 250, null },
                     { new Guid("b2b9376d-9866-4fd9-a012-39c0fd305aa3"), new DateTimeOffset(new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Assigned enterprise customer success manager with quarterly reviews.", "Dedicated success manager", new DateOnly(2025, 1, 1), null, "success.manager", true, "", "enterprise", 1, null },
                     { new Guid("c8a4742d-0275-4c9a-a2ba-c8dfd6de45ad"), new DateTimeOffset(new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Shared storage capacity for uploaded documents.", "Document storage", new DateOnly(2025, 1, 1), null, "storage.documents", true, "GB", "starter", 50, null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Departments",
+                columns: new[] { "Id", "Branch", "Code", "CreatedAtUtc", "Description", "IsActive", "Location", "ManagerId", "Name", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
+                values: new object[] { new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "Global", "HQ", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Corporate headquarters", true, "New York", null, "Head Office", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), null, "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90", null });
+
+            migrationBuilder.InsertData(
+                table: "Departments",
+                columns: new[] { "Id", "Branch", "Code", "CreatedAtUtc", "Description", "IsActive", "Level", "Location", "ManagerId", "Name", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
+                values: new object[,]
+                {
+                    { new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "Product", "ENG", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Platform and application engineering", true, 1, "Seattle", null, "Engineering", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8", null },
+                    { new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"), "Corporate", "HR", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "People operations", true, 1, "New York", null, "HR", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2", null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "EmployeeDepartments",
+                columns: new[] { "DepartmentId", "EmployeeId", "IsPrimary" },
+                values: new object[] { new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"), false });
+
+            migrationBuilder.InsertData(
+                table: "Departments",
+                columns: new[] { "Id", "Branch", "Code", "CreatedAtUtc", "Description", "IsActive", "Level", "Location", "ManagerId", "Name", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
+                values: new object[,]
+                {
+                    { new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"), "Product", "APPS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Customer-facing application development", true, 2, "Austin", null, "Applications", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/13d7a3fd-91c0-44d3-9d63-7f53820f9bde", null },
+                    { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), "Technology", "PLAT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Platform services and infrastructure", true, 2, "Seattle", null, "Platform", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2", null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "EmployeeDepartments",
+                columns: new[] { "DepartmentId", "EmployeeId", "IsPrimary" },
+                values: new object[,]
+                {
+                    { new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"), new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"), true },
+                    { new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"), false },
+                    { new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), true },
+                    { new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"), new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"), true },
+                    { new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"), new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), false },
+                    { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), true },
+                    { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), false }
                 });
 
             migrationBuilder.CreateIndex(
@@ -965,9 +1239,11 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_CustomerId",
+                name: "IX_AspNetUsers_EmployeeId",
                 table: "AspNetUsers",
-                column: "CustomerId");
+                column: "EmployeeId",
+                unique: true,
+                filter: "[EmployeeId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -1025,15 +1301,49 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 column: "GrantorEmployeeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Departments_Code",
+                name: "IX_Departments_OrganizationId_Code",
                 table: "Departments",
-                column: "Code",
-                unique: true);
+                columns: new[] { "OrganizationId", "Code" },
+                unique: true,
+                filter: "[Code] IS NOT NULL AND [Code] <> ''");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Departments_OrganizationId_ParentDepartmentId_Name",
+                table: "Departments",
+                columns: new[] { "OrganizationId", "ParentDepartmentId", "Name" },
+                unique: true,
+                filter: "[ParentDepartmentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Departments_ParentDepartmentId",
+                table: "Departments",
+                column: "ParentDepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Departments_Path",
+                table: "Departments",
+                column: "Path");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeComplianceDocument_EmployeeId",
                 table: "EmployeeComplianceDocument",
                 column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeDepartments_DepartmentId",
+                table: "EmployeeDepartments",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeDepartments_EmployeeId",
+                table: "EmployeeDepartments",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_Email",
+                table: "Employees",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmploymentContract_EmployeeId",
@@ -1057,6 +1367,34 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 column: "SubscriptionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_EmployeeId",
+                table: "LeaveRequests",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_StartDate_EndDate",
+                table: "LeaveRequests",
+                columns: new[] { "StartDate", "EndDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveTypes_Code",
+                table: "LeaveTypes",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Organizations_Code",
+                table: "Organizations",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Organizations_Name",
+                table: "Organizations",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrganizationUnits_Code",
                 table: "OrganizationUnits",
                 column: "Code",
@@ -1066,6 +1404,21 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 name: "IX_OrganizationUnits_ParentUnitId",
                 table: "OrganizationUnits",
                 column: "ParentUnitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayrollItems_RunId",
+                table: "PayrollItems",
+                column: "RunId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayrollRuns_OrganizationId_PeriodStart_PeriodEnd",
+                table: "PayrollRuns",
+                columns: new[] { "OrganizationId", "PeriodStart", "PeriodEnd" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payslips_RunId",
+                table: "Payslips",
+                column: "RunId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PerformanceFeedback_PerformanceReviewId",
@@ -1141,10 +1494,42 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 columns: new[] { "CustomerId", "PlanCode" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_TimesheetEntries_DateUtc",
+                table: "TimesheetEntries",
+                column: "DateUtc");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimesheetEntries_DepartmentId",
+                table: "TimesheetEntries",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimesheetEntries_TimesheetId",
+                table: "TimesheetEntries",
+                column: "TimesheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Timesheets_EmployeeId_WeekStartUtc",
+                table: "Timesheets",
+                columns: new[] { "EmployeeId", "WeekStartUtc" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UsageCounters_SubscriptionId_MetricKey_PeriodStart_PeriodEnd",
                 table: "UsageCounters",
                 columns: new[] { "SubscriptionId", "MetricKey", "PeriodStart", "PeriodEnd" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRefreshTokens_TokenHash",
+                table: "UserRefreshTokens",
+                column: "TokenHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRefreshTokens_UserId",
+                table: "UserRefreshTokens",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -1190,10 +1575,10 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 name: "DelegatedAuthorities");
 
             migrationBuilder.DropTable(
-                name: "Departments");
+                name: "EmployeeComplianceDocument");
 
             migrationBuilder.DropTable(
-                name: "EmployeeComplianceDocument");
+                name: "EmployeeDepartments");
 
             migrationBuilder.DropTable(
                 name: "EmploymentContract");
@@ -1208,13 +1593,22 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 name: "Invoices");
 
             migrationBuilder.DropTable(
+                name: "LeaveBalances");
+
+            migrationBuilder.DropTable(
                 name: "LeaveRequests");
+
+            migrationBuilder.DropTable(
+                name: "LeaveTypes");
 
             migrationBuilder.DropTable(
                 name: "OrganizationUnits");
 
             migrationBuilder.DropTable(
-                name: "PayrollRuns");
+                name: "PayrollItems");
+
+            migrationBuilder.DropTable(
+                name: "Payslips");
 
             migrationBuilder.DropTable(
                 name: "PerformanceCompensationReviews");
@@ -1247,10 +1641,16 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 name: "SubscriptionEntitlements");
 
             migrationBuilder.DropTable(
+                name: "TimesheetEntries");
+
+            migrationBuilder.DropTable(
                 name: "TrainingCourses");
 
             migrationBuilder.DropTable(
                 name: "UsageCounters");
+
+            migrationBuilder.DropTable(
+                name: "UserRefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "Vacancies");
@@ -1259,19 +1659,31 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Employees");
+                name: "PayrollRuns");
 
             migrationBuilder.DropTable(
                 name: "PerformanceReviews");
 
             migrationBuilder.DropTable(
+                name: "Departments");
+
+            migrationBuilder.DropTable(
+                name: "Timesheets");
+
+            migrationBuilder.DropTable(
                 name: "Subscriptions");
 
             migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Organizations");
+
+            migrationBuilder.DropTable(
                 name: "Customers");
+
+            migrationBuilder.DropTable(
+                name: "Employees");
         }
     }
 }

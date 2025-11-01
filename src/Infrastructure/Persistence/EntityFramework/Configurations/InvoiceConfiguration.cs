@@ -59,6 +59,6 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.HasOne<Subscription>()
             .WithMany()
             .HasForeignKey(invoice => invoice.SubscriptionId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

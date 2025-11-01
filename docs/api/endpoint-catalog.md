@@ -1,0 +1,254 @@
+**Overview**
+- Source of truth: `docs/api/openapi.yaml` (OpenAPI 3).
+- Endpoints are grouped by feature (OpenAPI `tags`).
+- Auth: Bearer JWT via `Authorization: Bearer <token>` unless noted.
+
+**Auth**
+- Scheme: `BearerAuth` (HTTP bearer, JWT).
+- Public endpoint: `POST /api/v1/auth/login` (explicit `security: []`).
+
+**System**
+- GET `/api/health` — Report API health status
+  - Auth: Bearer
+  - Request: none
+  - Response: `SystemHealthDto`
+- GET `/api/version` — Retrieve API version information
+  - Auth: Bearer
+  - Request: none
+  - Response: `SystemVersionDto`
+
+**Analytics**
+- GET `/api/analytics/headcount` — Headcount per department
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`HeadcountItem`>
+- GET `/api/analytics/utilization` — Timesheet utilization by period
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`UtilizationPeriod`>
+- GET `/api/analytics/leave-usage` — Leave usage by type
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`LeaveUsageItem`>
+- GET `/api/analytics/payroll-totals` — Payroll totals per run and department
+  - Auth: Bearer
+  - Request: none
+  - Response: `PayrollTotalsResponse`
+- GET `/api/analytics/recruitment-funnel` — Recruitment funnel by stage
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`StageCount`>
+- GET `/api/analytics/training-compliance` — Mandatory training compliance
+  - Auth: Bearer
+  - Request: none
+  - Response: `TrainingCompliance`
+
+**Audit**
+- GET `/api/audit` — List audit log entries
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`AuditEntryDto`>
+
+**Billing**
+- GET `/api/billing/plans` — Retrieve billing plans
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`PlanDto`>
+- GET `/api/billing/usage` — Retrieve usage snapshots
+  - Auth: Bearer
+  - Request: none
+  - Response: `UsageSnapshotDto`
+- POST `/api/billing/webhooks/stripe` — Receive Stripe webhook notifications
+  - Auth: Typically signed via Stripe signature (no bearer)
+  - Request: inline Stripe event payload (id, type, created, data)
+  - Response: 202 Accepted (no body)
+
+**Subscriptions**
+- GET `/api/subscriptions` — List subscriptions
+  - Auth: Bearer
+  - Params: `page` (int, 0+), `pageSize` (int, 1–200, default 25), `status` (Active|Inactive|Canceled|PastDue)
+  - Request: none (query params only)
+  - Response: object with `data: array<SubscriptionDto>`, `page`, `pageSize`, `totalRecords`
+- POST `/api/subscriptions` — Create a subscription
+  - Auth: Bearer
+  - Request: `CreateSubscriptionRequest`
+  - Response: `SubscriptionDto`
+- GET `/api/subscriptions/{id}` — Get subscription by id
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: `SubscriptionDto`
+- PUT `/api/subscriptions/{id}` — Update subscription
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: `UpdateSubscriptionRequest`
+  - Response: `SubscriptionDto`
+- DELETE `/api/subscriptions/{id}` — Cancel subscription
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: 204 No Content
+- GET `/api/subscriptions/{id}/invoice` — Retrieve latest invoice for subscription
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: `InvoiceDto`
+
+**Authentication**
+- POST `/api/v1/auth/login` — Authenticate user credentials
+  - Auth: none
+  - Request: `LoginRequest`
+  - Response: `AuthResponse`
+
+**Performance**
+- GET `/api/performance/cycles` — List review cycles
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`ReviewCycleDto`>
+- POST `/api/performance/cycles/{id}:open` — Open a review cycle
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: `ReviewCycleDto`
+- POST `/api/performance/cycles/{id}:close` — Close a review cycle
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: `ReviewCycleDto`
+- GET `/api/performance/reviews` — List reviews
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`ReviewDto`>
+- POST `/api/performance/reviews` — Create or submit a review
+  - Auth: Bearer
+  - Request: `CreateReviewRequest`
+  - Response: `ReviewDto`
+- PUT `/api/performance/reviews/{id}` — Update review ratings and comments
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: `UpdateReviewRequest`
+  - Response: `ReviewDto`
+
+**Training**
+- GET `/api/training/courses` — List courses for organization
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`LiteCourseDto`>
+- POST `/api/training/courses` — Create a course
+  - Auth: Bearer
+  - Request: `CreateLiteCourseRequest`
+  - Response: `LiteCourseDto`
+- GET `/api/training/courses/{id}/sessions` — List sessions for a course
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: array<`LiteCourseSessionDto`>
+- POST `/api/training/sessions` — Create a course session
+  - Auth: Bearer
+  - Request: `CreateLiteCourseSessionRequest`
+  - Response: `LiteCourseSessionDto`
+- POST `/api/training/sessions/{sessionId}/enroll` — Enroll an employee in a session
+  - Auth: Bearer
+  - Path: `sessionId` (uuid)
+  - Request: none
+  - Response: `LiteEnrollmentDto`
+- POST `/api/training/sessions/{sessionId}/complete` — Mark an enrollment as completed
+  - Auth: Bearer
+  - Path: `sessionId` (uuid)
+  - Request: none
+  - Response: `LiteEnrollmentDto`
+- POST `/api/training/sessions/{sessionId}/cancel` — Cancel an enrollment
+  - Auth: Bearer
+  - Path: `sessionId` (uuid)
+  - Request: none
+  - Response: `LiteEnrollmentDto`
+
+**Communication**
+- GET `/api/comms/announcements` — List announcements
+  - Auth: Bearer
+  - Request: none
+  - Response: array<`CommsAnnouncementDto`>
+- POST `/api/comms/announcements` — Publish announcement
+  - Auth: Bearer
+  - Request: `CreateCommsAnnouncementRequest`
+  - Response: `CommsAnnouncementDto`
+- POST `/api/comms/announcements/{id}:pin` — Pin announcement
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: none
+- POST `/api/comms/announcements/{id}:unpin` — Unpin announcement
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: none
+- POST `/api/comms/announcements/{id}:read` — Mark announcement read
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Request: none
+  - Response: none
+
+**DTO Catalog**
+- SystemHealthDto — API health snapshot
+  - status (string), environment (string), timestamp (date-time)
+- SystemVersionDto — API version info
+  - version (string), environment (string)
+- ErrorResponse — Error payload
+  - code (string), message (string), traceId (string)
+- LoginRequest — Login credentials
+  - email (string, email), password (string, password)
+- AuthResponse — JWT tokens
+  - accessToken (string), tokenType (string), expiresIn (int), refreshToken (string)
+- HeadcountItem — Department headcount
+  - DepartmentId (uuid), DepartmentName (string), Count (int)
+- UtilizationPeriod — Utilization metrics for a period
+  - PeriodStart/End (date), ApprovedHours (number), CapacityHours (number), UtilizationRate (number 0..1)
+- LeaveUsageItem — Leave usage per type
+  - LeaveType (string), Days (int)
+- PayrollTotalsResponse — Payroll aggregates
+  - Runs (array of run totals), ByDepartment (array of dept totals)
+- StageCount — Recruitment funnel stage count
+  - Stage (string), Count (int)
+- TrainingCompliance — Mandatory training compliance
+  - OrganizationId (uuid), MandatoryCourseCount (int), ObservedEmployeeCount (int), CompliantEmployeeCount (int), ComplianceRate (number)
+- AuditEntryDto — Audit log entry
+  - id (uuid), action (string), actor (string), occurredAt (date-time), target (string), metadata (map)
+- PlanDto — Billing plan
+  - id (uuid), name (string), currency (string), amount (number), interval (Monthly|Yearly), description (string), features (array<string>)
+- UsageSnapshotDto — Usage period snapshot
+  - periodStart/End (date-time), unitsConsumed (number), unitType (string), cost (number), currency (string)
+- SubscriptionDto — Subscription
+  - id (uuid), planId (uuid), status (enum), seats (int), createdAt (date-time), canceledAt (date-time?), renewsAt (date-time?), metadata (map)
+- CreateSubscriptionRequest — Create subscription
+  - planId (uuid), seats (int >=1), trialPeriodDays (int 0–30), paymentMethodId (string)
+- UpdateSubscriptionRequest — Update subscription
+  - planId (uuid?), seats (int >=1?), status (enum?), metadata (map?)
+- InvoiceDto — Invoice summary
+  - id (uuid), subscriptionId (uuid), amountDue (number), currency (string), dueDate (date-time), status (enum), hostedInvoiceUrl (uri), pdfUrl (uri)
+- ReviewCycleDto — Performance review cycle
+  - id (uuid), organizationId (uuid), name (string), periodStart/End (date), isOpen (boolean)
+- CreateReviewCycleRequest — Create review cycle
+  - organizationId (uuid), name (string), periodStart/End (date)
+- ReviewDto — Performance review
+  - id (uuid), cycleId (uuid), employeeId (uuid), managerId (uuid), overallRating (int 1–5?), comments (string), submittedAtUtc (date-time?), kpis (array<ReviewKpiDto>)
+- CreateReviewRequest — Create/submit review
+  - cycleId (uuid), employeeId (uuid), managerId (uuid), overallRating (int 1–5?), comments (string), submittedAtUtc (date-time?), kpis (array)
+- UpdateReviewRequest — Update review
+  - overallRating (int 1–5?), comments (string), submittedAtUtc (date-time?), kpis (array)
+- ReviewKpiDto — KPI within a review
+  - id (uuid), reviewId (uuid), goalId (uuid?), name (string), rating (int)
+- LiteCourseDto — Course (lite)
+  - id (uuid), organizationId (uuid), code (string), title (string), description (string?), durationHours (number), isMandatory (boolean)
+- CreateLiteCourseRequest — Create course (lite)
+  - organizationId (uuid), code (string), title (string), description (string?), durationHours (number), isMandatory (boolean)
+- LiteCourseSessionDto — Course session (lite)
+  - id (uuid), courseId (uuid), startUtc/endUtc (date-time), location (string?), meetingUrl (string?), capacity (int?)
+- CreateLiteCourseSessionRequest — Create session (lite)
+  - courseId (uuid), startUtc (date-time), endUtc (date-time), location (string?), meetingUrl (string?), capacity (int?)
+- LiteEnrollmentDto — Training enrollment (lite)
+  - sessionId (uuid), employeeId (uuid), enrolledAtUtc (date-time), status (Enrolled|Completed|Cancelled), score (number?), certificateUrl (string?)
+
+**Notes**
+- Errors: most endpoints may return `ErrorResponse` for 400/401/404; refer to `openapi.yaml` for full status codes.
+- Pagination: where applicable, uses `page` and `pageSize` query parameters.
+- Action-style paths use the `:action` suffix (e.g., `:open`, `:close`, `:pin`).

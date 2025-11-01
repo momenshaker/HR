@@ -1,0 +1,78 @@
+**Overview**
+- Feature: Subscriptions
+- Auth: Bearer JWT for all endpoints.
+
+**Endpoints**
+- GET `/api/subscriptions` — List subscriptions
+  - Params:
+    - `page` (integer, int32, minimum 0, default 0)
+    - `pageSize` (integer, int32, 1–200, default 25)
+    - `status` (string: Active|Inactive|Canceled|PastDue)
+  - Responses:
+    - 200 → object { data: array<`SubscriptionDto`>, page (int32), pageSize (int32), totalRecords (int64) }
+    - 401 → `ErrorResponse`
+- POST `/api/subscriptions` — Create a subscription
+  - Request: `CreateSubscriptionRequest`
+  - Responses:
+    - 201 → `SubscriptionDto`
+    - 400 → `ErrorResponse`
+    - 401 → `ErrorResponse`
+- GET `/api/subscriptions/{id}` — Get subscription by id
+  - Path: `id` (string, uuid)
+  - Responses:
+    - 200 → `SubscriptionDto`
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+- PUT `/api/subscriptions/{id}` — Update subscription
+  - Path: `id` (string, uuid)
+  - Request: `UpdateSubscriptionRequest`
+  - Responses:
+    - 200 → `SubscriptionDto`
+    - 400 → `ErrorResponse`
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+- DELETE `/api/subscriptions/{id}` — Cancel subscription
+  - Path: `id` (string, uuid)
+  - Responses:
+    - 204 → No Content
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+- GET `/api/subscriptions/{id}/invoice` — Retrieve latest invoice for subscription
+  - Path: `id` (string, uuid)
+  - Responses:
+    - 200 → `InvoiceDto`
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+
+**DTOs**
+- SubscriptionDto — Subscription
+  - id (string, uuid)
+  - planId (string, uuid)
+  - status (string: Active|Inactive|Canceled|PastDue)
+  - seats (integer, int32)
+  - createdAt (string, date-time)
+  - canceledAt (string, date-time, nullable)
+  - renewsAt (string, date-time, nullable)
+  - metadata (object<string,string>)
+- CreateSubscriptionRequest — Create subscription
+  - planId (string, uuid)
+  - seats (integer, int32, minimum 1)
+  - trialPeriodDays (integer, int32, 0–30)
+  - paymentMethodId (string)
+- UpdateSubscriptionRequest — Update subscription
+  - planId (string, uuid, optional)
+  - seats (integer, int32, minimum 1, optional)
+  - status (string: Active|Inactive|Canceled|PastDue, optional)
+  - metadata (object<string,string>, optional)
+- InvoiceDto — Invoice summary
+  - id (string, uuid)
+  - subscriptionId (string, uuid)
+  - amountDue (number, double)
+  - currency (string)
+  - dueDate (string, date-time)
+  - status (string: Pending|Paid|Failed|PastDue)
+  - hostedInvoiceUrl (string, uri)
+  - pdfUrl (string, uri)
+- ErrorResponse — Error payload
+  - code (string), message (string), traceId (string)
+

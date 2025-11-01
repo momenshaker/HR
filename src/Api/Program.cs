@@ -113,9 +113,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("EmployeeSelf", policy => policy.AddRequirements(new EmployeeSelfRequirement()));
     options.AddPolicy("OrgScoped", policy => policy.AddRequirements(new OrgScopedRequirement()));
 });
-builder.Services.AddSingleton<IAuthorizationHandler, OrgGuardHandler>();
-builder.Services.AddSingleton<IAuthorizationHandler, EmployeeSelfHandler>();
-builder.Services.AddSingleton<IAuthorizationHandler, OrgScopedHandler>();
+// Authorization handlers may depend on scoped services (e.g., EF-backed repositories).
+// Register them as scoped to avoid capturing scoped services in singletons.
+builder.Services.AddScoped<IAuthorizationHandler, OrgGuardHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, EmployeeSelfHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, OrgScopedHandler>();
 
 builder.Services.AddCors(options =>
 {

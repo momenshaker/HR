@@ -1,0 +1,95 @@
+**Overview**
+- Feature: Performance
+- Auth: Bearer JWT for all endpoints.
+
+**Endpoints**
+- GET `/api/performance/cycles` — List review cycles
+  - Params:
+    - `isOpen` (boolean, optional) — Filter by open state
+  - Responses:
+    - 200 → array<`ReviewCycleDto`>
+    - 401 → `ErrorResponse`
+- POST `/api/performance/cycles/{id}:open` — Open a review cycle
+  - Path: `id` (string, uuid)
+  - Responses:
+    - 200 → `ReviewCycleDto`
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+- POST `/api/performance/cycles/{id}:close` — Close a review cycle
+  - Path: `id` (string, uuid)
+  - Responses:
+    - 200 → `ReviewCycleDto`
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+- GET `/api/performance/reviews` — List reviews
+  - Params:
+    - `cycleId` (string, uuid, optional)
+    - `employeeId` (string, uuid, optional)
+    - `managerId` (string, uuid, optional)
+  - Responses:
+    - 200 → array<`ReviewDto`>
+    - 401 → `ErrorResponse`
+- POST `/api/performance/reviews` — Create or submit a review
+  - Request: `CreateReviewRequest`
+  - Responses:
+    - 201 → `ReviewDto`
+    - 400 → `ErrorResponse`
+    - 401 → `ErrorResponse`
+- PUT `/api/performance/reviews/{id}` — Update review ratings and comments
+  - Path: `id` (string, uuid)
+  - Request: `UpdateReviewRequest`
+  - Responses:
+    - 200 → `ReviewDto`
+    - 400 → `ErrorResponse`
+    - 401 → `ErrorResponse`
+    - 404 → Not found
+
+**Spec Note**
+- The spec defines an additional “Create a review cycle” operation co-located under the training cancel path with tag `Performance`. It likely belongs at `POST /api/performance/cycles`.
+  - Request: `CreateReviewCycleRequest`
+  - Responses: 201 → `ReviewCycleDto`, 400/401 → `ErrorResponse`
+
+**DTOs**
+- ReviewCycleDto — Performance review cycle
+  - id (string, uuid)
+  - organizationId (string, uuid)
+  - name (string)
+  - periodStart (string, date)
+  - periodEnd (string, date)
+  - isOpen (boolean)
+- CreateReviewCycleRequest — Create review cycle
+  - organizationId (string, uuid)
+  - name (string)
+  - periodStart (string, date)
+  - periodEnd (string, date)
+- ReviewDto — Performance review
+  - id (string, uuid)
+  - cycleId (string, uuid)
+  - employeeId (string, uuid)
+  - managerId (string, uuid)
+  - overallRating (integer, int32, 1–5, nullable)
+  - comments (string, nullable)
+  - submittedAtUtc (string, date-time, nullable)
+  - rowVersion (string)
+  - kpis (array<`ReviewKpiDto`>)
+- CreateReviewRequest — Create/submit review
+  - cycleId (string, uuid)
+  - employeeId (string, uuid)
+  - managerId (string, uuid)
+  - overallRating (integer, 1–5, nullable)
+  - comments (string, nullable)
+  - submittedAtUtc (string, date-time, nullable)
+  - kpis (array<object>): goalId (uuid, nullable), name (string), rating (integer, 1–5), notes (string, nullable)
+- UpdateReviewRequest — Update review
+  - overallRating (integer, 1–5, nullable)
+  - comments (string, nullable)
+  - submittedAtUtc (string, date-time, nullable)
+  - kpis (array<object>): id (uuid), goalId (uuid, nullable), name (string), rating (integer, 1–5), notes (string, nullable)
+- ReviewKpiDto — KPI within a review
+  - id (string, uuid)
+  - reviewId (string, uuid)
+  - goalId (string, uuid, nullable)
+  - name (string)
+  - rating (integer, int32)
+- ErrorResponse — Error payload: code, message, traceId
+

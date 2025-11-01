@@ -5,19 +5,16 @@ using HR.Infrastructure.Persistence.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
+namespace HR.Infrastructure.Migrations
 {
     [DbContext(typeof(HrDbContext))]
-    [Migration("20251029195459_intial")]
-    partial class intial
+    partial class HrDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -488,6 +485,9 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1024)
@@ -497,6 +497,11 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<int>("Level")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -511,15 +516,111 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ParentDepartmentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasIndex("ParentDepartmentId");
+
+                    b.HasIndex("Path");
+
+                    b.HasIndex("OrganizationId", "Code")
+                        .IsUnique()
+                        .HasFilter("[Code] IS NOT NULL AND [Code] <> ''");
+
+                    b.HasIndex("OrganizationId", "ParentDepartmentId", "Name")
+                        .IsUnique()
+                        .HasFilter("[ParentDepartmentId] IS NOT NULL");
 
                     b.ToTable("Departments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                            Branch = "Global",
+                            Code = "HQ",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Corporate headquarters",
+                            IsActive = true,
+                            Level = 0,
+                            Location = "New York",
+                            Name = "Head Office",
+                            OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                            Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"
+                        },
+                        new
+                        {
+                            Id = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                            Branch = "Product",
+                            Code = "ENG",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Platform and application engineering",
+                            IsActive = true,
+                            Level = 1,
+                            Location = "Seattle",
+                            Name = "Engineering",
+                            OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                            ParentDepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                            Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"
+                        },
+                        new
+                        {
+                            Id = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
+                            Branch = "Technology",
+                            Code = "PLAT",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Platform services and infrastructure",
+                            IsActive = true,
+                            Level = 2,
+                            Location = "Seattle",
+                            Name = "Platform",
+                            OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                            ParentDepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                            Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"
+                        },
+                        new
+                        {
+                            Id = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
+                            Branch = "Product",
+                            Code = "APPS",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Customer-facing application development",
+                            IsActive = true,
+                            Level = 2,
+                            Location = "Austin",
+                            Name = "Applications",
+                            OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                            ParentDepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                            Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/13d7a3fd-91c0-44d3-9d63-7f53820f9bde"
+                        },
+                        new
+                        {
+                            Id = new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"),
+                            Branch = "Corporate",
+                            Code = "HR",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "People operations",
+                            IsActive = true,
+                            Level = 1,
+                            Location = "New York",
+                            Name = "HR",
+                            OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                            ParentDepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                            Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"
+                        });
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.Employee", b =>
@@ -527,11 +628,11 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -549,6 +650,9 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("JobTitle")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -558,36 +662,6 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.ComplexProperty<Dictionary<string, object>>("DepartmentAlignment", "HR.Domain.Entities.Employee.DepartmentAlignment#EmployeeDepartmentAlignment", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("BusinessUnit")
-                                .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("nvarchar(150)")
-                                .HasColumnName("DepartmentAlignmentBusinessUnit");
-
-                            b1.Property<string>("CostCenter")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)")
-                                .HasColumnName("DepartmentAlignmentCostCenter");
-
-                            b1.Property<Guid>("PrimaryDepartmentId")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("DepartmentAlignmentPrimaryDepartmentId");
-
-                            b1.Property<Guid?>("ReportingDepartmentId")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("DepartmentAlignmentReportingDepartmentId");
-
-                            b1.Property<string>("SecondaryDepartmentIds")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("DepartmentAlignmentSecondaryDepartmentIds");
-                        });
 
                     b.ComplexProperty<Dictionary<string, object>>("JobArchitecture", "HR.Domain.Entities.Employee.JobArchitecture#EmployeeJobArchitecture", b1 =>
                         {
@@ -626,7 +700,56 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Employees", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "alice.johnson@acme.test",
+                            EmploymentStartDate = new DateOnly(2020, 1, 6),
+                            FirstName = "Alice",
+                            IsActive = true,
+                            JobTitle = "Director of Engineering",
+                            LastName = "Johnson"
+                        },
+                        new
+                        {
+                            Id = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "bob.smith@acme.test",
+                            EmploymentStartDate = new DateOnly(2020, 4, 6),
+                            FirstName = "Bob",
+                            IsActive = true,
+                            JobTitle = "Senior Platform Engineer",
+                            LastName = "Smith"
+                        },
+                        new
+                        {
+                            Id = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "carol.lee@acme.test",
+                            EmploymentStartDate = new DateOnly(2020, 7, 6),
+                            FirstName = "Carol",
+                            IsActive = true,
+                            JobTitle = "Applications Lead",
+                            LastName = "Lee"
+                        },
+                        new
+                        {
+                            Id = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "david.patel@acme.test",
+                            EmploymentStartDate = new DateOnly(2020, 3, 6),
+                            FirstName = "David",
+                            IsActive = true,
+                            JobTitle = "HR Business Partner",
+                            LastName = "Patel"
+                        });
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.EmployeeComplianceDocument", b =>
@@ -665,6 +788,76 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("EmployeeComplianceDocument");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeDepartment", b =>
+                {
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("bit");
+
+                    b.HasKey("EmployeeId", "DepartmentId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("EmployeeDepartments", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            EmployeeId = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                            DepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                            IsPrimary = true
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                            DepartmentId = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
+                            IsPrimary = false
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                            DepartmentId = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
+                            IsPrimary = true
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                            DepartmentId = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
+                            IsPrimary = false
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                            DepartmentId = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
+                            IsPrimary = true
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                            DepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
+                            IsPrimary = false
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                            DepartmentId = new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"),
+                            IsPrimary = true
+                        },
+                        new
+                        {
+                            EmployeeId = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                            DepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
+                            IsPrimary = false
+                        });
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.EmploymentContract", b =>
@@ -889,6 +1082,39 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     b.ToTable("Invoices", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.LeaveBalance", b =>
+                {
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Accrued")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("CarriedOver")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("Opening")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<decimal>("Taken")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("EmployeeId", "LeaveTypeId", "Year");
+
+                    b.ToTable("LeaveBalances", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.LeaveRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -929,7 +1155,96 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("StartDate", "EndDate");
+
                     b.ToTable("LeaveRequests", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.LeaveType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AnnualAllowanceDays")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("CarryOverDays")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("RequiresApproval")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("LeaveTypes", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Organizations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
+                            Code = "ACME",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Acme Corp demo organization",
+                            IsActive = true,
+                            Name = "Acme Corp"
+                        });
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.OrganizationUnit", b =>
@@ -987,15 +1302,67 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     b.ToTable("OrganizationUnits", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.PayrollItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Breakdown")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<decimal>("Deductions")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Gross")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Net")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RunId");
+
+                    b.ToTable("PayrollItems", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.PayrollRun", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("PaidAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateOnly>("PeriodEnd")
                         .HasColumnType("date");
@@ -1003,13 +1370,15 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     b.Property<DateOnly>("PeriodStart")
                         .HasColumnType("date");
 
-                    b.Property<DateTime>("ProcessedAtUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<decimal>("TotalGrossPay")
                         .HasColumnType("decimal(18,2)");
@@ -1019,7 +1388,34 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrganizationId", "PeriodStart", "PeriodEnd");
+
                     b.ToTable("PayrollRuns", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Payslip", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("GeneratedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PublicUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RunId");
+
+                    b.ToTable("Payslips", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.PerformanceReview", b =>
@@ -1518,6 +1914,95 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.Timesheet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ApprovedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("SubmittedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("WeekStartUtc")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId", "WeekStartUtc")
+                        .IsUnique();
+
+                    b.ToTable("Timesheets", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.TimesheetEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("DateUtc")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("Hours")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("ProjectCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("TaskCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("TimesheetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DateUtc");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("TimesheetId");
+
+                    b.ToTable("TimesheetEntries", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.TrainingCourse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1713,10 +2198,8 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
 
                     b.Property<string>("CustomerId")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)")
-                        .HasDefaultValue("demo-tenant");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -1724,6 +2207,9 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -1760,7 +2246,9 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("EmployeeId")
+                        .IsUnique()
+                        .HasFilter("[EmployeeId] IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -1771,6 +2259,35 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Infrastructure.Security.Identity.UserRefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -1904,11 +2421,48 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.Department", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.Organization", "Organization")
+                        .WithMany("Departments")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HR.Domain.Entities.Department", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentDepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.EmployeeComplianceDocument", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Employee", null)
                         .WithMany("ComplianceDocuments")
                         .HasForeignKey("EmployeeId");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeDepartment", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.Department", "Department")
+                        .WithMany("EmployeeDepartments")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HR.Domain.Entities.Employee", "Employee")
+                        .WithMany("Departments")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.EmploymentContract", b =>
@@ -1930,6 +2484,28 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .WithMany()
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.PayrollItem", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.PayrollRun", "Run")
+                        .WithMany("Items")
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Run");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Payslip", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.PayrollRun", "Run")
+                        .WithMany("Payslips")
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Run");
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.PerformanceReview", b =>
@@ -2112,11 +2688,46 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.TimesheetEntry", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("HR.Domain.Entities.Timesheet", "Timesheet")
+                        .WithMany("Entries")
+                        .HasForeignKey("TimesheetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Timesheet");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.UsageCounter", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Subscription", null)
                         .WithMany()
                         .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HR.Infrastructure.Security.Identity.ApplicationUser", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.Employee", null)
+                        .WithOne()
+                        .HasForeignKey("HR.Infrastructure.Security.Identity.ApplicationUser", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("HR.Infrastructure.Security.Identity.UserRefreshToken", b =>
+                {
+                    b.HasOne("HR.Infrastructure.Security.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -2172,11 +2783,37 @@ namespace HR.Infrastructure.Persistence.EntityFramework.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.Department", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("EmployeeDepartments");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Employee", b =>
                 {
                     b.Navigation("ComplianceDocuments");
 
                     b.Navigation("Contracts");
+
+                    b.Navigation("Departments");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Organization", b =>
+                {
+                    b.Navigation("Departments");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.PayrollRun", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Payslips");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Timesheet", b =>
+                {
+                    b.Navigation("Entries");
                 });
 #pragma warning restore 612, 618
         }

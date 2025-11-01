@@ -1,0 +1,65 @@
+**Overview**
+- Feature: Analytics
+- Auth: Bearer JWT for all endpoints.
+
+**Endpoints**
+- GET `/api/analytics/headcount` — Headcount per department
+  - Request: none
+  - Responses:
+    - 200 → array<`HeadcountItem`>
+    - 401 → `ErrorResponse`
+- GET `/api/analytics/utilization` — Timesheet utilization by period
+  - Request: none
+  - Responses:
+    - 200 → array<`UtilizationPeriod`>
+    - 401 → `ErrorResponse`
+- GET `/api/analytics/leave-usage` — Leave usage by type
+  - Request: none
+  - Responses:
+    - 200 → array<`LeaveUsageItem`>
+    - 401 → `ErrorResponse`
+- GET `/api/analytics/payroll-totals` — Payroll totals per run and department
+  - Request: none
+  - Responses:
+    - 200 → `PayrollTotalsResponse`
+    - 401 → `ErrorResponse`
+- GET `/api/analytics/recruitment-funnel` — Recruitment funnel by stage
+  - Request: none
+  - Responses:
+    - 200 → array<`StageCount`>
+    - 401 → `ErrorResponse`
+- GET `/api/analytics/training-compliance` — Mandatory training compliance
+  - Request: none
+  - Responses:
+    - 200 → `TrainingCompliance`
+    - 401 → `ErrorResponse`
+
+**DTOs**
+- HeadcountItem — Department headcount
+  - DepartmentId (string, uuid)
+  - DepartmentName (string)
+  - Count (integer, int32)
+- UtilizationPeriod — Utilization metrics for a period
+  - PeriodStart (string, date)
+  - PeriodEnd (string, date)
+  - ApprovedHours (number, double)
+  - CapacityHours (number, double)
+  - UtilizationRate (number, double) — ApprovedHours/CapacityHours (0..1)
+- LeaveUsageItem — Leave usage per type
+  - LeaveType (string)
+  - Days (integer, int32)
+- PayrollTotalsResponse — Payroll aggregates
+  - Runs (array<object>): RunId (uuid), PeriodStart (date), PeriodEnd (date), TotalGross (number), TotalNet (number)
+  - ByDepartment (array<object>): DepartmentId (uuid), DepartmentName (string), TotalGross (number), TotalNet (number)
+- StageCount — Recruitment funnel stage count
+  - Stage (string)
+  - Count (integer, int32)
+- TrainingCompliance — Mandatory training compliance
+  - OrganizationId (string, uuid)
+  - MandatoryCourseCount (integer, int32)
+  - ObservedEmployeeCount (integer, int32)
+  - CompliantEmployeeCount (integer, int32)
+  - ComplianceRate (number, double)
+- ErrorResponse — Error payload
+  - code (string), message (string), traceId (string)
+

@@ -16,7 +16,7 @@ using Xunit;
 
 namespace HR.Api.IntegrationTests;
 
-public sealed class StripeWebhookControllerTests(WebApplicationFactory<Program> factory)
+public sealed class StripeWebhookControllerTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
     private const string EndpointSecret = "whsec_test_secret";
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);

@@ -181,6 +181,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITimesheetRepository, EntityFrameworkTimesheetRepository>();
         services.AddScoped<IPayrollItemRepository, EntityFrameworkPayrollItemRepository>();
         services.AddScoped<IPayslipRepository, EntityFrameworkPayslipRepository>();
+        // Use in-memory implementations for lightweight training where EF repositories are not implemented
+        services.AddSingleton<ICourseRepository, InMemoryCourseRepository>();
+        services.AddSingleton<ICourseSessionRepository, InMemoryCourseSessionRepository>();
+        services.AddSingleton<ICourseSessionEnrollmentRepository, InMemoryCourseSessionEnrollmentRepository>();
         // Use in-memory implementations for comms until EF repositories are introduced
         services.AddSingleton<ICommsAnnouncementRepository, InMemoryCommsAnnouncementRepository>();
         services.AddSingleton<IAnnouncementReadRepository, InMemoryAnnouncementReadRepository>();

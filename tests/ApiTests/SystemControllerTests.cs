@@ -5,7 +5,7 @@ using Xunit;
 
 namespace HR.Api.IntegrationTests;
 
-public sealed class SystemControllerTests(WebApplicationFactory<Program> factory)
+public sealed class SystemControllerTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client = factory.WithWebHostBuilder(builder =>
     {

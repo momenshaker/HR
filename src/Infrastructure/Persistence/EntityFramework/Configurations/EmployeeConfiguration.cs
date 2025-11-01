@@ -46,23 +46,28 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         {
             architecture.Property(job => job.JobFamily)
                 .HasColumnName("JobArchitectureJobFamily")
-                .HasMaxLength(150);
+                .HasMaxLength(150)
+                .HasDefaultValue("");
 
             architecture.Property(job => job.JobFunction)
                 .HasColumnName("JobArchitectureJobFunction")
-                .HasMaxLength(150);
+                .HasMaxLength(150)
+                .HasDefaultValue("");
 
             architecture.Property(job => job.JobLevel)
                 .HasColumnName("JobArchitectureJobLevel")
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .HasDefaultValue("");
 
             architecture.Property(job => job.JobCode)
                 .HasColumnName("JobArchitectureJobCode")
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .HasDefaultValue("");
 
             architecture.Property(job => job.CareerTrack)
                 .HasColumnName("JobArchitectureCareerTrack")
-                .HasMaxLength(150);
+                .HasMaxLength(150)
+                .HasDefaultValue("");
         });
 
         builder.HasMany(employee => employee.Departments)

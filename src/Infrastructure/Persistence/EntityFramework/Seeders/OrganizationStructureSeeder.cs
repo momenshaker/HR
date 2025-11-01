@@ -121,8 +121,9 @@ public static class OrganizationStructureSeeder
             }
         );
 
+        // Use anonymous objects to avoid setting complex/owned properties (e.g., JobArchitecture)
         modelBuilder.Entity<Employee>().HasData(
-            new Employee
+            new
             {
                 Id = AliceEmployeeId,
                 FirstName = "Alice",
@@ -133,7 +134,7 @@ public static class OrganizationStructureSeeder
                 CreatedAtUtc = SeedCreatedAt,
                 IsActive = true
             },
-            new Employee
+            new
             {
                 Id = BobEmployeeId,
                 FirstName = "Bob",
@@ -144,7 +145,7 @@ public static class OrganizationStructureSeeder
                 CreatedAtUtc = SeedCreatedAt,
                 IsActive = true
             },
-            new Employee
+            new
             {
                 Id = CarolEmployeeId,
                 FirstName = "Carol",
@@ -155,7 +156,7 @@ public static class OrganizationStructureSeeder
                 CreatedAtUtc = SeedCreatedAt,
                 IsActive = true
             },
-            new Employee
+            new
             {
                 Id = DavidEmployeeId,
                 FirstName = "David",

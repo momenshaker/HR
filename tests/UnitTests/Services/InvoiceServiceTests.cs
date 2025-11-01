@@ -16,7 +16,7 @@ public sealed class InvoiceServiceTests
 
         Assert.NotEqual(Guid.Empty, invoice.Id);
         Assert.Equal(subscriptionId, invoice.SubscriptionId);
-        Assert.Equal("Pending", invoice.Status);
+        Assert.Equal("Open", invoice.Status);
     }
 
     [Fact]

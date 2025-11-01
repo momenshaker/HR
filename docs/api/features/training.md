@@ -1,0 +1,77 @@
+**Overview**
+- Feature: Training
+- Auth: Bearer JWT for all endpoints.
+
+**Endpoints**
+- GET `/api/training/courses` — List courses for organization
+  - Params:
+    - `orgId` (string, uuid, required)
+  - Responses:
+    - 200 → array<`LiteCourseDto`>
+- POST `/api/training/courses` — Create a course
+  - Request: `CreateLiteCourseRequest`
+  - Responses:
+    - 201 → `LiteCourseDto`
+- GET `/api/training/courses/{id}/sessions` — List sessions for a course
+  - Path: `id` (string, uuid)
+  - Responses:
+    - 200 → array<`LiteCourseSessionDto`>
+- POST `/api/training/sessions` — Create a course session
+  - Request: `CreateLiteCourseSessionRequest`
+  - Responses:
+    - 201 → `LiteCourseSessionDto`
+- POST `/api/training/sessions/{sessionId}/enroll` — Enroll an employee in a session
+  - Path: `sessionId` (string, uuid)
+  - Params: `employeeId` (string, uuid, required, query)
+  - Responses:
+    - 200 → `LiteEnrollmentDto`
+- POST `/api/training/sessions/{sessionId}/complete` — Mark an enrollment as completed
+  - Path: `sessionId` (string, uuid)
+  - Params: `employeeId` (string, uuid, required, query)
+  - Responses:
+    - 200 → `LiteEnrollmentDto`
+- POST `/api/training/sessions/{sessionId}/cancel` — Cancel an enrollment
+  - Path: `sessionId` (string, uuid)
+  - Params: `employeeId` (string, uuid, required, query)
+  - Responses:
+    - 200 → `LiteEnrollmentDto`
+
+**DTOs**
+- LiteCourseDto — Course (lite)
+  - id (string, uuid)
+  - organizationId (string, uuid)
+  - code (string)
+  - title (string)
+  - description (string, nullable)
+  - durationHours (number)
+  - isMandatory (boolean)
+- CreateLiteCourseRequest — Create course (lite)
+  - organizationId (string, uuid)
+  - code (string)
+  - title (string)
+  - description (string, nullable)
+  - durationHours (number)
+  - isMandatory (boolean)
+- LiteCourseSessionDto — Course session (lite)
+  - id (string, uuid)
+  - courseId (string, uuid)
+  - startUtc (string, date-time)
+  - endUtc (string, date-time)
+  - location (string, nullable)
+  - meetingUrl (string, nullable)
+  - capacity (integer, int32, nullable)
+- CreateLiteCourseSessionRequest — Create session (lite)
+  - courseId (string, uuid)
+  - startUtc (string, date-time)
+  - endUtc (string, date-time)
+  - location (string, nullable)
+  - meetingUrl (string, nullable)
+  - capacity (integer, int32, nullable)
+- LiteEnrollmentDto — Training enrollment (lite)
+  - sessionId (string, uuid)
+  - employeeId (string, uuid)
+  - enrolledAtUtc (string, date-time)
+  - status (string: Enrolled|Completed|Cancelled)
+  - score (number, nullable)
+  - certificateUrl (string, nullable)
+

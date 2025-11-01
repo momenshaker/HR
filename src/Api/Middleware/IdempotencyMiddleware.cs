@@ -82,7 +82,10 @@ public sealed class IdempotencyMiddleware
         {
             var headers = context.Response.Headers
                 .Where(h => !string.Equals(h.Key, "Transfer-Encoding", StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(header => header.Key, header => header.Value.ToArray(), StringComparer.OrdinalIgnoreCase);
+                .ToDictionary(
+                    header => header.Key,
+                    header => header.Value.Select(v => v ?? string.Empty).ToArray(),
+                    StringComparer.OrdinalIgnoreCase);
 
             var storedResponse = new StoredIdempotentResponse
             {

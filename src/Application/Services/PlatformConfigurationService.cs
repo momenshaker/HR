@@ -70,6 +70,10 @@ public sealed class PlatformConfigurationService : IPlatformConfigurationService
         [HrFeature.HrAnalytics] = new("HrAnalytics", "HR Analytics", "Executive dashboards, predictive insights, and compliance reporting."),
         [HrFeature.DelegatedAuthority] = new("DelegatedAuthority", "Delegated Authority", "Delegation frameworks, approval limits, and succession coverage."),
         [HrFeature.SelfService] = new("SelfService", "Employee Self-Service", "Digital employee portals, OAuth account management, and delegated access."),
+        [HrFeature.PlatformServices] = new(
+            "PlatformServices",
+            "Platform Services",
+            "Core platform endpoints including health checks, diagnostics, and system metadata.")
     };
 
     private sealed record FeatureDescriptor(string FeatureKey, string DisplayName, string Usage);

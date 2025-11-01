@@ -30,7 +30,7 @@ public sealed class DataAnnotationsValidator<T> : AbstractValidator<T>
                 {
                     var memberNames = validationResult.MemberNames.Any()
                         ? validationResult.MemberNames
-                        : new[] { context.PropertyName };
+                        : new[] { context.PropertyPath };
 
                     foreach (var memberName in memberNames)
                     {
