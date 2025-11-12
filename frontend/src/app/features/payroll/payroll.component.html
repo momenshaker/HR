@@ -1,0 +1,36 @@
+<div class="page">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Generate payroll</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="generate()" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Period</mat-label>
+          <input matInput placeholder="YYYY-MM" formControlName="period" />
+          <mat-error *ngIf="form.controls.period.hasError('required')">Period is required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Pay date</mat-label>
+          <input matInput type="date" formControlName="payDate" />
+          <mat-error *ngIf="form.controls.payDate.hasError('required')">Pay date required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="form-grid__full">
+          <mat-label>Bank file reference</mat-label>
+          <input matInput formControlName="bankFile" />
+        </mat-form-field>
+        <div class="form-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Run payroll</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  <app-data-table
+    [columns]="columns"
+    [displayedColumns]="displayedColumns"
+    [data]="runs()"
+    [total]="total()"
+    [loading]="loading()"
+    (queryChange)="onQueryChange($event)"
+  ></app-data-table>
+</div>

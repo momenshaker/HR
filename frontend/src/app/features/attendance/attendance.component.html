@@ -1,0 +1,18 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Attendance</h1>
+    <button mat-stroked-button color="primary" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+  <app-date-range-picker [form]="filterForm"></app-date-range-picker>
+  <app-data-table
+    [columns]="columns"
+    [displayedColumns]="displayedColumns"
+    [data]="records()"
+    [total]="total()"
+    [loading]="loading()"
+    (queryChange)="onQueryChange($event)"
+  ></app-data-table>
+</div>

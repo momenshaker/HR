@@ -1,0 +1,29 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.form-grid__full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.meta {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.empty {
+  padding: 1rem 0;
+  color: rgba(0, 0, 0, 0.6);
+}

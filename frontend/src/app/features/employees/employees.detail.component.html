@@ -1,0 +1,53 @@
+<ng-container *ngIf="profile() as profile; else loadingTpl">
+  <div class="employee-detail">
+    <mat-card class="employee-detail__summary">
+      <mat-card-title>{{ profile.fullName }}</mat-card-title>
+      <mat-card-subtitle>{{ profile.jobTitle }}</mat-card-subtitle>
+      <mat-card-content>
+        <p><mat-icon>email</mat-icon> {{ profile.email }}</p>
+        <p *ngIf="profile.phone"><mat-icon>phone</mat-icon> {{ profile.phone }}</p>
+        <p *ngIf="profile.departmentName"><mat-icon>business</mat-icon> {{ profile.departmentName }}</p>
+      </mat-card-content>
+    </mat-card>
+    <mat-tab-group>
+      <mat-tab label="Profile">
+        <mat-list>
+          <mat-list-item><span matListItemTitle>Employment type</span>{{ profile['employmentType'] ?? '—' }}</mat-list-item>
+          <mat-list-item><span matListItemTitle>Start date</span>{{ profile['startDate'] ?? '—' }}</mat-list-item>
+        </mat-list>
+      </mat-tab>
+      <mat-tab label="Documents">
+        <mat-list *ngIf="profile.documents?.length; else noDocs">
+          <mat-list-item *ngFor="let doc of profile.documents">
+            <a [href]="doc.url" target="_blank" rel="noopener">{{ doc.name }}</a>
+          </mat-list-item>
+        </mat-list>
+        <ng-template #noDocs><p class="empty">No documents uploaded.</p></ng-template>
+      </mat-tab>
+      <mat-tab label="Attendance">
+        <mat-list *ngIf="profile.attendance?.length; else noAttendance">
+          <mat-list-item *ngFor="let record of profile.attendance">
+            <span matListItemTitle>{{ record.date }}</span>
+            <span>{{ record.status }}</span>
+          </mat-list-item>
+        </mat-list>
+        <ng-template #noAttendance><p class="empty">No attendance records.</p></ng-template>
+      </mat-tab>
+      <mat-tab label="Payslips">
+        <mat-list *ngIf="profile.payslips?.length; else noPayslips">
+          <mat-list-item *ngFor="let payslip of profile.payslips">
+            <a [href]="payslip.url" target="_blank" rel="noopener">{{ payslip.period }}</a>
+          </mat-list-item>
+        </mat-list>
+        <ng-template #noPayslips><p class="empty">No payslips available.</p></ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</ng-container>
+
+<ng-template #loadingTpl>
+  <div class="employee-detail__loading">
+    <mat-icon>hourglass_empty</mat-icon>
+    Loading employee profile...
+  </div>
+</ng-template>

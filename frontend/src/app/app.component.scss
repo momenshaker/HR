@@ -1,0 +1,53 @@
+.shell {
+  height: 100vh;
+}
+
+.shell__sidenav {
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.shell__content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.shell__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: 1rem;
+}
+
+.shell__breadcrumbs {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.shell__spacer {
+  flex: 1;
+}
+
+.shell__main {
+  padding: 1.5rem;
+  overflow: auto;
+  flex: 1;
+  background: var(--mat-app-background-color, #f5f7fb);
+}
+
+.active {
+  font-weight: 600;
+}

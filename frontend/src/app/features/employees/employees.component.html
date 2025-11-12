@@ -1,0 +1,23 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Employees</h1>
+    <button mat-flat-button color="primary" (click)="create()">
+      <mat-icon>person_add</mat-icon>
+      Add employee
+    </button>
+  </header>
+  <app-data-table
+    [columns]="columns"
+    [displayedColumns]="displayedColumns"
+    [data]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (queryChange)="onQueryChange($event)"
+  >
+    <ng-template #actions let-item>
+      <button mat-icon-button color="primary" (click)="view(item)"><mat-icon>visibility</mat-icon></button>
+      <button mat-icon-button color="primary" (click)="edit(item)"><mat-icon>edit</mat-icon></button>
+      <button mat-icon-button color="warn" (click)="remove(item)"><mat-icon>delete</mat-icon></button>
+    </ng-template>
+  </app-data-table>
+</div>

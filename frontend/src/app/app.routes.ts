@@ -1,0 +1,58 @@
+import { Routes } from '@angular/router';
+import { AUTH_ROUTES } from './features/auth/auth.routes';
+import { authGuard } from './core/auth/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
+import { ForbiddenPageComponent } from './pages/forbidden-page.component';
+import { NotFoundPageComponent } from './pages/not-found-page.component';
+
+export const APP_ROUTES: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: 'auth', children: AUTH_ROUTES },
+  {
+    path: 'dashboard',
+    canMatch: [authGuard],
+    loadChildren: () => import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES)
+  },
+  {
+    path: 'organizations',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    loadChildren: () => import('./features/organizations/organizations.routes').then((m) => m.ORGANIZATIONS_ROUTES)
+  },
+  {
+    path: 'departments',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    loadChildren: () => import('./features/departments/departments.routes').then((m) => m.DEPARTMENTS_ROUTES)
+  },
+  {
+    path: 'employees',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    loadChildren: () => import('./features/employees/employees.routes').then((m) => m.EMPLOYEES_ROUTES)
+  },
+  {
+    path: 'attendance',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    loadChildren: () => import('./features/attendance/attendance.routes').then((m) => m.ATTENDANCE_ROUTES)
+  },
+  {
+    path: 'leave',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
+    loadChildren: () => import('./features/leave/leave.routes').then((m) => m.LEAVE_ROUTES)
+  },
+  {
+    path: 'payroll',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    loadChildren: () => import('./features/payroll/payroll.routes').then((m) => m.PAYROLL_ROUTES)
+  },
+  {
+    path: 'recruitment',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    loadChildren: () => import('./features/recruitment/recruitment.routes').then((m) => m.RECRUITMENT_ROUTES)
+  },
+  {
+    path: 'notifications',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    loadChildren: () => import('./features/notifications/notifications.routes').then((m) => m.NOTIFICATIONS_ROUTES)
+  },
+  { path: 'forbidden', component: ForbiddenPageComponent },
+  { path: '**', component: NotFoundPageComponent }
+];

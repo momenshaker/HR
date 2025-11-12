@@ -1,0 +1,38 @@
+<div class="dashboard">
+  <div class="dashboard__header">
+    <h1>Welcome back, {{ user()?.fullName ?? 'Team Member' }}!</h1>
+    <p>Review workforce metrics and manage your HR operations.</p>
+  </div>
+  <div class="dashboard__grid">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Total Employees</mat-card-title>
+        <mat-icon>groups</mat-icon>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="dashboard__metric">--</div>
+        <p>Powered by live analytics from the HR API.</p>
+      </mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Open Positions</mat-card-title>
+        <mat-icon>work_outline</mat-icon>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="dashboard__metric">--</div>
+        <p>Track recruitment funnel performance.</p>
+      </mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Pending Leave Requests</mat-card-title>
+        <mat-icon>event_note</mat-icon>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="dashboard__metric">--</div>
+        <p>Approve or decline leave with a single click.</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
