@@ -45,3 +45,7 @@
 - ErrorResponse — Error payload
   - code (string), message (string), traceId (string)
 
+**Versioned Webhook (v1)**
+- POST `/api/v1/billing/webhooks/stripe` - Receive Stripe webhook notifications
+  - Auth: No bearer (Stripe signature verification)
+  - Responses: 200 OK, 400 Bad Request, 401 Unauthorized, 500 Internal Server Error

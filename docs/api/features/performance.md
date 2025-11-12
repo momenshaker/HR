@@ -92,4 +92,9 @@
   - name (string)
   - rating (integer, int32)
 - ErrorResponse — Error payload: code, message, traceId
-
+**Performance Reviews (v1)**
+- GET `/api/v1/PerformanceReviews` - List performance reviews
+- GET `/api/v1/PerformanceReviews/{id}` - Get review by id
+- POST `/api/v1/PerformanceReviews` - Create a performance review
+- PUT `/api/v1/PerformanceReviews/{id}` - Update a performance review
+- DELETE `/api/v1/PerformanceReviews/{id}` - Delete a performance review

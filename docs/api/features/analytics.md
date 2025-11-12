@@ -63,3 +63,9 @@
 - ErrorResponse — Error payload
   - code (string), message (string), traceId (string)
 
+**Analytics Snapshots (v1)**
+- GET `/api/v1/AnalyticsSnapshots` - List analytics snapshots
+- GET `/api/v1/AnalyticsSnapshots/{id}` - Get analytics snapshot by id
+- POST `/api/v1/AnalyticsSnapshots` - Create analytics snapshot
+- PUT `/api/v1/AnalyticsSnapshots/{id}` - Update analytics snapshot
+- DELETE `/api/v1/AnalyticsSnapshots/{id}` - Delete analytics snapshot

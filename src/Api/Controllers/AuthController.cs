@@ -1,20 +1,18 @@
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Linq;
 using HR.Api.Contracts;
 using HR.Api.Filters;
-using HR.Application.Configuration;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using IAuthenticationService = HR.Application.Abstractions.Services.IAuthenticationService;
+using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
+using HR.Application.Configuration;
 using HR.Infrastructure.Persistence.EntityFramework;
 using HR.Infrastructure.Security.Identity;
-using HR.Application.Abstractions.Repositories;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using IAuthenticationService = HR.Application.Abstractions.Services.IAuthenticationService;
 
 namespace HR.Api.Controllers;
 

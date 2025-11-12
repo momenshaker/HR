@@ -75,3 +75,11 @@
   - score (number, nullable)
   - certificateUrl (string, nullable)
 
+**Training Courses (v1)**
+- GET `/api/v1/TrainingCourses` - List training courses
+- GET `/api/v1/TrainingCourses/competency/{competencyCode}` - List courses by competency
+- GET `/api/v1/TrainingCourses/{id}` - Get training course by id
+- POST `/api/v1/TrainingCourses` - Create training course
+- PUT `/api/v1/TrainingCourses/{id}` - Update training course
+- DELETE `/api/v1/TrainingCourses/{id}` - Delete training course
+- POST `/api/v1/TrainingCourses/{courseId}/enrollments` - Enroll an employee in a course

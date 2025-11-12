@@ -1,0 +1,35 @@
+**Controllers Index**
+
+- AnalyticsController – docs/api/controllers/AnalyticsController.md
+- AnalyticsSnapshotsController – docs/api/controllers/AnalyticsSnapshotsController.md
+- AnnouncementsController – docs/api/controllers/AnnouncementsController.md
+ - AttendanceRecordsController – docs/api/controllers/AttendanceRecordsController.md
+- AuthController – docs/api/controllers/AuthController.md
+- BillingWebhooksController – docs/api/controllers/BillingWebhooksController.md
+ - CandidatesController – docs/api/controllers/CandidatesController.md
+- CommsAnnouncementsController – docs/api/controllers/CommsAnnouncementsController.md
+ - DelegatedAuthoritiesController – docs/api/controllers/DelegatedAuthoritiesController.md
+ - DepartmentEmployeesController – docs/api/controllers/DepartmentEmployeesController.md
+ - DepartmentsController – docs/api/controllers/DepartmentsController.md
+ - EmployeesController – docs/api/controllers/EmployeesController.md
+ - EmployeeSelfServiceController – docs/api/controllers/EmployeeSelfServiceController.md
+ - EngagementCampaignsController – docs/api/controllers/EngagementCampaignsController.md
+ - InterviewsController – docs/api/controllers/InterviewsController.md
+ - LeaveController – docs/api/controllers/LeaveController.md
+ - LeaveRequestsController – docs/api/controllers/LeaveRequestsController.md
+ - OrganizationsController – docs/api/controllers/OrganizationsController.md
+ - OrganizationUnitsController – docs/api/controllers/OrganizationUnitsController.md
+ - PayrollRunsController – docs/api/controllers/PayrollRunsController.md
+- PerformanceReviewsController – docs/api/controllers/PerformanceReviewsController.md
+ - PlatformConfigurationController – docs/api/controllers/PlatformConfigurationController.md
+ - PositionsController – docs/api/controllers/PositionsController.md
+ - PulseSurveysController – docs/api/controllers/PulseSurveysController.md
+ - RecognitionProgramsController – docs/api/controllers/RecognitionProgramsController.md
+ - RecruitmentInsightsController – docs/api/controllers/RecruitmentInsightsController.md
+ - ReportingRelationshipsController – docs/api/controllers/ReportingRelationshipsController.md
+- SystemController – docs/api/controllers/SystemController.md
+ - TimesheetApprovalsController – docs/api/controllers/TimesheetApprovalsController.md
+ - TimesheetsController – docs/api/controllers/TimesheetsController.md
+- TrainingController – docs/api/controllers/TrainingController.md
+- TrainingCoursesController – docs/api/controllers/TrainingCoursesController.md
+ - VacanciesController – docs/api/controllers/VacanciesController.md
