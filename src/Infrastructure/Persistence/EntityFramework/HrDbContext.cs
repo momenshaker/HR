@@ -37,6 +37,8 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
     public DbSet<LeaveType> LeaveTypes => Set<LeaveType>();
     public DbSet<LeaveBalance> LeaveBalances => Set<LeaveBalance>();
+    public DbSet<LeavePolicy> LeavePolicies => Set<LeavePolicy>();
+    public DbSet<ApprovalStep> ApprovalSteps => Set<ApprovalStep>();
     public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();
     public DbSet<PayrollItem> PayrollItems => Set<PayrollItem>();
     public DbSet<Payslip> Payslips => Set<Payslip>();

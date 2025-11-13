@@ -18,14 +18,20 @@ export interface AttendanceRecord {
 
 export interface LeaveRequest {
   id: string;
+  employeeId: string;
+  leaveTypeId: string;
   leaveType: string;
   startDate: string;
   endDate: string;
+  numberOfDays: number;
   status: string;
   approverId?: string;
   reason: string;
-  requestedAtUtc: string;
-  decisionAtUtc?: string;
+  attachmentPath?: string;
+  submittedAtUtc: string;
+  approvedAtUtc?: string;
+  rejectedAtUtc?: string;
+  cancelledAtUtc?: string;
 }
 
 export interface SalarySlip {
@@ -126,11 +132,25 @@ export interface ClockOutPayload {
 }
 
 export interface LeaveRequestPayload {
-  leaveType: string;
+  leaveTypeId: string;
   startDate: string;
   endDate: string;
   reason?: string;
+  attachmentPath?: string;
   employeeId?: string;
+}
+
+export interface LeaveType {
+  id: string;
+  code: string;
+  name: string;
+  isPaid: boolean;
+  requiresApproval: boolean;
+  requiresAttachment: boolean;
+  annualAllowanceDays: number;
+  carryOverDays: number;
+  maxConsecutiveDays?: number;
+  color: string;
 }
 
 export interface SelfServiceAccountPayload {

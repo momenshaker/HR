@@ -62,8 +62,32 @@ public sealed class AnalyticsQueryServiceTests
         db.EmployeeDepartments.Add(new EmployeeDepartment { EmployeeId = emp.Id, DepartmentId = dept.Id, IsPrimary = true });
 
         db.LeaveRequests.AddRange(
-            new LeaveRequest { Id = Guid.NewGuid(), EmployeeId = emp.Id, LeaveType = "Vacation", Status = "Approved", StartDate = new DateOnly(2025, 1, 10), EndDate = new DateOnly(2025, 1, 12) }, // 3 days
-            new LeaveRequest { Id = Guid.NewGuid(), EmployeeId = emp.Id, LeaveType = "Sick", Status = "Approved", StartDate = new DateOnly(2025, 2, 1), EndDate = new DateOnly(2025, 2, 1) }
+            new LeaveRequest
+            {
+                Id = Guid.NewGuid(),
+                EmployeeId = emp.Id,
+                LeaveTypeId = Guid.NewGuid(),
+                LeaveType = "Vacation",
+                Status = LeaveRequestStatus.Approved,
+                StartDate = new DateOnly(2025, 1, 10),
+                EndDate = new DateOnly(2025, 1, 12),
+                NumberOfDays = 3m,
+                SubmittedAtUtc = DateTime.UtcNow,
+                ApprovedAtUtc = DateTime.UtcNow
+            },
+            new LeaveRequest
+            {
+                Id = Guid.NewGuid(),
+                EmployeeId = emp.Id,
+                LeaveTypeId = Guid.NewGuid(),
+                LeaveType = "Sick",
+                Status = LeaveRequestStatus.Approved,
+                StartDate = new DateOnly(2025, 2, 1),
+                EndDate = new DateOnly(2025, 2, 1),
+                NumberOfDays = 1m,
+                SubmittedAtUtc = DateTime.UtcNow,
+                ApprovedAtUtc = DateTime.UtcNow
+            }
         );
         await db.SaveChangesAsync();
 

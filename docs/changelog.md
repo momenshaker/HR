@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Expanded leave management with richer leave type metadata, per-organization policies, enhanced request tracking (days, attachments, multi-step statuses), updated REST/EF layers, and refreshed Angular self-service workflows that surface dynamic leave types.
 - Delivered end-to-end lookup management covering the `LookupService`, repositories, controller, Angular admin workspace, and documentation for cache-aware dynamic catalogues.
 - Exposed organization, department, and employee assignment endpoints with nested routing, pagination, and documented OpenAPI updates for hierarchy management workflows.
 - Enriched employee master data with contract history, compliance documentation, job architecture, and department alignment surfaced through the Employees API and DTOs.
@@ -21,6 +22,8 @@
 - Rolled out internal communications APIs spanning announcements, engagement campaigns, pulse surveys, and recognition programme governance with supporting services and repositories.
 - Expanded organization design with multi-level units, position management, reporting hierarchies, delegated authority modelling, and OAuth-enabled self-service account management across services, repositories, APIs, and documentation.
 ### Changed
+- Synced the public OpenAPI specification with the new leave types, balances, and request lifecycle endpoints exposed by the v1
+  LeaveController.
 - Updated README and API documentation to clarify that all default lookups are now dynamic, ETag-enabled resources managed via `/lookups` in the frontend.
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 - Clarified attendance and time tracking narratives across platform configuration and API documentation to emphasise shift

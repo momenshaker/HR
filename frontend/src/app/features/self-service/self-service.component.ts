@@ -19,6 +19,7 @@ import {
   DelegatedAuthority,
   EmployeeOrganizationSnapshot,
   LeaveRequest,
+  LeaveType,
   SalarySlip,
   SelfServiceAccount,
   TrainingCourse
@@ -65,10 +66,11 @@ export class SelfServicePageComponent implements OnInit {
   private lastLoadedEmployeeId: string | null = null;
 
   readonly leaveForm = this.fb.nonNullable.group({
-    leaveType: ['', Validators.required],
+    leaveTypeId: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
-    reason: ['']
+    reason: [''],
+    attachmentPath: ['']
   });
 
   readonly clockInForm = this.fb.nonNullable.group({
@@ -94,10 +96,11 @@ export class SelfServicePageComponent implements OnInit {
     featureAccess: ['']
   });
 
-  readonly leaveTypes = ['Annual', 'Sick', 'Unpaid', 'Bereavement'];
+  readonly leaveTypes = signal<LeaveType[]>([]);
   readonly punchTypes = ['ClockIn', 'ClockOut', 'BreakStart', 'BreakEnd', 'Meal', 'FieldWork', 'Training'];
 
   ngOnInit(): void {
+    this.loadLeaveTypes();
     effect(() => {
       const id = this.employeeId();
       if (!id) {
@@ -134,20 +137,22 @@ export class SelfServicePageComponent implements OnInit {
     this.api
       .submitLeaveRequest(employeeId, {
         employeeId,
-        leaveType: raw.leaveType.trim(),
+        leaveTypeId: raw.leaveTypeId,
         startDate: raw.startDate,
         endDate: raw.endDate,
-        reason: raw.reason?.trim()
+        reason: raw.reason?.trim(),
+        attachmentPath: raw.attachmentPath?.trim()
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
           this.snackbar.open('Leave request submitted.', 'Dismiss', { duration: 3000 });
           this.leaveForm.reset({
-            leaveType: '',
+            leaveTypeId: '',
             startDate: '',
             endDate: '',
-            reason: ''
+            reason: '',
+            attachmentPath: ''
           });
           this.loadLeaveRequests(employeeId);
         },
@@ -302,6 +307,13 @@ export class SelfServicePageComponent implements OnInit {
     this.loadSalarySlips(employeeId);
     this.loadTrainingCourses(employeeId);
     this.loadAccount(employeeId);
+  }
+
+  private loadLeaveTypes(): void {
+    this.api.getLeaveTypes().subscribe({
+      next: (types) => this.leaveTypes.set(types),
+      error: () => this.snackbar.open('Failed to load leave types.', 'Dismiss', { duration: 3000 })
+    });
   }
 
   private loadLeaveRequests(employeeId: string): void {

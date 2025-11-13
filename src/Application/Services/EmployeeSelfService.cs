@@ -52,10 +52,11 @@ public sealed class EmployeeSelfService(
         var payload = new CreateLeaveRequest
         {
             EmployeeId = employeeId,
-            LeaveType = request.LeaveType,
+            LeaveTypeId = request.LeaveTypeId,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Reason = request.Reason
+            Reason = request.Reason,
+            AttachmentPath = request.AttachmentPath
         };
 
         return await _leaveService.CreateAsync(payload, cancellationToken).ConfigureAwait(false);

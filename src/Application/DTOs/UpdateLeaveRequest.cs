@@ -9,8 +9,8 @@ namespace HR.Application.DTOs;
 public sealed class UpdateLeaveRequest : IValidatableRequest
 {
     [Required]
-    [MaxLength(50)]
-    public string LeaveType { get; init; } = string.Empty;
+    [Required]
+    public Guid LeaveTypeId { get; init; }
 
     [Required]
     public DateOnly StartDate { get; init; }
@@ -26,5 +26,12 @@ public sealed class UpdateLeaveRequest : IValidatableRequest
 
     public Guid? ApproverId { get; init; }
 
-    public DateTime? DecisionAtUtc { get; init; }
+    public DateTime? ApprovedAtUtc { get; init; }
+
+    public DateTime? RejectedAtUtc { get; init; }
+
+    public DateTime? CancelledAtUtc { get; init; }
+
+    [MaxLength(260)]
+    public string? AttachmentPath { get; init; }
 }

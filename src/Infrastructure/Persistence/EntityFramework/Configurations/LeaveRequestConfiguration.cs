@@ -16,6 +16,9 @@ internal sealed class LeaveRequestConfiguration : IEntityTypeConfiguration<Leave
         builder.Property(request => request.EmployeeId)
             .IsRequired();
 
+        builder.Property(request => request.LeaveTypeId)
+            .IsRequired();
+
         builder.Property(request => request.LeaveType)
             .IsRequired()
             .HasMaxLength(100);
@@ -24,23 +27,37 @@ internal sealed class LeaveRequestConfiguration : IEntityTypeConfiguration<Leave
             .IsRequired()
             .HasMaxLength(50);
 
+        builder.Property(request => request.NumberOfDays)
+            .HasColumnType("decimal(5,2)");
+
         builder.Property(request => request.StartDate)
             .HasColumnType("date");
 
         builder.Property(request => request.EndDate)
             .HasColumnType("date");
 
-        builder.Property(request => request.RequestedAtUtc)
+        builder.Property(request => request.SubmittedAtUtc)
             .HasColumnType("datetime2");
 
-        builder.Property(request => request.DecisionAtUtc)
+        builder.Property(request => request.ApprovedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(request => request.RejectedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(request => request.CancelledAtUtc)
             .HasColumnType("datetime2");
 
         builder.Property(request => request.Reason)
             .HasMaxLength(1024);
 
+        builder.Property(request => request.AttachmentPath)
+            .HasMaxLength(260);
+
         // Common analytics filters: employee and date range
         builder.HasIndex(request => request.EmployeeId);
         builder.HasIndex(request => new { request.StartDate, request.EndDate });
+        builder.HasIndex(request => request.LeaveTypeId);
+        builder.HasIndex(request => request.Status);
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Services;
+using HR.Domain.Entities;
 using Moq;
 using Xunit;
 
@@ -44,8 +45,38 @@ public sealed class EmployeeSelfServiceTests
         var otherEmployeeId = Guid.NewGuid();
         var leaveRequests = new[]
         {
-            new LeaveRequestDto(Guid.NewGuid(), employeeId, "Annual", DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), "Pending", null, string.Empty, DateTime.UtcNow, null),
-            new LeaveRequestDto(Guid.NewGuid(), otherEmployeeId, "Sick", DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), "Approved", Guid.NewGuid(), string.Empty, DateTime.UtcNow, DateTime.UtcNow)
+            new LeaveRequestDto(
+                Guid.NewGuid(),
+                employeeId,
+                Guid.NewGuid(),
+                "Annual",
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+                2m,
+                LeaveRequestStatus.PendingApproval,
+                null,
+                string.Empty,
+                null,
+                DateTime.UtcNow,
+                null,
+                null,
+                null),
+            new LeaveRequestDto(
+                Guid.NewGuid(),
+                otherEmployeeId,
+                Guid.NewGuid(),
+                "Sick",
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+                1m,
+                LeaveRequestStatus.Approved,
+                Guid.NewGuid(),
+                string.Empty,
+                null,
+                DateTime.UtcNow,
+                DateTime.UtcNow,
+                null,
+                null)
         };
 
         _leaveServiceMock
@@ -68,7 +99,7 @@ public sealed class EmployeeSelfServiceTests
         var request = new CreateLeaveRequest
         {
             EmployeeId = Guid.NewGuid(),
-            LeaveType = "Annual",
+            LeaveTypeId = Guid.NewGuid(),
             StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1))
         };

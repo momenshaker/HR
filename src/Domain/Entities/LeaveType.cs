@@ -11,10 +11,18 @@ public sealed class LeaveType
 
     public string Name { get; init; } = string.Empty;
 
+    public bool IsPaid { get; init; }
+
     public bool RequiresApproval { get; init; }
+
+    public bool RequiresAttachment { get; init; }
 
     public decimal AnnualAllowanceDays { get; init; }
 
     public decimal CarryOverDays { get; init; }
+
+    public int? MaxConsecutiveDays { get; init; }
+
+    public string Color { get; init; } = "#2196F3";
 }
 

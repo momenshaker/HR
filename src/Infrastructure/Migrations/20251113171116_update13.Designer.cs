@@ -1254,10 +1254,20 @@ namespace HR.Infrastructure.Migrations
                     b.Property<Guid?>("ApproverId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("DecisionAtUtc")
+                    b.Property<string>("AttachmentPath")
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CancelledAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LeaveTypeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly>("EndDate")
@@ -1268,12 +1278,15 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<decimal>("NumberOfDays")
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<string>("Reason")
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
-                    b.Property<DateTime>("RequestedAtUtc")
+                    b.Property<DateTime?>("RejectedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<DateOnly>("StartDate")
@@ -1284,9 +1297,16 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("SubmittedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("LeaveTypeId");
+
+                    b.HasIndex("Status");
 
                     b.HasIndex("StartDate", "EndDate");
 
@@ -1309,12 +1329,26 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("MaxConsecutiveDays")
+                        .HasColumnType("int");
+
                     b.Property<bool>("RequiresApproval")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequiresAttachment")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -1323,6 +1357,75 @@ namespace HR.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("LeaveTypes", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.LeavePolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccrualMethod")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CarryForwardAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MaxCarryForwardDays")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("IsNegativeBalanceAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DaysPerYear")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "LeaveTypeId")
+                        .IsUnique();
+
+                    b.ToTable("LeavePolicies", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.ApprovalStep", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApproverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ActionAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid>("LeaveRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("StepOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LeaveRequestId", "StepOrder")
+                        .IsUnique();
+
+                    b.ToTable("LeaveApprovalSteps", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.LookupValue", b =>
