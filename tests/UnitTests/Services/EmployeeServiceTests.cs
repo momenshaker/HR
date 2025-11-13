@@ -70,6 +70,60 @@ public sealed class EmployeeServiceTests
     }
 
     [Fact]
+    public async Task GetByDepartmentAsync_WhenDepartmentBelongsToOrganization_ReturnsEmployees()
+    {
+        // Arrange
+        var organizationId = Guid.NewGuid();
+        var departmentId = Guid.NewGuid();
+        var employee = new Employee
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Dept",
+            LastName = "Employee",
+            Email = "dept.employee@example.com",
+            EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            Departments = new List<EmployeeDepartment>
+            {
+                new() { DepartmentId = departmentId, IsPrimary = true }
+            }
+        };
+
+        _departmentRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(departmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Department { Id = departmentId, OrganizationId = organizationId, Name = "Dept", Code = "D1" });
+
+        _repositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Employee> { employee });
+
+        // Act
+        var result = await _sut.GetByDepartmentAsync(organizationId, departmentId, CancellationToken.None);
+
+        // Assert
+        var dto = Assert.Single(result);
+        Assert.Equal(employee.Id, dto.Id);
+        Assert.Equal(departmentId, dto.PrimaryDepartmentId);
+    }
+
+    [Fact]
+    public async Task GetByDepartmentAsync_WhenDepartmentMissingOrOutsideOrganization_ReturnsEmpty()
+    {
+        // Arrange
+        var organizationId = Guid.NewGuid();
+        var departmentId = Guid.NewGuid();
+
+        _departmentRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(departmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Department { Id = departmentId, OrganizationId = Guid.NewGuid(), Name = "Other", Code = "OTH" });
+
+        // Act
+        var result = await _sut.GetByDepartmentAsync(organizationId, departmentId, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task CreateAsync_MapsRequestAndPersistsEmployee()
     {
         // Arrange
