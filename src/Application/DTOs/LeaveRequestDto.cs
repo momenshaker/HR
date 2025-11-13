@@ -6,11 +6,16 @@ namespace HR.Application.DTOs;
 public sealed record LeaveRequestDto(
     Guid Id,
     Guid EmployeeId,
+    Guid LeaveTypeId,
     string LeaveType,
     DateOnly StartDate,
     DateOnly EndDate,
+    decimal NumberOfDays,
     string Status,
     Guid? ApproverId,
     string Reason,
-    DateTime RequestedAtUtc,
-    DateTime? DecisionAtUtc);
+    string? AttachmentPath,
+    DateTime SubmittedAtUtc,
+    DateTime? ApprovedAtUtc,
+    DateTime? RejectedAtUtc,
+    DateTime? CancelledAtUtc);

@@ -6,9 +6,12 @@ using HR.Application.Mappings;
 namespace HR.Application.Services;
 
 /// <inheritdoc />
-public sealed class LeaveManagementService(ILeaveRequestRepository leaveRepository) : ILeaveManagementService
+public sealed class LeaveManagementService(
+    ILeaveRequestRepository leaveRepository,
+    ILeaveTypeRepository leaveTypeRepository) : ILeaveManagementService
 {
     private readonly ILeaveRequestRepository _leaveRepository = leaveRepository;
+    private readonly ILeaveTypeRepository _leaveTypes = leaveTypeRepository;
 
     /// <inheritdoc />
     public async Task<IReadOnlyCollection<LeaveRequestDto>> GetAsync(CancellationToken cancellationToken = default)
@@ -28,8 +31,10 @@ public sealed class LeaveManagementService(ILeaveRequestRepository leaveReposito
     public async Task<LeaveRequestDto> CreateAsync(CreateLeaveRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        var leaveType = await _leaveTypes.GetByIdAsync(request.LeaveTypeId, cancellationToken).ConfigureAwait(false)
+                        ?? throw new InvalidOperationException("Leave type not found for the requested identifier.");
 
-        var entity = request.ToEntity();
+        var entity = request.ToEntity(leaveType);
         var created = await _leaveRepository.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
         return created.ToDto();
@@ -46,7 +51,10 @@ public sealed class LeaveManagementService(ILeaveRequestRepository leaveReposito
             return null;
         }
 
-        var updatedEntity = request.ApplyUpdates(existing);
+        var leaveType = await _leaveTypes.GetByIdAsync(request.LeaveTypeId, cancellationToken).ConfigureAwait(false)
+                        ?? throw new InvalidOperationException("Leave type not found for the requested identifier.");
+
+        var updatedEntity = request.ApplyUpdates(existing, leaveType);
         var persisted = await _leaveRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
 
         return persisted?.ToDto();

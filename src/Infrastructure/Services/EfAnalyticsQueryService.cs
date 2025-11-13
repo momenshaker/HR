@@ -128,10 +128,14 @@ public sealed class EfAnalyticsQueryService : IAnalyticsQueryService
         var end = new DateOnly(year + 1, 1, 1);
 
         var usage = await _db.LeaveRequests.AsNoTracking()
-            .Where(l => l.Status == "Approved" && empSet.Contains(l.EmployeeId))
+            .Where(l => l.Status == LeaveRequestStatus.Approved && empSet.Contains(l.EmployeeId))
             .Where(l => !(l.EndDate < start || l.StartDate >= end))
             .GroupBy(l => l.LeaveType)
-            .Select(g => new { LeaveType = g.Key, Days = g.Sum(l => OverlapDays(l.StartDate, l.EndDate, start, end)) })
+            .Select(g => new
+            {
+                LeaveType = g.Key,
+                Days = g.Sum(l => OverlapDays(l.StartDate, l.EndDate, start, end))
+            })
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 

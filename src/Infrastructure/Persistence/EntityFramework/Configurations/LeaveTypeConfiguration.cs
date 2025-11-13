@@ -16,9 +16,13 @@ internal sealed class LeaveTypeConfiguration : IEntityTypeConfiguration<LeaveTyp
         builder.HasIndex(x => x.Code).IsUnique();
 
         builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.IsPaid).IsRequired();
         builder.Property(x => x.RequiresApproval).IsRequired();
+        builder.Property(x => x.RequiresAttachment).IsRequired();
         builder.Property(x => x.AnnualAllowanceDays).HasColumnType("decimal(5,2)");
         builder.Property(x => x.CarryOverDays).HasColumnType("decimal(5,2)");
+        builder.Property(x => x.MaxConsecutiveDays);
+        builder.Property(x => x.Color).HasMaxLength(30);
     }
 }
 

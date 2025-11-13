@@ -173,7 +173,9 @@
                       <mat-list-item *ngFor="let leave of leaveRequests()">
                         <div class="leave">
                           <strong>{{ leave.leaveType }}</strong>
-                          <p class="muted">{{ leave.startDate }} – {{ leave.endDate }} · {{ leave.status }}</p>
+                          <p class="muted">
+                            {{ leave.startDate }} – {{ leave.endDate }} · {{ leave.numberOfDays }} days · {{ leave.status }}
+                          </p>
                         </div>
                         <p class="muted">{{ leave.reason }}</p>
                       </mat-list-item>
@@ -185,8 +187,10 @@
                   <form [formGroup]="leaveForm" class="form-group">
                     <mat-form-field appearance="outline">
                       <mat-label>Leave type</mat-label>
-                      <mat-select formControlName="leaveType">
-                        <mat-option *ngFor="let type of leaveTypes" [value]="type">{{ type }}</mat-option>
+                      <mat-select formControlName="leaveTypeId">
+                        <mat-option *ngFor="let type of leaveTypes()" [value]="type.id">
+                          {{ type.name }}
+                        </mat-option>
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline">
@@ -200,6 +204,10 @@
                     <mat-form-field appearance="outline">
                       <mat-label>Reason</mat-label>
                       <input matInput formControlName="reason" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Attachment (URL)</mat-label>
+                      <input matInput formControlName="attachmentPath" />
                     </mat-form-field>
                     <button mat-flat-button color="primary" type="button" (click)="submitLeaveRequest()">Submit</button>
                   </form>

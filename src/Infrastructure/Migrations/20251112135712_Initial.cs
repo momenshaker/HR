@@ -316,14 +316,19 @@ namespace HR.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LeaveType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    NumberOfDays = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ApproverId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Reason = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
-                    RequestedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DecisionAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    AttachmentPath = table.Column<string>(type: "nvarchar(260)", maxLength: 260, nullable: true),
+                    SubmittedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ApprovedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RejectedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CancelledAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -337,13 +342,52 @@ namespace HR.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
                     RequiresApproval = table.Column<bool>(type: "bit", nullable: false),
+                    RequiresAttachment = table.Column<bool>(type: "bit", nullable: false),
                     AnnualAllowanceDays = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
-                    CarryOverDays = table.Column<decimal>(type: "decimal(5,2)", nullable: false)
+                    CarryOverDays = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    MaxConsecutiveDays = table.Column<int>(type: "int", nullable: true),
+                    Color = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LeaveTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeavePolicies",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccrualMethod = table.Column<int>(type: "int", nullable: false),
+                    DaysPerYear = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    CarryForwardAllowed = table.Column<bool>(type: "bit", nullable: false),
+                    MaxCarryForwardDays = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    IsNegativeBalanceAllowed = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeavePolicies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeaveApprovalSteps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StepOrder = table.Column<int>(type: "int", nullable: false),
+                    ApproverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ActionAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Comment = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaveApprovalSteps", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -1493,6 +1537,28 @@ namespace HR.Infrastructure.Migrations
                 name: "IX_LeaveRequests_StartDate_EndDate",
                 table: "LeaveRequests",
                 columns: new[] { "StartDate", "EndDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_LeaveTypeId",
+                table: "LeaveRequests",
+                column: "LeaveTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_Status",
+                table: "LeaveRequests",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeavePolicies_OrganizationId_LeaveTypeId",
+                table: "LeavePolicies",
+                columns: new[] { "OrganizationId", "LeaveTypeId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveApprovalSteps_LeaveRequestId_StepOrder",
+                table: "LeaveApprovalSteps",
+                columns: new[] { "LeaveRequestId", "StepOrder" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_LeaveTypes_Code",

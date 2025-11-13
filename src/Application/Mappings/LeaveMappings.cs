@@ -11,9 +11,13 @@ public static class LeaveMappings
             entity.Id,
             entity.Code,
             entity.Name,
+            entity.IsPaid,
             entity.RequiresApproval,
+            entity.RequiresAttachment,
             entity.AnnualAllowanceDays,
-            entity.CarryOverDays);
+            entity.CarryOverDays,
+            entity.MaxConsecutiveDays,
+            entity.Color);
     }
 
     public static LeaveBalanceDto ToDto(this LeaveBalance entity, decimal reserved)

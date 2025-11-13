@@ -30,9 +30,12 @@ public sealed class LeaveServiceWorkflowTests
             Id = Guid.NewGuid(),
             Code = "VAC",
             Name = "Vacation",
+            IsPaid = true,
             RequiresApproval = true,
+            RequiresAttachment = false,
             AnnualAllowanceDays = 20,
-            CarryOverDays = 5
+            CarryOverDays = 5,
+            Color = "#1976D2"
         };
         _typeRepo.AddAsync(_vacationType, default).GetAwaiter().GetResult();
 
@@ -85,12 +88,12 @@ public sealed class LeaveServiceWorkflowTests
             EndDate = DateOnly.FromDateTime(end)
         });
 
-        Assert.Equal("Pending", created.Status);
+        Assert.Equal(LeaveRequestStatus.PendingApproval, created.Status);
 
         var balances = await _sut.GetBalancesAsync(_employee, start.Year);
         var bal = Assert.Single(balances);
         Assert.Equal(3m, bal.Reserved);
-        Assert.Equal(17m, bal.Available);
+        Assert.Equal(17m, bal.Remaining);
     }
 
     [Fact]
@@ -108,12 +111,12 @@ public sealed class LeaveServiceWorkflowTests
         });
 
         var approved = await _sut.ApproveAsync(created.Id, _manager);
-        Assert.Equal("Approved", approved.Status);
+        Assert.Equal(LeaveRequestStatus.Approved, approved.Status);
 
         var balances = await _sut.GetBalancesAsync(_employee, start.Year);
         var bal = Assert.Single(balances);
         Assert.Equal(0m, bal.Reserved);
-        Assert.Equal(18m, bal.Available); // 20 - taken(2)
+        Assert.Equal(18m, bal.Remaining); // 20 - taken(2)
     }
 
     [Fact]
@@ -131,12 +134,12 @@ public sealed class LeaveServiceWorkflowTests
         });
 
         var rejected = await _sut.RejectAsync(created.Id, _manager, "nope");
-        Assert.Equal("Rejected", rejected.Status);
+        Assert.Equal(LeaveRequestStatus.Rejected, rejected.Status);
 
         var balances = await _sut.GetBalancesAsync(_employee, start.Year);
         var bal = Assert.Single(balances);
         Assert.Equal(0m, bal.Reserved);
-        Assert.Equal(20m, bal.Available);
+        Assert.Equal(20m, bal.Remaining);
     }
 
     [Fact]
@@ -154,14 +157,14 @@ public sealed class LeaveServiceWorkflowTests
         });
 
         var approved = await _sut.ApproveAsync(created.Id, _manager);
-        Assert.Equal("Approved", approved.Status);
+        Assert.Equal(LeaveRequestStatus.Approved, approved.Status);
 
         var cancelled = await _sut.CancelAsync(created.Id, _employee);
-        Assert.Equal("Cancelled", cancelled.Status);
+        Assert.Equal(LeaveRequestStatus.Cancelled, cancelled.Status);
 
         var balances = await _sut.GetBalancesAsync(_employee, start.Year);
         var bal = Assert.Single(balances);
-        Assert.Equal(20m, bal.Available);
+        Assert.Equal(20m, bal.Remaining);
         Assert.Equal(0m, bal.Reserved);
     }
 

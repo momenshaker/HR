@@ -32,9 +32,12 @@ public sealed class LeaveService(
         var requests = await _leaveRequests.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var reservedByType = requests
-            .Where(r => r.EmployeeId == employeeId && r.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
-            .GroupBy(r => new { Year = r.StartDate.Year, r.LeaveType })
-            .ToDictionary(g => (g.Key.Year, g.Key.LeaveType), g => g.Sum(r => CalculateDuration(r.StartDate, r.EndDate)));
+            .Where(r => r.EmployeeId == employeeId &&
+                        string.Equals(r.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase))
+            .GroupBy(r => new { Year = r.StartDate.Year, r.LeaveTypeId })
+            .ToDictionary(
+                g => (g.Key.Year, g.Key.LeaveTypeId),
+                g => g.Sum(GetRecordedDuration));
 
         var typeMap = (await _leaveTypes.GetAllAsync(cancellationToken).ConfigureAwait(false))
             .ToDictionary(t => t.Id, t => t);
@@ -48,7 +51,7 @@ public sealed class LeaveService(
                 continue;
             }
 
-            var reserved = reservedByType.TryGetValue((b.Year, lt.Code), out var res) ? res : 0m;
+            var reserved = reservedByType.TryGetValue((b.Year, lt.Id), out var res) ? res : 0m;
             result.Add(b.ToDto(reserved));
         }
 
@@ -70,7 +73,7 @@ public sealed class LeaveService(
 
         var currentAvailable = (balance.Opening + balance.Accrued + balance.CarriedOver) - balance.Taken;
 
-        var reserved = await GetReservedAsync(employeeId, type.Code, year, cancellationToken).ConfigureAwait(false);
+        var reserved = await GetReservedAsync(employeeId, type.Id, year, cancellationToken).ConfigureAwait(false);
 
         var availableAfter = currentAvailable - reserved - duration;
 
@@ -86,6 +89,15 @@ public sealed class LeaveService(
         var leaveType = await _leaveTypes.GetByIdAsync(request.LeaveTypeId, cancellationToken).ConfigureAwait(false)
                         ?? throw new InvalidOperationException("Leave type not found.");
 
+        if (leaveType.MaxConsecutiveDays.HasValue)
+        {
+            var inclusiveDays = (request.EndDate.DayNumber - request.StartDate.DayNumber) + 1;
+            if (inclusiveDays > leaveType.MaxConsecutiveDays.Value)
+            {
+                throw new InvalidOperationException("Requested range exceeds the maximum consecutive days permitted for this leave type.");
+            }
+        }
+
         var overlapError = await FindOverlapAsync(request.EmployeeId, request.StartDate, request.EndDate, cancellationToken).ConfigureAwait(false);
         if (overlapError is not null)
         {
@@ -99,18 +111,27 @@ public sealed class LeaveService(
             throw new InvalidOperationException("Insufficient leave balance.");
         }
 
+        if (leaveType.RequiresAttachment && string.IsNullOrWhiteSpace(request.AttachmentPath))
+        {
+            throw new InvalidOperationException("This leave type requires an attachment.");
+        }
+
+        var attachmentPath = string.IsNullOrWhiteSpace(request.AttachmentPath) ? null : request.AttachmentPath.Trim();
         var entity = new LeaveRequest
         {
             Id = Guid.NewGuid(),
             EmployeeId = request.EmployeeId,
-            LeaveType = leaveType.Code,
+            LeaveTypeId = leaveType.Id,
+            LeaveType = leaveType.Name,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
+            NumberOfDays = preview.DurationDays,
             Reason = request.Reason?.Trim() ?? string.Empty,
-            Status = leaveType.RequiresApproval ? "Pending" : "Approved",
+            Status = leaveType.RequiresApproval ? LeaveRequestStatus.PendingApproval : LeaveRequestStatus.Approved,
             ApproverId = null,
-            RequestedAtUtc = DateTime.UtcNow,
-            DecisionAtUtc = leaveType.RequiresApproval ? null : DateTime.UtcNow
+            AttachmentPath = attachmentPath,
+            SubmittedAtUtc = DateTime.UtcNow,
+            ApprovedAtUtc = leaveType.RequiresApproval ? null : DateTime.UtcNow
         };
 
         var created = await _leaveRequests.AddAsync(entity, cancellationToken).ConfigureAwait(false);
@@ -118,7 +139,6 @@ public sealed class LeaveService(
         // If auto-approved (no approval required), immediately update Taken balance.
         if (!leaveType.RequiresApproval)
         {
-            var duration = CalculateDuration(entity.StartDate, entity.EndDate);
             var balance = await _leaveBalances.GetAsync(entity.EmployeeId, request.LeaveTypeId, year, cancellationToken).ConfigureAwait(false)
                           ?? new LeaveBalance
                           {
@@ -131,7 +151,7 @@ public sealed class LeaveService(
                               CarriedOver = 0
                           };
 
-            var newTaken = balance.Taken + duration;
+            var newTaken = balance.Taken + preview.DurationDays;
             await _leaveBalances.UpsertAsync(new LeaveBalance
                 {
                     EmployeeId = balance.EmployeeId,
@@ -153,17 +173,16 @@ public sealed class LeaveService(
     {
         var request = await _leaveRequests.GetByIdAsync(requestId, cancellationToken).ConfigureAwait(false)
                       ?? throw new InvalidOperationException("Leave request not found.");
-        if (!string.Equals(request.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(request.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Only pending requests can be approved.");
         }
 
         // Confirm deduction
         var year = request.StartDate.Year;
-        var leaveType = (await _leaveTypes.GetAllAsync(cancellationToken).ConfigureAwait(false))
-            .First(t => t.Code.Equals(request.LeaveType, StringComparison.OrdinalIgnoreCase));
+        var leaveType = await _leaveTypes.GetByIdAsync(request.LeaveTypeId, cancellationToken).ConfigureAwait(false)
+                       ?? throw new InvalidOperationException("Leave type not found.");
 
-        var duration = CalculateDuration(request.StartDate, request.EndDate);
         var balance = await _leaveBalances.GetAsync(request.EmployeeId, leaveType.Id, year, cancellationToken).ConfigureAwait(false)
                       ?? new LeaveBalance
                       {
@@ -176,6 +195,7 @@ public sealed class LeaveService(
                           CarriedOver = 0
                       };
 
+        var duration = GetRecordedDuration(request);
         var newTaken = balance.Taken + duration;
         await _leaveBalances.UpsertAsync(new LeaveBalance
             {
@@ -196,11 +216,14 @@ public sealed class LeaveService(
             LeaveType = request.LeaveType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Status = "Approved",
+            Status = LeaveRequestStatus.Approved,
             ApproverId = managerId,
             Reason = request.Reason,
-            RequestedAtUtc = request.RequestedAtUtc,
-            DecisionAtUtc = DateTime.UtcNow
+            AttachmentPath = request.AttachmentPath,
+            SubmittedAtUtc = request.SubmittedAtUtc,
+            ApprovedAtUtc = DateTime.UtcNow,
+            RejectedAtUtc = null,
+            CancelledAtUtc = null
         };
 
         var persisted = await _leaveRequests.UpdateAsync(updated, cancellationToken).ConfigureAwait(false)
@@ -213,7 +236,7 @@ public sealed class LeaveService(
     {
         var request = await _leaveRequests.GetByIdAsync(requestId, cancellationToken).ConfigureAwait(false)
                       ?? throw new InvalidOperationException("Leave request not found.");
-        if (!string.Equals(request.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(request.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Only pending requests can be rejected.");
         }
@@ -225,11 +248,14 @@ public sealed class LeaveService(
             LeaveType = request.LeaveType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Status = "Rejected",
+            Status = LeaveRequestStatus.Rejected,
             ApproverId = managerId,
             Reason = string.IsNullOrWhiteSpace(reason) ? request.Reason : reason.Trim(),
-            RequestedAtUtc = request.RequestedAtUtc,
-            DecisionAtUtc = DateTime.UtcNow
+            AttachmentPath = request.AttachmentPath,
+            SubmittedAtUtc = request.SubmittedAtUtc,
+            ApprovedAtUtc = null,
+            RejectedAtUtc = DateTime.UtcNow,
+            CancelledAtUtc = null
         };
 
         var persisted = await _leaveRequests.UpdateAsync(updated, cancellationToken).ConfigureAwait(false)
@@ -246,8 +272,8 @@ public sealed class LeaveService(
             throw new InvalidOperationException("Only the owner can cancel the request.");
         }
 
-        if (!string.Equals(request.Status, "Pending", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(request.Status, "Approved", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(request.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(request.Status, LeaveRequestStatus.Approved, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Only pending or approved requests can be cancelled.");
         }
@@ -259,13 +285,13 @@ public sealed class LeaveService(
         }
 
         // If previously approved, revert taken days
-        if (string.Equals(request.Status, "Approved", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(request.Status, LeaveRequestStatus.Approved, StringComparison.OrdinalIgnoreCase))
         {
-            var leaveType = (await _leaveTypes.GetAllAsync(cancellationToken).ConfigureAwait(false))
-                .First(t => t.Code.Equals(request.LeaveType, StringComparison.OrdinalIgnoreCase));
+            var leaveType = await _leaveTypes.GetByIdAsync(request.LeaveTypeId, cancellationToken).ConfigureAwait(false)
+                           ?? throw new InvalidOperationException("Leave type not found.");
 
             var year = request.StartDate.Year;
-            var duration = CalculateDuration(request.StartDate, request.EndDate);
+            var duration = GetRecordedDuration(request);
             var balance = await _leaveBalances.GetAsync(request.EmployeeId, leaveType.Id, year, cancellationToken).ConfigureAwait(false)
                           ?? throw new InvalidOperationException("Balance not found.");
 
@@ -290,11 +316,14 @@ public sealed class LeaveService(
             LeaveType = request.LeaveType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Status = "Cancelled",
+            Status = LeaveRequestStatus.Cancelled,
             ApproverId = request.ApproverId,
             Reason = request.Reason,
-            RequestedAtUtc = request.RequestedAtUtc,
-            DecisionAtUtc = DateTime.UtcNow
+            AttachmentPath = request.AttachmentPath,
+            SubmittedAtUtc = request.SubmittedAtUtc,
+            ApprovedAtUtc = request.ApprovedAtUtc,
+            RejectedAtUtc = request.RejectedAtUtc,
+            CancelledAtUtc = DateTime.UtcNow
         };
 
         var persisted = await _leaveRequests.UpdateAsync(updated, cancellationToken).ConfigureAwait(false)
@@ -319,7 +348,7 @@ public sealed class LeaveService(
 
         var total = filtered.Count();
         var items = filtered
-            .OrderByDescending(r => r.RequestedAtUtc)
+            .OrderByDescending(r => r.SubmittedAtUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(r => r.ToDto())
@@ -333,21 +362,30 @@ public sealed class LeaveService(
         var requests = await _leaveRequests.GetAllAsync(ct).ConfigureAwait(false);
         var overlapping = requests
             .Where(r => r.EmployeeId == employeeId)
-            .Where(r => r.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) || r.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
+            .Where(r => r.Status.Equals(LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase) ||
+                        r.Status.Equals(LeaveRequestStatus.Approved, StringComparison.OrdinalIgnoreCase))
             .Where(r => DateRangesOverlap(start, end, r.StartDate, r.EndDate))
             .FirstOrDefault();
 
         return overlapping is null ? null : "Overlapping leave request exists.";
     }
 
-    private async Task<decimal> GetReservedAsync(Guid employeeId, string leaveTypeCode, int year, CancellationToken ct)
+    private async Task<decimal> GetReservedAsync(Guid employeeId, Guid leaveTypeId, int year, CancellationToken ct)
     {
         var requests = await _leaveRequests.GetAllAsync(ct).ConfigureAwait(false);
         return requests
-            .Where(r => r.EmployeeId == employeeId && r.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+            .Where(r => r.EmployeeId == employeeId &&
+                        r.Status.Equals(LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase))
             .Where(r => r.StartDate.Year == year)
-            .Where(r => string.Equals(r.LeaveType, leaveTypeCode, StringComparison.OrdinalIgnoreCase))
-            .Sum(r => CalculateDuration(r.StartDate, r.EndDate));
+            .Where(r => r.LeaveTypeId == leaveTypeId)
+            .Sum(GetRecordedDuration);
+    }
+
+    private decimal GetRecordedDuration(LeaveRequest request)
+    {
+        return request.NumberOfDays > 0
+            ? request.NumberOfDays
+            : CalculateDuration(request.StartDate, request.EndDate);
     }
 
     private bool DateRangesOverlap(DateOnly aStart, DateOnly aEnd, DateOnly bStart, DateOnly bEnd)

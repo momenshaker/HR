@@ -40,7 +40,241 @@ tags:
     description: Organization and departmental announcements.
   - name: Lookups
     description: Dynamic lookup categories and values with cache validation.
+  - name: Leave
+    description: Leave types, balances, and lifecycle management endpoints.
 paths:
+  /api/v1/leave/types:
+    get:
+      tags: [Leave]
+      summary: List leave types
+      description: Returns configured leave types along with entitlement metadata and UI hints.
+      responses:
+        '200':
+          description: Leave types visible to the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveTypeDto'
+  /api/v1/leave/balances:
+    get:
+      tags: [Leave]
+      summary: Retrieve leave balances for an employee
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Leave balances per leave type for the employee and year.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveBalanceDto'
+  /api/v1/leave/requests:
+    get:
+      tags: [Leave]
+      summary: Search leave requests
+      description: Returns a paginated list of leave requests filtered by employee, manager, or status.
+      parameters:
+        - name: employeeId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: managerId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Optional status filter (e.g. Draft, PendingApproval, Approved, Rejected, Cancelled).
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        '200':
+          description: Paginated leave requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedLeaveRequestsDto'
+    post:
+      tags: [Leave]
+      summary: Create or submit a leave request
+      description: Creates a draft leave request when <code>draft</code> is true, otherwise submits immediately for approval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewLeaveRequestInput'
+      responses:
+        '201':
+          description: Newly created leave request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+  /api/v1/leave/requests/{requestId}:
+    get:
+      tags: [Leave]
+      summary: Retrieve a leave request by id
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Leave request details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '404':
+          description: Leave request not found.
+  /api/v1/leave/requests/{requestId}:submit:
+    post:
+      tags: [Leave]
+      summary: Submit a draft leave request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Updated leave request after submission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '400':
+          description: Request is not in Draft status or failed validation.
+        '404':
+          description: Leave request not found.
+  /api/v1/leave/requests/{requestId}:approve:
+    post:
+      tags: [Leave]
+      summary: Approve a leave request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: managerId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Leave request after approval.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '404':
+          description: Leave request not found.
+  /api/v1/leave/requests/{requestId}:reject:
+    post:
+      tags: [Leave]
+      summary: Reject a leave request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: managerId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              description: Reason for rejection.
+      responses:
+        '200':
+          description: Leave request after rejection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '404':
+          description: Leave request not found.
+  /api/v1/leave/requests/{requestId}:cancel:
+    post:
+      tags: [Leave]
+      summary: Cancel a leave request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Leave request after cancellation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestDto'
+        '404':
+          description: Leave request not found.
   /api/health:
     get:
       tags: [System]
@@ -1329,6 +1563,171 @@ components:
           items:
             $ref: '#/components/schemas/LookupCategoryDto'
       required: [versionToken, categories]
+    LeaveTypeDto:
+      type: object
+      required: [id, code, name, isPaid, requiresApproval, requiresAttachment, annualAllowanceDays, carryOverDays]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        isPaid:
+          type: boolean
+        requiresApproval:
+          type: boolean
+        requiresAttachment:
+          type: boolean
+        annualAllowanceDays:
+          type: number
+          format: double
+        carryOverDays:
+          type: number
+          format: double
+        maxConsecutiveDays:
+          type: integer
+          format: int32
+          nullable: true
+        color:
+          type: string
+    LeaveBalanceDto:
+      type: object
+      required: [employeeId, leaveTypeId, year, openingBalance, accrued, taken, carriedForward, reserved, remaining]
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        leaveTypeId:
+          type: string
+          format: uuid
+        year:
+          type: integer
+          format: int32
+        openingBalance:
+          type: number
+          format: double
+        accrued:
+          type: number
+          format: double
+        taken:
+          type: number
+          format: double
+        carriedForward:
+          type: number
+          format: double
+        reserved:
+          type: number
+          format: double
+        remaining:
+          type: number
+          format: double
+    LeaveRequestDto:
+      type: object
+      required:
+        - id
+        - employeeId
+        - leaveTypeId
+        - leaveType
+        - startDate
+        - endDate
+        - numberOfDays
+        - status
+        - reason
+        - submittedAtUtc
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        leaveTypeId:
+          type: string
+          format: uuid
+        leaveType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        numberOfDays:
+          type: number
+          format: double
+        status:
+          type: string
+        approverId:
+          type: string
+          format: uuid
+          nullable: true
+        reason:
+          type: string
+        attachmentPath:
+          type: string
+          nullable: true
+        submittedAtUtc:
+          type: string
+          format: date-time
+        approvedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        rejectedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+    PagedLeaveRequestsDto:
+      type: object
+      required: [page, pageSize, totalCount, items]
+      properties:
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveRequestDto'
+    NewLeaveRequestInput:
+      type: object
+      required: [employeeId, leaveTypeId, startDate, endDate]
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        leaveTypeId:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+          nullable: true
+          maxLength: 500
+        attachmentPath:
+          type: string
+          nullable: true
+          maxLength: 260
+        draft:
+          type: boolean
+          description: When true the request remains in Draft status until submitted.
+          default: false
     CreateLookupValueRequest:
       type: object
       properties:

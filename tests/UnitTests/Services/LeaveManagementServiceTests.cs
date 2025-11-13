@@ -10,21 +10,27 @@ namespace HR.UnitTests.Services;
 public sealed class LeaveManagementServiceTests
 {
     private readonly Mock<ILeaveRequestRepository> _repositoryMock = new();
+    private readonly Mock<ILeaveTypeRepository> _leaveTypeRepository = new();
     private readonly LeaveManagementService _sut;
 
     public LeaveManagementServiceTests()
     {
-        _sut = new LeaveManagementService(_repositoryMock.Object);
+        _sut = new LeaveManagementService(_repositoryMock.Object, _leaveTypeRepository.Object);
     }
 
     [Fact]
     public async Task CreateAsync_SetsPendingStatus()
     {
         // Arrange
+        var leaveType = new LeaveType { Id = Guid.NewGuid(), Name = "Vacation", Code = "VAC" };
+        _leaveTypeRepository
+            .Setup(repo => repo.GetByIdAsync(leaveType.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(leaveType);
+
         var request = new CreateLeaveRequest
         {
             EmployeeId = Guid.NewGuid(),
-            LeaveType = "Vacation",
+            LeaveTypeId = leaveType.Id,
             StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)),
             Reason = "Family trip"
@@ -42,7 +48,7 @@ public sealed class LeaveManagementServiceTests
 
         // Assert
         Assert.NotNull(persisted);
-        Assert.Equal("Pending", persisted!.Status);
+        Assert.Equal(LeaveRequestStatus.PendingApproval, persisted!.Status);
         Assert.Equal(result.Id, persisted.Id);
     }
 
@@ -50,9 +56,14 @@ public sealed class LeaveManagementServiceTests
     public async Task UpdateAsync_WhenMissing_ReturnsNull()
     {
         // Arrange
+        var leaveType = new LeaveType { Id = Guid.NewGuid(), Name = "Sick", Code = "SICK" };
+        _leaveTypeRepository
+            .Setup(repo => repo.GetByIdAsync(leaveType.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(leaveType);
+
         var request = new UpdateLeaveRequest
         {
-            LeaveType = "Sick",
+            LeaveTypeId = leaveType.Id,
             StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             EndDate = DateOnly.FromDateTime(DateTime.UtcNow)
         };

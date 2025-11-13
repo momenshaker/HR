@@ -5,6 +5,7 @@ using HR.Application.DTOs;
 using HR.Application.Configuration;
 using HR.Application.Mappings;
 using HR.Application.Validation;
+using HR.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,6 +46,7 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
         public DateOnly StartDate { get; init; }
         public DateOnly EndDate { get; init; }
         public string? Reason { get; init; }
+        public string? AttachmentPath { get; init; }
         public bool Draft { get; init; }
     }
 
@@ -57,16 +59,23 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
             var leaveType = await _leaveTypeRepo.GetByIdAsync(request.LeaveTypeId, cancellationToken).ConfigureAwait(false);
             if (leaveType is null) return BadRequest("Leave type not found");
 
+            var preview = await _leaveService
+                .PreviewAsync(request.EmployeeId, request.LeaveTypeId, request.StartDate, request.EndDate, cancellationToken)
+                .ConfigureAwait(false);
+
             var entity = new HR.Domain.Entities.LeaveRequest
             {
                 Id = Guid.NewGuid(),
                 EmployeeId = request.EmployeeId,
-                LeaveType = leaveType.Code,
+                LeaveTypeId = leaveType.Id,
+                LeaveType = leaveType.Name,
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
+                NumberOfDays = preview.DurationDays,
                 Reason = request.Reason?.Trim() ?? string.Empty,
-                Status = "Draft",
-                RequestedAtUtc = DateTime.UtcNow
+                AttachmentPath = string.IsNullOrWhiteSpace(request.AttachmentPath) ? null : request.AttachmentPath.Trim(),
+                Status = LeaveRequestStatus.Draft,
+                SubmittedAtUtc = DateTime.UtcNow
             };
 
             var created = await _legacyLeaveRepo.AddAsync(entity, cancellationToken).ConfigureAwait(false);
@@ -81,7 +90,8 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
                 LeaveTypeId = request.LeaveTypeId,
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
-                Reason = request.Reason
+                Reason = request.Reason,
+                AttachmentPath = request.AttachmentPath
             }, cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetRequestById), new { id = dto.Id }, dto);
         }
@@ -110,7 +120,7 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
     {
         var existing = await _legacyLeaveRepo.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
         if (existing is null) return NotFound();
-        if (!string.Equals(existing.Status, "Draft", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(existing.Status, LeaveRequestStatus.Draft, StringComparison.OrdinalIgnoreCase))
             return BadRequest("Only draft requests can be submitted.");
 
         // Validate using preview to ensure sufficient balance and overlaps
@@ -121,7 +131,8 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
         // Overlap detection against pending/approved
         var all = await _legacyLeaveRepo.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var overlap = all.Any(r => r.EmployeeId == existing.EmployeeId &&
-                                   (string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase) || string.Equals(r.Status, "Approved", StringComparison.OrdinalIgnoreCase)) &&
+                                   (string.Equals(r.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(r.Status, LeaveRequestStatus.Approved, StringComparison.OrdinalIgnoreCase)) &&
                                    r.Id != existing.Id &&
                                    existing.StartDate <= r.EndDate && r.StartDate <= existing.EndDate);
         if (overlap)
@@ -135,14 +146,19 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
         {
             Id = existing.Id,
             EmployeeId = existing.EmployeeId,
-            LeaveType = existing.LeaveType,
+            LeaveTypeId = leaveType.Id,
+            LeaveType = leaveType.Name,
             StartDate = existing.StartDate,
             EndDate = existing.EndDate,
             Reason = existing.Reason,
-            Status = "Pending",
+            NumberOfDays = preview.DurationDays,
+            Status = LeaveRequestStatus.PendingApproval,
             ApproverId = null,
-            RequestedAtUtc = existing.RequestedAtUtc,
-            DecisionAtUtc = null
+            AttachmentPath = existing.AttachmentPath,
+            SubmittedAtUtc = DateTime.UtcNow,
+            ApprovedAtUtc = null,
+            RejectedAtUtc = null,
+            CancelledAtUtc = null
         };
 
         var persisted = await _legacyLeaveRepo.UpdateAsync(updated, cancellationToken).ConfigureAwait(false);
