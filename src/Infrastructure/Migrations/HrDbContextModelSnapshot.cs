@@ -1243,6 +1243,328 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("LeaveBalances", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.LookupValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category", "Code")
+                        .IsUnique();
+
+                    b.ToTable("LookupValues", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ea6e39b4-7911-43d8-aba5-5e1846f88874"),
+                            Category = "branch",
+                            Code = "HEADQUARTERS",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Headquarters",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("f4aa9d9b-5925-48c6-ba70-220bb9260c6a"),
+                            Category = "branch",
+                            Code = "FIELD",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Field",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"),
+                            Category = "branch",
+                            Code = "REGIONAL_OFFICE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Regional Office",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"),
+                            Category = "businessUnit",
+                            Code = "CORPORATE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Corporate",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"),
+                            Category = "businessUnit",
+                            Code = "PRODUCT",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Product",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("37aa74bb-f001-4ecc-bf7a-b35057c35f0a"),
+                            Category = "businessUnit",
+                            Code = "SERVICES",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Services",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("2f48a4d1-3519-4b02-86c3-1e77fec77bf0"),
+                            Category = "businessUnit",
+                            Code = "OPERATIONS",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Operations",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"),
+                            Category = "operatingHours",
+                            Code = "DAY",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Day",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("36d48abe-4ade-4189-af71-03e38526f06d"),
+                            Category = "operatingHours",
+                            Code = "SWING",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Swing",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"),
+                            Category = "operatingHours",
+                            Code = "NIGHT",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Night",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"),
+                            Category = "operatingHours",
+                            Code = "24_7",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "24/7",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("02029a6d-a17d-4773-92ba-ac63955e8a17"),
+                            Category = "industry",
+                            Code = "TECHNOLOGY",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Technology",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("e03d5548-0998-4b74-836f-ace82fd812f3"),
+                            Category = "industry",
+                            Code = "RETAIL",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Retail",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("17f974c2-ed4d-454a-b592-86e48bf74e3f"),
+                            Category = "industry",
+                            Code = "FINANCE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Finance",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"),
+                            Category = "industry",
+                            Code = "HEALTHCARE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Healthcare",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"),
+                            Category = "region",
+                            Code = "NORTH_AMERICA",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "North America",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("fce559ca-6ff7-4876-a770-c24126aef993"),
+                            Category = "region",
+                            Code = "EMEA",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "EMEA",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"),
+                            Category = "region",
+                            Code = "APAC",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "APAC",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"),
+                            Category = "region",
+                            Code = "LATAM",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "LATAM",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"),
+                            Category = "timeZone",
+                            Code = "UTC",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "UTC",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"),
+                            Category = "timeZone",
+                            Code = "AMERICA_NEW_YORK",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "America/New_York",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("fd228009-14bb-46e0-ade8-aabeb82f8abd"),
+                            Category = "timeZone",
+                            Code = "EUROPE_LONDON",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Europe/London",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"),
+                            Category = "timeZone",
+                            Code = "ASIA_SINGAPORE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = (string)null,
+                            DisplayName = "Asia/Singapore",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.LeaveRequest", b =>
                 {
                     b.Property<Guid>("Id")

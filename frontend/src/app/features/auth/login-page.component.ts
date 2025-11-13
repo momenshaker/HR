@@ -54,31 +54,21 @@ export class LoginPageComponent {
 
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: (error: unknown) => {
-        if (typeof error !== 'object' || error === null) {
+      error: (error) => {
+        const validationErrors = (error as { errors?: Record<string, string[] | string> }).errors;
+        if (!validationErrors) {
           return;
         }
-        const payload = normalizeProblemDetails(
-          (error as { error?: unknown }).error ?? error
-        );
-        if (!payload?.errors) {
-          return;
-        }
-        for (const [key, messages] of Object.entries(payload.errors)) {
+
+        for (const [key, messages] of Object.entries(validationErrors)) {
           const control = this.form.get(key);
-          if (control) {
-            control.setErrors({ server: messages.join(', ') });
+          if (!control) {
+            continue;
           }
+          const message = Array.isArray(messages) ? messages.join(', ') : String(messages);
+          control.setErrors({ server: message });
         }
       }
     });
-  }
-
-  get emailControl() {
-    return this.form.controls.email;
-  }
-
-  get passwordControl() {
-    return this.form.controls.password;
   }
 }

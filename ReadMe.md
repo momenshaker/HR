@@ -259,6 +259,13 @@ Audit logs for all critical operations
 - **Caching**: `GET` lookups return strong `ETag` headers; send `If-None-Match` to receive `304 Not Modified` when unchanged.
 - **Audit logging**: Every create/update/delete operation is logged with actor, action, entity, entity id, and `traceId` correlation.
 
+### Dynamic lookup management
+
+- **Self-serve catalogues**: Branches, business units, time zones, industries, and any other lookup-driven experience are now editable via the Angular admin screen at `/lookups`.
+- **Instant propagation**: The lookup store hydrates from the API and broadcasts changes to every form without redeployments; the UI falls back to default seeds when the API is offline.
+- **Robust API surface**: `GET /api/v1/lookups` returns the full collection with strong `ETag` headers, `GET /api/v1/lookups/category/{category}` powers lightweight drop-downs, and `POST/PUT/DELETE /api/v1/lookups/{id}` allow HR/Admin roles to manage values.
+- **Cache-friendly**: Clients send `If-None-Match` to reuse cached payloads, while mutations automatically invalidate the signal-based store and regenerate version tokens.
+
 📚 Documentation
 
 AGENT.md

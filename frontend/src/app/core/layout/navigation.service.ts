@@ -29,12 +29,8 @@ export class NavigationService {
 
   constructor() {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event) => {
-      const resolvedUrl = event.urlAfterRedirects ?? event.url;
-      if (!resolvedUrl) {
-        return;
-      }
-      const [path] = resolvedUrl.split('?');
-      this.updateBreadcrumbs(path ?? '');
+      const [path] = event.urlAfterRedirects.split('?');
+      this.updateBreadcrumbs(path ?? '/');
     });
   }
 

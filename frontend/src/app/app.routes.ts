@@ -19,6 +19,11 @@ export const APP_ROUTES: Routes = [
     loadChildren: () => import('./features/organizations/organizations.routes').then((m) => m.ORGANIZATIONS_ROUTES)
   },
   {
+    path: 'lookups',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    loadChildren: () => import('./features/lookups/lookups.routes').then((m) => m.LOOKUPS_ROUTES)
+  },
+  {
     path: 'departments',
     canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
     loadChildren: () => import('./features/departments/departments.routes').then((m) => m.DEPARTMENTS_ROUTES)

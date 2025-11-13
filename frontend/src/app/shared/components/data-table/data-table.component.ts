@@ -37,10 +37,10 @@ export interface DataTableQuery {
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
 })
-export class DataTableComponent<T = Record<string, unknown>> {
+export class DataTableComponent {
   @Input({ required: true }) displayedColumns: string[] = [];
   @Input({ required: true }) columns: Record<string, string> = {};
-  @Input() data: ReadonlyArray<T> = [];
+  @Input() data: ReadonlyArray<unknown> = [];
   @Input() total = 0;
   @Input() loading = false;
   @Input() pageSizeOptions: number[] = [10, 25, 50];

@@ -188,6 +188,33 @@
   - Request: none
   - Response: none
 
+**Lookups**
+- GET `/api/v1/lookups` — List lookup categories and values (ETag-enabled)
+  - Auth: Bearer
+  - Headers: Optional `If-None-Match`
+  - Response: `LookupCollectionDto`
+- POST `/api/v1/lookups` — Create lookup value
+  - Auth: Bearer (Admin, HR)
+  - Request: `CreateLookupValueRequest`
+  - Response: `LookupValueDto`
+- GET `/api/v1/lookups/category/{category}` — List lookup values by category
+  - Auth: Bearer
+  - Path: `category` (string)
+  - Response: array<`LookupValueDto`>
+- GET `/api/v1/lookups/value/{id}` — Get lookup value by id
+  - Auth: Bearer
+  - Path: `id` (uuid)
+  - Response: `LookupValueDto`
+- PUT `/api/v1/lookups/{id}` — Update lookup value
+  - Auth: Bearer (Admin, HR)
+  - Path: `id` (uuid)
+  - Request: `UpdateLookupValueRequest`
+  - Response: `LookupValueDto`
+- DELETE `/api/v1/lookups/{id}` — Delete lookup value
+  - Auth: Bearer (Admin, HR)
+  - Path: `id` (uuid)
+  - Response: 204 No Content
+
 **DTO Catalog**
 - SystemHealthDto — API health snapshot
   - status (string), environment (string), timestamp (date-time)

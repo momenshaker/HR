@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: HR Platform Public API
-  version: 0.4.0
+  version: 0.4.1
   description: |
     Public API surface for platform health, authentication, subscription lifecycle, and billing integrations.
     All protected endpoints require JWT bearer authentication issued by the login endpoint.
@@ -38,6 +38,8 @@ tags:
     description: Lightweight training courses, sessions, and enrollments.
   - name: Communication
     description: Organization and departmental announcements.
+  - name: Lookups
+    description: Dynamic lookup categories and values with cache validation.
 paths:
   /api/health:
     get:
@@ -1104,6 +1106,150 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/lookups:
+    get:
+      tags: [Lookups]
+      summary: List lookup categories and values
+      description: Returns all lookup categories with their values plus a version token for cache validation.
+      parameters:
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Lookup collection payload.
+          headers:
+            ETag:
+              description: Strong ETag derived from the lookup collection version.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupCollectionDto'
+        '304':
+          description: Not modified. The caller's cached version is still valid.
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Lookups]
+      summary: Create lookup value
+      description: Adds a lookup value to the specified category. Categories are created automatically when new names are provided.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLookupValueRequest'
+      responses:
+        '201':
+          description: Created lookup value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupValueDto'
+        '409':
+          description: Lookup code already exists within the category.
+        '422':
+          description: Validation failed.
+  /api/v1/lookups/category/{category}:
+    get:
+      tags: [Lookups]
+      summary: List lookup values by category
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lookup values within the category.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LookupValueDto'
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/lookups/value/{id}:
+    get:
+      tags: [Lookups]
+      summary: Get lookup value by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lookup value details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupValueDto'
+        '404':
+          description: Lookup value not found.
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/lookups/{id}:
+    put:
+      tags: [Lookups]
+      summary: Update lookup value
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLookupValueRequest'
+      responses:
+        '200':
+          description: Updated lookup value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupValueDto'
+        '404':
+          description: Lookup value not found.
+        '409':
+          description: Lookup code already exists within the category.
+        '422':
+          description: Validation failed.
+    delete:
+      tags: [Lookups]
+      summary: Delete lookup value
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Lookup value deleted.
+        '404':
+          description: Lookup value not found.
 components:
   securitySchemes:
     BearerAuth:
@@ -1131,7 +1277,101 @@ components:
         minimum: 1
         maximum: 200
         default: 25
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Provide the previously returned ETag to receive 304 responses when no changes occurred.
+      schema:
+        type: string
   schemas:
+    LookupValueDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category:
+          type: string
+        code:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+          format: int32
+        isActive:
+          type: boolean
+        updatedAtUtc:
+          type: string
+          format: date-time
+      required: [id, category, code, displayName, sortOrder, isActive, updatedAtUtc]
+    LookupCategoryDto:
+      type: object
+      properties:
+        category:
+          type: string
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/LookupValueDto'
+      required: [category, values]
+    LookupCollectionDto:
+      type: object
+      properties:
+        versionToken:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/LookupCategoryDto'
+      required: [versionToken, categories]
+    CreateLookupValueRequest:
+      type: object
+      properties:
+        category:
+          type: string
+        code:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10000
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+      required: [category, code, displayName]
+    UpdateLookupValueRequest:
+      type: object
+      properties:
+        category:
+          type: string
+        code:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10000
+          nullable: true
+        isActive:
+          type: boolean
+      required: [category, code, displayName, isActive]
     HeadcountItem:
       type: object
       properties:

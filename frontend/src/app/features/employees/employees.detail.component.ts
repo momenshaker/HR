@@ -25,9 +25,8 @@ interface EmployeeProfile {
   departmentName?: string;
   jobTitle?: string;
   employmentType?: string;
-  employmentStartDate?: string;
-  employmentEndDate?: string;
-  profileDocuments?: EmployeeDocument[];
+  startDate?: string;
+  documents?: Array<{ id: string; name: string; url: string }>;
   attendance?: Array<{ date: string; status: string }>;
   payslips?: Array<{ id: string; period: string; url: string }>;
 }
