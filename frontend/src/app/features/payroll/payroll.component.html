@@ -1,4 +1,14 @@
 <div class="page">
+  <header class="page__header">
+    <div>
+      <h1>Payroll runs</h1>
+      <p>Generate payroll cycles and track their processing state.</p>
+    </div>
+    <button mat-stroked-button color="primary" type="button" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
   <mat-card>
     <mat-card-header>
       <mat-card-title>Generate payroll</mat-card-title>

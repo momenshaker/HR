@@ -4,6 +4,14 @@
   gap: 1.5rem;
 }
 
+.page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .form-grid {
   display: grid;
   gap: 1rem;
