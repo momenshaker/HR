@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { EntityCrudFactory } from '@core/data-access';
@@ -26,6 +27,7 @@ interface JobPosting {
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -79,6 +81,10 @@ export class RecruitmentPageComponent {
   onQueryChange(query: DataTableQuery): void {
     this.querySignal.set(query);
     this.load(query);
+  }
+
+  refresh(): void {
+    this.load(this.querySignal());
   }
 
   private load(query: DataTableQuery): void {

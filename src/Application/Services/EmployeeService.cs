@@ -72,12 +72,27 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
     }
 
     public async Task<IReadOnlyCollection<EmployeeDto>> GetByDepartmentAsync(
+        Guid organizationId,
         Guid departmentId,
         CancellationToken cancellationToken = default)
     {
+        if (organizationId == Guid.Empty)
+        {
+            throw new ArgumentException("Organization identifier must be provided.", nameof(organizationId));
+        }
+
         if (departmentId == Guid.Empty)
         {
             throw new ArgumentException("Department identifier must be provided.", nameof(departmentId));
+        }
+
+        var department = await _departmentRepository
+            .GetByIdAsync(departmentId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (department is null || department.OrganizationId != organizationId)
+        {
+            return Array.Empty<EmployeeDto>();
         }
 
         var employees = await _employeeRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
