@@ -27,6 +27,8 @@
   persistence and mapped detailed 422 validation codes for hierarchy consistency checks.
 - Updated department DTOs to emit child collections for hierarchy views and aligned API documentation with the new payload shape
   and error responses.
+- Scoped the DepartmentEmployees API under organizations to enforce the organization → department → employee hierarchy and
+  return 404 responses for cross-organization lookups.
 
 ### Fixed
 - Added an Entity Framework Core migration to provision ASP.NET Core Identity tables so seeded admin accounts can be created without runtime SQL errors.
