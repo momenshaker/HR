@@ -52,13 +52,18 @@ export class LoginPageComponent {
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (error) => {
-        if (error.errors) {
-          for (const [key, messages] of Object.entries(error.errors)) {
-            const control = this.form.get(key);
-            if (control) {
-              control.setErrors({ server: messages.join(', ') });
-            }
+        const validationErrors = (error as { errors?: Record<string, string[] | string> }).errors;
+        if (!validationErrors) {
+          return;
+        }
+
+        for (const [key, messages] of Object.entries(validationErrors)) {
+          const control = this.form.get(key);
+          if (!control) {
+            continue;
           }
+          const message = Array.isArray(messages) ? messages.join(', ') : String(messages);
+          control.setErrors({ server: message });
         }
       }
     });

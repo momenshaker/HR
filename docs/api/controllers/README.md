@@ -17,6 +17,7 @@
  - InterviewsController – docs/api/controllers/InterviewsController.md
  - LeaveController – docs/api/controllers/LeaveController.md
  - LeaveRequestsController – docs/api/controllers/LeaveRequestsController.md
+ - LookupsController – docs/api/controllers/LookupsController.md
  - OrganizationsController – docs/api/controllers/OrganizationsController.md
  - OrganizationUnitsController – docs/api/controllers/OrganizationUnitsController.md
  - PayrollRunsController – docs/api/controllers/PayrollRunsController.md

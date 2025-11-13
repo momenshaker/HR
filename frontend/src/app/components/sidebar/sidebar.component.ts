@@ -16,6 +16,7 @@ export interface SidebarMenuItem {
 export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
   { path: '/dashboard', title: 'Dashboard', icon: 'dashboard', class: '' },
   { path: '/organizations', title: 'Organizations', icon: 'domain', class: '' },
+  { path: '/lookups', title: 'Lookups', icon: 'list_alt', class: '' },
   { path: '/departments', title: 'Departments', icon: 'account_tree', class: '' },
   { path: '/employees', title: 'Employees', icon: 'people', class: '' },
   { path: '/attendance', title: 'Attendance', icon: 'schedule', class: '' },

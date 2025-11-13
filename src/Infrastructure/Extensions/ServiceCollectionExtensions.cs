@@ -88,6 +88,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPlatformConfigurationService, PlatformConfigurationService>();
         services.AddScoped<ITimesheetService, TimesheetService>();
         services.AddScoped<ICommsService, CommsService>();
+        services.AddScoped<ILookupService, LookupService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IInvoiceService, InvoiceService>();
         services.AddSingleton<IUsageService, UsageService>();
@@ -181,6 +182,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITimesheetRepository, EntityFrameworkTimesheetRepository>();
         services.AddScoped<IPayrollItemRepository, EntityFrameworkPayrollItemRepository>();
         services.AddScoped<IPayslipRepository, EntityFrameworkPayslipRepository>();
+        services.AddScoped<ILookupRepository, EntityFrameworkLookupRepository>();
         // Use in-memory implementations for lightweight training where EF repositories are not implemented
         services.AddSingleton<ICourseRepository, InMemoryCourseRepository>();
         services.AddSingleton<ICourseSessionRepository, InMemoryCourseSessionRepository>();
@@ -228,6 +230,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILeaveBalanceRepository, InMemoryLeaveBalanceRepository>();
         services.AddSingleton<IPayrollItemRepository, InMemoryPayrollItemRepository>();
         services.AddSingleton<IPayslipRepository, InMemoryPayslipRepository>();
+        services.AddSingleton<ILookupRepository, InMemoryLookupRepository>();
         services.AddScoped<IAnalyticsQueryService, HR.Infrastructure.Services.EfAnalyticsQueryService>();
     }
 
