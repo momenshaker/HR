@@ -7,6 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { EntityCrudFactory } from '@core/data-access';
@@ -27,6 +28,7 @@ interface LeaveRequest {
     CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatIconModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -84,6 +86,10 @@ export class LeaveRequestsPageComponent {
   onQueryChange(query: DataTableQuery): void {
     this.querySignal.set(query);
     this.load(query);
+  }
+
+  refresh(): void {
+    this.load(this.querySignal());
   }
 
   private load(query: DataTableQuery): void {

@@ -1,6 +1,18 @@
-.dashboard {
+.page {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dashboard {
   gap: 2rem;
 }
 
