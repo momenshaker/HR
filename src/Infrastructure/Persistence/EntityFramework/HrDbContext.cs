@@ -58,6 +58,7 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Timesheet> Timesheets => Set<Timesheet>();
     public DbSet<TimesheetEntry> TimesheetEntries => Set<TimesheetEntry>();
+    public DbSet<LookupValue> LookupValues => Set<LookupValue>();
     public DbSet<HR.Infrastructure.Security.Identity.UserRefreshToken> UserRefreshTokens => Set<HR.Infrastructure.Security.Identity.UserRefreshToken>();
 
     /// <inheritdoc />
@@ -71,5 +72,6 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
 
         PlanCatalogSeeder.Seed(modelBuilder);
         OrganizationStructureSeeder.Seed(modelBuilder);
+        LookupValueSeeder.Seed(modelBuilder);
     }
 }

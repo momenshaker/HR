@@ -292,6 +292,25 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LookupValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LookupValues", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LeaveRequests",
                 columns: table => new
                 {
@@ -1206,6 +1225,42 @@ namespace HR.Infrastructure.Migrations
                     { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), false }
                 });
 
+            migrationBuilder.InsertData(
+                table: "LookupValues",
+                columns: new[] { "Id", "Category", "Code", "CreatedAtUtc", "Description", "DisplayName", "IsActive", "SortOrder", "UpdatedAtUtc" },
+                values: new object[,]
+                {
+                    { new Guid("ea6e39b4-7911-43d8-aba5-5e1846f88874"), "branch", "HEADQUARTERS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Headquarters", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("f4aa9d9b-5925-48c6-ba70-220bb9260c6a"), "branch", "FIELD", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Field", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"), "branch", "REGIONAL_OFFICE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Regional Office", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"), "businessUnit", "CORPORATE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Corporate", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"), "businessUnit", "PRODUCT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Product", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("37aa74bb-f001-4ecc-bf7a-b35057c35f0a"), "businessUnit", "SERVICES", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Services", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("2f48a4d1-3519-4b02-86c3-1e77fec77bf0"), "businessUnit", "OPERATIONS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Operations", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"), "operatingHours", "DAY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Day", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("36d48abe-4ade-4189-af71-03e38526f06d"), "operatingHours", "SWING", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Swing", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"), "operatingHours", "NIGHT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Night", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"), "operatingHours", "24_7", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "24/7", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("02029a6d-a17d-4773-92ba-ac63955e8a17"), "industry", "TECHNOLOGY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Technology", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("e03d5548-0998-4b74-836f-ace82fd812f3"), "industry", "RETAIL", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Retail", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("17f974c2-ed4d-454a-b592-86e48bf74e3f"), "industry", "FINANCE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Finance", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"), "industry", "HEALTHCARE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Healthcare", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"), "region", "NORTH_AMERICA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "North America", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("fce559ca-6ff7-4876-a770-c24126aef993"), "region", "EMEA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "EMEA", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"), "region", "APAC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "APAC", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"), "region", "LATAM", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "LATAM", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"), "timeZone", "UTC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "UTC", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"), "timeZone", "AMERICA_NEW_YORK", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "America/New_York", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("fd228009-14bb-46e0-ade8-aabeb82f8abd"), "timeZone", "EUROPE_LONDON", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Europe/London", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"), "timeZone", "ASIA_SINGAPORE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Asia/Singapore", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LookupValues_Category_Code",
+                table: "LookupValues",
+                columns: new[] { "Category", "Code" },
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -1600,6 +1655,9 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "LeaveTypes");
+
+            migrationBuilder.DropTable(
+                name: "LookupValues");
 
             migrationBuilder.DropTable(
                 name: "OrganizationUnits");

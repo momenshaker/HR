@@ -8,4 +8,5 @@
 - Performance — `docs/api/features/performance.md`
 - Training — `docs/api/features/training.md`
 - Communication — `docs/api/features/communication.md`
+- Lookups — `docs/api/features/lookups.md`
 

@@ -34,8 +34,8 @@ export class NavigationService {
 
   constructor() {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event) => {
-      const path = event.urlAfterRedirects.split('?')[0];
-      this.updateBreadcrumbs(path);
+      const [path] = event.urlAfterRedirects.split('?');
+      this.updateBreadcrumbs(path ?? '/');
     });
   }
 
