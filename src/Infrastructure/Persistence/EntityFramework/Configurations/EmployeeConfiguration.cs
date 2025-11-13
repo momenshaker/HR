@@ -30,6 +30,14 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(employee => employee.JobTitle)
             .HasMaxLength(150);
 
+        builder.Property(employee => employee.PhoneNumber)
+            .HasMaxLength(20)
+            .HasDefaultValue(string.Empty);
+
+        builder.Property(employee => employee.EmploymentType)
+            .HasMaxLength(40)
+            .HasDefaultValue(string.Empty);
+
         builder.Property(employee => employee.EmploymentStartDate)
             .HasColumnType("date");
 
@@ -76,6 +84,13 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(employee => employee.Departments).AutoInclude();
+
+        builder.HasMany(employee => employee.ProfileDocuments)
+            .WithOne(document => document.Employee)
+            .HasForeignKey(document => document.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(employee => employee.ProfileDocuments).AutoInclude();
 
         builder.Ignore(employee => employee.FullName);
         builder.Ignore(employee => employee.DepartmentIds);

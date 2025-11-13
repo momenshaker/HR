@@ -1,0 +1,65 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <div>
+              <h4 class="card-title">Notifications</h4>
+              <p class="card-category">Broadcast messages and keep track of recent announcements.</p>
+            </div>
+            <div class="card-header__actions">
+              <button mat-stroked-button color="primary" type="button" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <section class="feature-section">
+              <div class="section-header">
+                <h5>Broadcast notification</h5>
+              </div>
+              <form [formGroup]="form" (ngSubmit)="send()" class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Title</mat-label>
+                  <input matInput formControlName="title" />
+                  <mat-error *ngIf="form.controls.title.hasError('required')">Title is required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Audience</mat-label>
+                  <input matInput formControlName="audience" />
+                  <mat-error *ngIf="form.controls.audience.hasError('required')">Audience required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Message</mat-label>
+                  <textarea matInput formControlName="body" rows="4"></textarea>
+                  <mat-error *ngIf="form.controls.body.hasError('required')">Message required</mat-error>
+                </mat-form-field>
+                <div class="form-actions">
+                  <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Send</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="feature-section">
+              <div class="section-header">
+                <h5>Recent notifications</h5>
+              </div>
+              <div class="notifications-list">
+                <mat-list>
+                  <mat-list-item *ngFor="let notification of items()">
+                    <div matListItemTitle>{{ notification.title }}</div>
+                    <div matListItemLine>{{ notification.body }}</div>
+                    <div matListItemLine class="meta">{{ notification.audience }} · {{ notification.createdAt | date: 'medium' }}</div>
+                  </mat-list-item>
+                  <p *ngIf="!items().length" class="empty">No notifications yet.</p>
+                </mat-list>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

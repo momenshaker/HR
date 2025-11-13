@@ -21,7 +21,7 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/auth")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [FeatureRequirement(HrFeature.PlatformServices)]
 public sealed class AuthController : ControllerBase
 {
@@ -567,3 +567,4 @@ public sealed class AuthController : ControllerBase
         };
     }
 }
+

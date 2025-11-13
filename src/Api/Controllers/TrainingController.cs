@@ -13,7 +13,7 @@ namespace HR.Api.Controllers;
 ///     Lightweight Training API.
 /// </summary>
 [ApiController]
-[Route("api/training")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public sealed class TrainingController(ILightweightTrainingService trainingService) : ControllerBase
 {
@@ -75,4 +75,5 @@ public sealed class TrainingController(ILightweightTrainingService trainingServi
         return Ok(dto);
     }
 }
+
 

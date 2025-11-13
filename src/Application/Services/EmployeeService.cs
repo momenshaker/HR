@@ -12,11 +12,23 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentRepository;
+    private readonly ISelfServiceAccountService _selfServiceAccountService;
 
-    public EmployeeService(IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository)
+    private static readonly IReadOnlyCollection<string> DefaultSelfServiceFeatures = new[]
+    {
+        "Attendance",
+        "Leave",
+        "Payslips"
+    };
+
+    public EmployeeService(
+        IEmployeeRepository employeeRepository,
+        IDepartmentRepository departmentRepository,
+        ISelfServiceAccountService selfServiceAccountService)
     {
         _employeeRepository = employeeRepository;
         _departmentRepository = departmentRepository;
+        _selfServiceAccountService = selfServiceAccountService;
     }
 
     /// <inheritdoc />
@@ -60,12 +72,27 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
     }
 
     public async Task<IReadOnlyCollection<EmployeeDto>> GetByDepartmentAsync(
+        Guid organizationId,
         Guid departmentId,
         CancellationToken cancellationToken = default)
     {
+        if (organizationId == Guid.Empty)
+        {
+            throw new ArgumentException("Organization identifier must be provided.", nameof(organizationId));
+        }
+
         if (departmentId == Guid.Empty)
         {
             throw new ArgumentException("Department identifier must be provided.", nameof(departmentId));
+        }
+
+        var department = await _departmentRepository
+            .GetByIdAsync(departmentId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (department is null || department.OrganizationId != organizationId)
+        {
+            return Array.Empty<EmployeeDto>();
         }
 
         var employees = await _employeeRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
@@ -156,6 +183,8 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
         var entity = request.ToEntity();
         var createdEmployee = await _employeeRepository.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
+        await EnsureSelfServiceAccountAsync(createdEmployee, cancellationToken).ConfigureAwait(false);
+
         return createdEmployee.ToDto();
     }
 
@@ -197,6 +226,31 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
                 .ConfigureAwait(false))
         {
             throw new UniqueConstraintViolationException("Employee", "Email", trimmedEmail);
+        }
+    }
+
+    private async Task EnsureSelfServiceAccountAsync(Employee employee, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(employee);
+
+        var request = new CreateSelfServiceAccountRequest
+        {
+            EmployeeId = employee.Id,
+            Email = employee.Email,
+            OAuthProvider = "Local",
+            ExternalIdentifier = employee.Email,
+            IsMfaEnabled = false,
+            IsLocked = false,
+            FeatureAccess = DefaultSelfServiceFeatures
+        };
+
+        try
+        {
+            await _selfServiceAccountService.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            // A self-service account already exists for the employee; nothing to do.
         }
     }
 

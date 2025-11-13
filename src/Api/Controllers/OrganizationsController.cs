@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HR.Api.Controllers;
 
 [ApiController]
-[Route("api/organizations")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public sealed class OrganizationsController(IOrganizationService organizationService) : ControllerBase
 {
     private readonly IOrganizationService _organizationService = organizationService;
@@ -55,3 +55,4 @@ public sealed class OrganizationsController(IOrganizationService organizationSer
         return deleted ? NoContent() : NotFound();
     }
 }
+

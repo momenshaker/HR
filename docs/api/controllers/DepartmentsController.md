@@ -36,6 +36,10 @@
   "managerId": null,
   "branch": "",
   "location": "",
+  "businessUnit": "Engineering",
+  "costCenterCode": "CC-ENG",
+  "operatingHours": "Mon-Fri 08:00-18:00",
+  "budgetOwner": "VP Engineering",
   "description": "",
   "isActive": true
 }
@@ -56,6 +60,10 @@ JSON
   "managerId": null,
   "branch": "",
   "location": "",
+  "businessUnit": "Research",
+  "costCenterCode": "CC-RND",
+  "operatingHours": "Mon-Fri 08:00-18:00",
+  "budgetOwner": "Chief Innovation Officer",
   "description": "",
   "isActive": true
 }

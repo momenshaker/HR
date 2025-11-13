@@ -12,7 +12,7 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for payroll management operations.
 /// </summary>
 [ApiController]
-[Route("api/payroll/runs")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin,HR")]
 [AuditResource("PayrollRun")]
 [FeatureRequirement(HrFeature.PayrollManagement)]
@@ -122,3 +122,4 @@ public sealed class PayrollRunsController(IPayrollService payrollService) : Cont
         return Ok(slips);
     }
 }
+

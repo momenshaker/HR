@@ -24,6 +24,24 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Organ
         builder.Property(organization => organization.Description)
             .HasMaxLength(1024);
 
+        builder.Property(organization => organization.Industry)
+            .HasMaxLength(150);
+
+        builder.Property(organization => organization.Region)
+            .HasMaxLength(100);
+
+        builder.Property(organization => organization.HeadquartersAddress)
+            .HasMaxLength(300);
+
+        builder.Property(organization => organization.TimeZone)
+            .HasMaxLength(50);
+
+        builder.Property(organization => organization.PrimaryContactEmail)
+            .HasMaxLength(150);
+
+        builder.Property(organization => organization.WebsiteUrl)
+            .HasMaxLength(200);
+
         builder.Property(organization => organization.IsActive)
             .HasDefaultValue(true);
 

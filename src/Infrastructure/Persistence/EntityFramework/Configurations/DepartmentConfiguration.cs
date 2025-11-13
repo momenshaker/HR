@@ -39,6 +39,18 @@ internal sealed class DepartmentConfiguration : IEntityTypeConfiguration<Departm
         builder.Property(department => department.Location)
             .HasMaxLength(200);
 
+        builder.Property(department => department.BusinessUnit)
+            .HasMaxLength(150);
+
+        builder.Property(department => department.CostCenterCode)
+            .HasMaxLength(50);
+
+        builder.Property(department => department.OperatingHours)
+            .HasMaxLength(100);
+
+        builder.Property(department => department.BudgetOwner)
+            .HasMaxLength(150);
+
         builder.Property(department => department.Description)
             .HasMaxLength(1024);
 

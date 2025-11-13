@@ -10,7 +10,7 @@ namespace HR.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/time/approvals")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin,HR,Manager")]
 [AuditResource("TimesheetApproval")]
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
@@ -26,4 +26,5 @@ public sealed class TimesheetApprovalsController(ITimesheetService timesheetServ
         return Ok(approvals);
     }
 }
+
 

@@ -24,6 +24,14 @@ public sealed record DepartmentDto
 
     public string Location { get; init; } = string.Empty;
 
+    public string BusinessUnit { get; init; } = string.Empty;
+
+    public string CostCenterCode { get; init; } = string.Empty;
+
+    public string OperatingHours { get; init; } = string.Empty;
+
+    public string BudgetOwner { get; init; } = string.Empty;
+
     public string Description { get; init; } = string.Empty;
 
     public bool IsActive { get; init; }

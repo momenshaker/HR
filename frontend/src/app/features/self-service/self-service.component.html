@@ -1,0 +1,265 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <div>
+              <h4 class="card-title">Employee self-service</h4>
+              <p class="card-category">Your workspace for profile, attendance, and leave updates.</p>
+            </div>
+          </div>
+          <div class="card-body self-service__body">
+            <section class="self-service-hero">
+              <div>
+                <p class="eyebrow">Employee self-service</p>
+                <h5>{{ user()?.fullName ?? 'Self-service hub' }}</h5>
+                <p class="muted" *ngIf="employeeId()">Employee ID #{{ employeeId() }}</p>
+              </div>
+              <div *ngIf="lastAttendanceRecordId()" class="hero-hint">
+                <p>Last record</p>
+                <strong>{{ lastAttendanceRecordId() }}</strong>
+              </div>
+            </section>
+
+            <div class="self-service-grid">
+              <mat-card>
+                <mat-card-title>Organizational snapshot</mat-card-title>
+                <mat-card-content>
+                  <ng-container *ngIf="snapshot() as summary; else noSnapshot">
+                    <p *ngIf="summary.position">Position – {{ summary.position.title }}</p>
+                    <p *ngIf="summary.organizationUnit">Unit – {{ summary.organizationUnit.name }}</p>
+                    <p *ngIf="summary.delegatedAuthorities.length">
+                      Delegated authorities – {{ summary.delegatedAuthorities.length }}
+                    </p>
+                    <mat-divider></mat-divider>
+                    <div class="list">
+                      <p>Reporting lines</p>
+                      <span *ngIf="!summary.reportingLines.length" class="muted">
+                        No reporting relationships assigned.
+                      </span>
+                      <div *ngFor="let relationship of summary.reportingLines" class="item">
+                        <span>{{ relationship.relationshipType }}</span>
+                        <small>Manager {{ relationship.managerPositionId }} – Report {{ relationship.reportPositionId }}</small>
+                      </div>
+                    </div>
+                  </ng-container>
+                  <ng-template #noSnapshot>
+                    <p class="muted">No organization data available.</p>
+                  </ng-template>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-title>Self-service account</mat-card-title>
+                <mat-card-content>
+                  <ng-container *ngIf="account() as accountState; else accountMissing">
+                    <p>
+                      <strong>{{ accountState.email }}</strong>
+                      <span class="muted">via {{ accountState.oauthProvider }}</span>
+                    </p>
+                    <p class="muted">External ID – {{ accountState.externalIdentifier }}</p>
+                    <div *ngIf="accountState.featureAccess?.length" class="chip-list">
+                      <mat-chip *ngFor="let feature of accountState.featureAccess">{{ feature }}</mat-chip>
+                    </div>
+                  </ng-container>
+                  <ng-template #accountMissing>
+                    <p class="muted">No self-service account yet.</p>
+                  </ng-template>
+                </mat-card-content>
+                <mat-divider></mat-divider>
+                <mat-card-actions>
+                  <form [formGroup]="accountForm" class="form-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Email</mat-label>
+                      <input matInput formControlName="email" type="email" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Provider</mat-label>
+                      <input matInput formControlName="oauthProvider" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>External ID</mat-label>
+                      <input matInput formControlName="externalIdentifier" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Features (comma separated)</mat-label>
+                      <input matInput formControlName="featureAccess" />
+                    </mat-form-field>
+                    <mat-checkbox formControlName="isMfaEnabled">MFA enabled</mat-checkbox>
+                    <mat-checkbox formControlName="isLocked">Account locked</mat-checkbox>
+                    <div class="actions">
+                      <button mat-flat-button color="primary" type="button" (click)="submitAccount()">Save</button>
+                      <button
+                        mat-stroked-button
+                        color="warn"
+                        type="button"
+                        (click)="removeAccount()"
+                        *ngIf="account()"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </form>
+                </mat-card-actions>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-title>Delegated authorities</mat-card-title>
+                <mat-card-content>
+                  <ng-container *ngIf="authorities().length; else noDelegations">
+                    <mat-list>
+                      <mat-list-item *ngFor="let authority of authorities()">
+                        <div class="authority">
+                          <strong>{{ authority.authorityScope }}</strong>
+                          <p class="muted">
+                            {{ authority.grantedOnUtc | date: 'short' }}
+                            <span *ngIf="authority.expiresOnUtc">· Expires {{ authority.expiresOnUtc | date: 'short' }}</span>
+                            <span *ngIf="authority.isRevoked">· Revoked</span>
+                          </p>
+                        </div>
+                      </mat-list-item>
+                    </mat-list>
+                  </ng-container>
+                  <ng-template #noDelegations>
+                    <p class="muted">No delegated authorities assigned.</p>
+                  </ng-template>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-title>Salary slips</mat-card-title>
+                <mat-card-content>
+                  <ng-container *ngIf="salarySlips().length; else noSalary">
+                    <div *ngFor="let slip of salarySlips()" class="salary-slip">
+                      <p><strong>{{ slip.periodStart }} – {{ slip.periodEnd }}</strong></p>
+                      <p class="muted">
+                        Gross {{ slip.grossPay | currency }} · Net {{ slip.netPay | currency }} · {{ slip.status }}
+                      </p>
+                    </div>
+                  </ng-container>
+                  <ng-template #noSalary>
+                    <p class="muted">Salary data is not available.</p>
+                  </ng-template>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-title>Training courses</mat-card-title>
+                <mat-card-content>
+                  <ng-container *ngIf="trainingCourses().length; else noTraining">
+                    <mat-list>
+                      <mat-list-item *ngFor="let course of trainingCourses()">
+                        <div>
+                          <strong>{{ course.title }}</strong>
+                          <p class="muted">{{ course.startDate }} – {{ course.endDate }} · {{ course.deliveryMode }}</p>
+                        </div>
+                      </mat-list-item>
+                    </mat-list>
+                  </ng-container>
+                  <ng-template #noTraining>
+                    <p class="muted">No training assignments currently.</p>
+                  </ng-template>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <div class="self-service-grid two-column">
+              <mat-card>
+                <mat-card-title>Leave requests</mat-card-title>
+                <mat-card-content>
+                  <ng-container *ngIf="leaveRequests().length; else noLeaves">
+                    <mat-list>
+                      <mat-list-item *ngFor="let leave of leaveRequests()">
+                        <div class="leave">
+                          <strong>{{ leave.leaveType }}</strong>
+                          <p class="muted">{{ leave.startDate }} – {{ leave.endDate }} · {{ leave.status }}</p>
+                        </div>
+                        <p class="muted">{{ leave.reason }}</p>
+                      </mat-list-item>
+                    </mat-list>
+                  </ng-container>
+                  <ng-template #noLeaves>
+                    <p class="muted">No leave requests submitted yet.</p>
+                  </ng-template>
+                  <form [formGroup]="leaveForm" class="form-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Leave type</mat-label>
+                      <mat-select formControlName="leaveType">
+                        <mat-option *ngFor="let type of leaveTypes" [value]="type">{{ type }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>From</mat-label>
+                      <input matInput formControlName="startDate" type="date" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>To</mat-label>
+                      <input matInput formControlName="endDate" type="date" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Reason</mat-label>
+                      <input matInput formControlName="reason" />
+                    </mat-form-field>
+                    <button mat-flat-button color="primary" type="button" (click)="submitLeaveRequest()">Submit</button>
+                  </form>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-title>Attendance & punches</mat-card-title>
+                <mat-card-content>
+                  <form [formGroup]="clockInForm" class="form-group">
+                    <p class="form-label">Clock In</p>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Punch type</mat-label>
+                      <mat-select formControlName="punchType">
+                        <mat-option *ngFor="let type of punchTypes" [value]="type">{{ type }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Timestamp</mat-label>
+                      <input matInput formControlName="timestamp" type="datetime-local" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Shift</mat-label>
+                      <input matInput formControlName="shiftName" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Notes</mat-label>
+                      <input matInput formControlName="notes" />
+                    </mat-form-field>
+                    <button mat-flat-button color="primary" type="button" (click)="submitClockIn()">Clock in</button>
+                  </form>
+                  <mat-divider></mat-divider>
+                  <form [formGroup]="clockOutForm" class="form-group">
+                    <p class="form-label">Clock Out</p>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Attendance record</mat-label>
+                      <input matInput formControlName="attendanceRecordId" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Punch type</mat-label>
+                      <mat-select formControlName="punchType">
+                        <mat-option *ngFor="let type of punchTypes" [value]="type">{{ type }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Timestamp</mat-label>
+                      <input matInput formControlName="timestamp" type="datetime-local" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Notes</mat-label>
+                      <input matInput formControlName="notes" />
+                    </mat-form-field>
+                    <button mat-flat-button color="primary" type="button" (click)="submitClockOut()">Clock out</button>
+                  </form>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

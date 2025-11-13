@@ -11,7 +11,7 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/platform/configuration")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin")]
 [AuditResource("PlatformConfiguration")]
 public sealed class PlatformConfigurationController(IPlatformConfigurationService configurationService) : ControllerBase
@@ -29,3 +29,4 @@ public sealed class PlatformConfigurationController(IPlatformConfigurationServic
         return Ok(configuration);
     }
 }
+

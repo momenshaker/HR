@@ -17,6 +17,8 @@ internal sealed class EntityFrameworkEmployeeRepository : EntityFrameworkReposit
         return await DbContext.Employees
             .AsNoTracking()
             .Include(employee => employee.Departments)
+            .ThenInclude(membership => membership.Department)
+            .Include(employee => employee.ProfileDocuments)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -26,6 +28,8 @@ internal sealed class EntityFrameworkEmployeeRepository : EntityFrameworkReposit
         var employee = await DbContext.Employees
             .AsNoTracking()
             .Include(entity => entity.Departments)
+            .ThenInclude(membership => membership.Department)
+            .Include(entity => entity.ProfileDocuments)
             .FirstOrDefaultAsync(entity => entity.Id == employeeId, cancellationToken)
             .ConfigureAwait(false);
 

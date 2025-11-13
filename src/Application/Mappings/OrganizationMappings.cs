@@ -18,6 +18,12 @@ public static class OrganizationMappings
             organization.Name,
             organization.Code,
             organization.Description,
+            organization.Industry,
+            organization.Region,
+            organization.HeadquartersAddress,
+            organization.TimeZone,
+            organization.PrimaryContactEmail,
+            organization.WebsiteUrl,
             organization.IsActive);
     }
 
@@ -31,6 +37,12 @@ public static class OrganizationMappings
             Name = request.Name.Trim(),
             Code = request.Code.Trim().ToUpperInvariant(),
             Description = request.Description.Trim(),
+            Industry = request.Industry.Trim(),
+            Region = request.Region.Trim(),
+            HeadquartersAddress = request.HeadquartersAddress.Trim(),
+            TimeZone = request.TimeZone.Trim(),
+            PrimaryContactEmail = request.PrimaryContactEmail.Trim(),
+            WebsiteUrl = request.WebsiteUrl.Trim(),
             IsActive = request.IsActive,
             CreatedAtUtc = DateTime.UtcNow
         };
@@ -47,6 +59,12 @@ public static class OrganizationMappings
             Name = request.Name.Trim(),
             Code = request.Code.Trim().ToUpperInvariant(),
             Description = request.Description.Trim(),
+            Industry = request.Industry.Trim(),
+            Region = request.Region.Trim(),
+            HeadquartersAddress = request.HeadquartersAddress.Trim(),
+            TimeZone = request.TimeZone.Trim(),
+            PrimaryContactEmail = request.PrimaryContactEmail.Trim(),
+            WebsiteUrl = request.WebsiteUrl.Trim(),
             IsActive = request.IsActive,
             CreatedAtUtc = existing.CreatedAtUtc,
             UpdatedAtUtc = DateTime.UtcNow

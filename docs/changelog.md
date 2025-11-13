@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Delivered end-to-end lookup management covering the `LookupService`, repositories, controller, Angular admin workspace, and documentation for cache-aware dynamic catalogues.
 - Exposed organization, department, and employee assignment endpoints with nested routing, pagination, and documented OpenAPI updates for hierarchy management workflows.
 - Enriched employee master data with contract history, compliance documentation, job architecture, and department alignment surfaced through the Employees API and DTOs.
 - Introduced a development authentication endpoint issuing JWTs for Postman and manual testing, backed by configurable in-memory accounts and documented default credentials.
@@ -20,6 +21,7 @@
 - Rolled out internal communications APIs spanning announcements, engagement campaigns, pulse surveys, and recognition programme governance with supporting services and repositories.
 - Expanded organization design with multi-level units, position management, reporting hierarchies, delegated authority modelling, and OAuth-enabled self-service account management across services, repositories, APIs, and documentation.
 ### Changed
+- Updated README and API documentation to clarify that all default lookups are now dynamic, ETag-enabled resources managed via `/lookups` in the frontend.
 - Refined public-facing feature descriptions in the README to better reflect the professional scope of the HR platform.
 - Clarified attendance and time tracking narratives across platform configuration and API documentation to emphasise shift
   orchestration, time capture, entitlement policies, approval flows, and real-time balance reconciliation.
@@ -27,6 +29,8 @@
   persistence and mapped detailed 422 validation codes for hierarchy consistency checks.
 - Updated department DTOs to emit child collections for hierarchy views and aligned API documentation with the new payload shape
   and error responses.
+- Scoped the DepartmentEmployees API under organizations to enforce the organization → department → employee hierarchy and
+  return 404 responses for cross-organization lookups.
 
 ### Fixed
 - Added an Entity Framework Core migration to provision ASP.NET Core Identity tables so seeded admin accounts can be created without runtime SQL errors.

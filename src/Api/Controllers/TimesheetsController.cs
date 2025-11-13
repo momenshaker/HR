@@ -11,7 +11,7 @@ namespace HR.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/time/timesheets")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin,HR,Manager")] 
 [AuditResource("Timesheet")]
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
@@ -92,3 +92,4 @@ public sealed class TimesheetsController(ITimesheetService timesheetService, IEm
         return updated is null ? NotFound() : Ok(updated);
     }
 }
+

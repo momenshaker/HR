@@ -18,9 +18,10 @@ public partial interface IEmployeeService
     Task<EmployeeDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Retrieves employees that belong to the specified department.
+    ///     Retrieves employees that belong to the specified department within an organization.
     /// </summary>
     Task<IReadOnlyCollection<EmployeeDto>> GetByDepartmentAsync(
+        Guid organizationId,
         Guid departmentId,
         CancellationToken cancellationToken = default);
 

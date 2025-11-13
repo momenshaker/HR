@@ -1,0 +1,29 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: linear-gradient(135deg, #1e88e5, #5e35b1);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+mat-form-field {
+  width: 100%;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.spinner {
+  margin-right: 0.5rem;
+}

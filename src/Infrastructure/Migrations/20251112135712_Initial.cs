@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HR.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -70,8 +70,6 @@ namespace HR.Infrastructure.Migrations
                     EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     WorkDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ShiftName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ClockInUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ClockOutUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     OvertimeMinutes = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false)
@@ -216,6 +214,8 @@ namespace HR.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     JobTitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: ""),
+                    EmploymentType = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false, defaultValue: ""),
                     EmploymentStartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EmploymentEndDate = table.Column<DateOnly>(type: "date", nullable: true),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
@@ -292,6 +292,25 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LookupValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LookupValues", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LeaveRequests",
                 columns: table => new
                 {
@@ -335,6 +354,12 @@ namespace HR.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    Industry = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Region = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    HeadquartersAddress = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    TimeZone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PrimaryContactEmail = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    WebsiteUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -592,6 +617,27 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AttendancePunches",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AttendanceRecordId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TimestampUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttendancePunches", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AttendancePunches_AttendanceRecords_AttendanceRecordId",
+                        column: x => x.AttendanceRecordId,
+                        principalTable: "AttendanceRecords",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Subscriptions",
                 columns: table => new
                 {
@@ -680,6 +726,29 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EmployeeProfileDocuments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(260)", maxLength: 260, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false, defaultValue: ""),
+                    StoragePath = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, defaultValue: ""),
+                    UploadedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeProfileDocuments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmployeeProfileDocuments_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EmploymentContract",
                 columns: table => new
                 {
@@ -718,6 +787,10 @@ namespace HR.Infrastructure.Migrations
                     ManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Branch = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    BusinessUnit = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    CostCenterCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    OperatingHours = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    BudgetOwner = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     Path = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
@@ -915,8 +988,7 @@ namespace HR.Infrastructure.Migrations
                         name: "FK_Invoices_Subscriptions_SubscriptionId",
                         column: x => x.SubscriptionId,
                         principalTable: "Subscriptions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1148,8 +1220,8 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Organizations",
-                columns: new[] { "Id", "Code", "CreatedAtUtc", "Description", "IsActive", "Name", "UpdatedAtUtc" },
-                values: new object[] { new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), "ACME", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Acme Corp demo organization", true, "Acme Corp", null });
+                columns: new[] { "Id", "Code", "CreatedAtUtc", "Description", "HeadquartersAddress", "Industry", "IsActive", "Name", "PrimaryContactEmail", "Region", "TimeZone", "UpdatedAtUtc", "WebsiteUrl" },
+                values: new object[] { new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), "ACME", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Acme Corp demo organization", "1 Summit Avenue, New York, NY 10004", "Professional Services", true, "Acme Corp", "hello@acme.test", "North America", "America/New_York", null, "https://acme.test" });
 
             migrationBuilder.InsertData(
                 table: "SubscriptionEntitlements",
@@ -1166,16 +1238,16 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Departments",
-                columns: new[] { "Id", "Branch", "Code", "CreatedAtUtc", "Description", "IsActive", "Location", "ManagerId", "Name", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
-                values: new object[] { new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "Global", "HQ", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Corporate headquarters", true, "New York", null, "Head Office", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), null, "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90", null });
+                columns: new[] { "Id", "Branch", "BudgetOwner", "BusinessUnit", "Code", "CostCenterCode", "CreatedAtUtc", "Description", "IsActive", "Location", "ManagerId", "Name", "OperatingHours", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
+                values: new object[] { new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "Global", "Executive Finance", "Corporate", "HQ", "CC-HQ-001", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Corporate headquarters", true, "New York", null, "Head Office", "Mon-Fri 08:00-18:00", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), null, "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90", null });
 
             migrationBuilder.InsertData(
                 table: "Departments",
-                columns: new[] { "Id", "Branch", "Code", "CreatedAtUtc", "Description", "IsActive", "Level", "Location", "ManagerId", "Name", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
+                columns: new[] { "Id", "Branch", "BudgetOwner", "BusinessUnit", "Code", "CostCenterCode", "CreatedAtUtc", "Description", "IsActive", "Level", "Location", "ManagerId", "Name", "OperatingHours", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
                 values: new object[,]
                 {
-                    { new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "Product", "ENG", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Platform and application engineering", true, 1, "Seattle", null, "Engineering", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8", null },
-                    { new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"), "Corporate", "HR", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "People operations", true, 1, "New York", null, "HR", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2", null }
+                    { new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "Product", "VP Engineering", "Engineering", "ENG", "CC-ENG-200", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Platform and application engineering", true, 1, "Seattle", null, "Engineering", "Mon-Fri 08:00-18:00", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8", null },
+                    { new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"), "Corporate", "Chief People Officer", "People", "HR", "CC-HR-300", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "People operations", true, 1, "New York", null, "HR", "Mon-Fri 08:00-17:00", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2", null }
                 });
 
             migrationBuilder.InsertData(
@@ -1185,11 +1257,11 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Departments",
-                columns: new[] { "Id", "Branch", "Code", "CreatedAtUtc", "Description", "IsActive", "Level", "Location", "ManagerId", "Name", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
+                columns: new[] { "Id", "Branch", "BudgetOwner", "BusinessUnit", "Code", "CostCenterCode", "CreatedAtUtc", "Description", "IsActive", "Level", "Location", "ManagerId", "Name", "OperatingHours", "OrganizationId", "ParentDepartmentId", "Path", "UpdatedAtUtc" },
                 values: new object[,]
                 {
-                    { new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"), "Product", "APPS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Customer-facing application development", true, 2, "Austin", null, "Applications", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/13d7a3fd-91c0-44d3-9d63-7f53820f9bde", null },
-                    { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), "Technology", "PLAT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Platform services and infrastructure", true, 2, "Seattle", null, "Platform", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2", null }
+                    { new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"), "Product", "Applications Lead", "Customer Experience", "APPS", "CC-ENG-220", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Customer-facing application development", true, 2, "Austin", null, "Applications", "Mon-Fri 09:00-17:30", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/13d7a3fd-91c0-44d3-9d63-7f53820f9bde", null },
+                    { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), "Technology", "Platform Director", "Platform Services", "PLAT", "CC-ENG-210", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Platform services and infrastructure", true, 2, "Seattle", null, "Platform", "24/7 (rotating)", new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"), "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2", null }
                 });
 
             migrationBuilder.InsertData(
@@ -1205,6 +1277,42 @@ namespace HR.Infrastructure.Migrations
                     { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), true },
                     { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), false }
                 });
+
+            migrationBuilder.InsertData(
+                table: "LookupValues",
+                columns: new[] { "Id", "Category", "Code", "CreatedAtUtc", "Description", "DisplayName", "IsActive", "SortOrder", "UpdatedAtUtc" },
+                values: new object[,]
+                {
+                    { new Guid("ea6e39b4-7911-43d8-aba5-5e1846f88874"), "branch", "HEADQUARTERS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Headquarters", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("f4aa9d9b-5925-48c6-ba70-220bb9260c6a"), "branch", "FIELD", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Field", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"), "branch", "REGIONAL_OFFICE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Regional Office", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"), "businessUnit", "CORPORATE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Corporate", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"), "businessUnit", "PRODUCT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Product", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("37aa74bb-f001-4ecc-bf7a-b35057c35f0a"), "businessUnit", "SERVICES", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Services", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("2f48a4d1-3519-4b02-86c3-1e77fec77bf0"), "businessUnit", "OPERATIONS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Operations", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"), "operatingHours", "DAY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Day", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("36d48abe-4ade-4189-af71-03e38526f06d"), "operatingHours", "SWING", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Swing", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"), "operatingHours", "NIGHT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Night", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"), "operatingHours", "24_7", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "24/7", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("02029a6d-a17d-4773-92ba-ac63955e8a17"), "industry", "TECHNOLOGY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Technology", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("e03d5548-0998-4b74-836f-ace82fd812f3"), "industry", "RETAIL", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Retail", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("17f974c2-ed4d-454a-b592-86e48bf74e3f"), "industry", "FINANCE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Finance", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"), "industry", "HEALTHCARE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Healthcare", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"), "region", "NORTH_AMERICA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "North America", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("fce559ca-6ff7-4876-a770-c24126aef993"), "region", "EMEA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "EMEA", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"), "region", "APAC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "APAC", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"), "region", "LATAM", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "LATAM", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"), "timeZone", "UTC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "UTC", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"), "timeZone", "AMERICA_NEW_YORK", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "America/New_York", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("fd228009-14bb-46e0-ade8-aabeb82f8abd"), "timeZone", "EUROPE_LONDON", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Europe/London", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"), "timeZone", "ASIA_SINGAPORE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Asia/Singapore", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LookupValues_Category_Code",
+                table: "LookupValues",
+                columns: new[] { "Category", "Code" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -1251,6 +1359,11 @@ namespace HR.Infrastructure.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendancePunches_AttendanceRecordId",
+                table: "AttendancePunches",
+                column: "AttendanceRecordId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceRecords_EmployeeId_WorkDate",
@@ -1337,6 +1450,11 @@ namespace HR.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeDepartments_EmployeeId",
                 table: "EmployeeDepartments",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeProfileDocuments_EmployeeId",
+                table: "EmployeeProfileDocuments",
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
@@ -1557,7 +1675,7 @@ namespace HR.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "AttendanceRecords");
+                name: "AttendancePunches");
 
             migrationBuilder.DropTable(
                 name: "AuditLogs");
@@ -1581,6 +1699,9 @@ namespace HR.Infrastructure.Migrations
                 name: "EmployeeDepartments");
 
             migrationBuilder.DropTable(
+                name: "EmployeeProfileDocuments");
+
+            migrationBuilder.DropTable(
                 name: "EmploymentContract");
 
             migrationBuilder.DropTable(
@@ -1600,6 +1721,9 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "LeaveTypes");
+
+            migrationBuilder.DropTable(
+                name: "LookupValues");
 
             migrationBuilder.DropTable(
                 name: "OrganizationUnits");
@@ -1657,6 +1781,9 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "AttendanceRecords");
 
             migrationBuilder.DropTable(
                 name: "PayrollRuns");

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: HR Platform Core Services API
-  version: 0.3.0
+  version: 0.4.1
   description: >-
     RESTful endpoints powering the core HR platform modules including organization
     structure, time management, leave, payroll, performance, recruitment,
@@ -1988,6 +1988,116 @@ paths:
           description: Analytics snapshot deleted
         '404':
           description: Snapshot not found
+  /api/v1/lookups:
+    get:
+      summary: List lookup categories and values
+      tags: [Lookups]
+      parameters:
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Lookup collection response
+          headers:
+            ETag:
+              description: Strong ETag for cache validation
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupCollectionDto'
+        '304':
+          description: Not modified
+    post:
+      summary: Create lookup value
+      tags: [Lookups]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLookupValueRequest'
+      responses:
+        '201':
+          description: Created lookup value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupValueDto'
+        '409':
+          description: Duplicate lookup code
+        '422':
+          description: Validation failed
+  /api/v1/lookups/category/{category}:
+    get:
+      summary: List lookup values within a category
+      tags: [Lookups]
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lookup values ordered by sort order
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LookupValueDto'
+  /api/v1/lookups/value/{id}:
+    get:
+      summary: Retrieve lookup value by id
+      tags: [Lookups]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Lookup value details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupValueDto'
+        '404':
+          description: Lookup value not found
+  /api/v1/lookups/{id}:
+    put:
+      summary: Update lookup value
+      tags: [Lookups]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLookupValueRequest'
+      responses:
+        '200':
+          description: Updated lookup value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupValueDto'
+        '404':
+          description: Lookup value not found
+        '409':
+          description: Duplicate lookup code
+        '422':
+          description: Validation failed
+    delete:
+      summary: Delete lookup value
+      tags: [Lookups]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Lookup value deleted
+        '404':
+          description: Lookup value not found
+
 components:
   parameters:
     ResourceId:
@@ -2014,7 +2124,101 @@ components:
         type: string
         format: uuid
       description: Unique identifier of the attendance record
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Provide the last seen ETag to reuse cached lookup collections.
+      schema:
+        type: string
   schemas:
+    LookupValueDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category:
+          type: string
+        code:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+          format: int32
+        isActive:
+          type: boolean
+        updatedAtUtc:
+          type: string
+          format: date-time
+      required: [id, category, code, displayName, sortOrder, isActive, updatedAtUtc]
+    LookupCategoryDto:
+      type: object
+      properties:
+        category:
+          type: string
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/LookupValueDto'
+      required: [category, values]
+    LookupCollectionDto:
+      type: object
+      properties:
+        versionToken:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/LookupCategoryDto'
+      required: [versionToken, categories]
+    CreateLookupValueRequest:
+      type: object
+      properties:
+        category:
+          type: string
+        code:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10000
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+      required: [category, code, displayName]
+    UpdateLookupValueRequest:
+      type: object
+      properties:
+        category:
+          type: string
+        code:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10000
+          nullable: true
+        isActive:
+          type: boolean
+      required: [category, code, displayName, isActive]
     DepartmentDto:
       type: object
       properties:
@@ -2025,6 +2229,9 @@ components:
           type: string
         code:
           type: string
+        organizationId:
+          type: string
+          format: uuid
         parentDepartmentId:
           type: string
           format: uuid
@@ -2037,6 +2244,14 @@ components:
           type: string
         location:
           type: string
+        businessUnit:
+          type: string
+        costCenterCode:
+          type: string
+        operatingHours:
+          type: string
+        budgetOwner:
+          type: string
         description:
           type: string
         isActive:
@@ -2045,14 +2260,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DepartmentDto'
-      required: [id, name, code, isActive]
+      required: [id, name, code, organizationId, isActive]
     CreateDepartmentRequest:
       allOf:
         - $ref: '#/components/schemas/UpdateDepartmentRequest'
-      required: [name, code]
+      required: [name, code, organizationId]
     UpdateDepartmentRequest:
       type: object
       properties:
+        organizationId:
+          type: string
+          format: uuid
         name:
           type: string
         code:
@@ -2069,12 +2287,19 @@ components:
           type: string
         location:
           type: string
+        businessUnit:
+          type: string
+        costCenterCode:
+          type: string
+        operatingHours:
+          type: string
+        budgetOwner:
+          type: string
         description:
           type: string
         isActive:
           type: boolean
-      required: [name, code, isActive]
-      required: [department, children]
+      required: [name, code, organizationId]
     MoveDepartmentRequest:
       type: object
       properties:
@@ -2094,6 +2319,20 @@ components:
           type: string
         description:
           type: string
+        industry:
+          type: string
+        region:
+          type: string
+        headquartersAddress:
+          type: string
+        timeZone:
+          type: string
+        primaryContactEmail:
+          type: string
+          format: email
+        websiteUrl:
+          type: string
+          format: uri
         isActive:
           type: boolean
       required: [id, name, code, isActive]
@@ -2106,6 +2345,20 @@ components:
           type: string
         description:
           type: string
+        industry:
+          type: string
+        region:
+          type: string
+        headquartersAddress:
+          type: string
+        timeZone:
+          type: string
+        primaryContactEmail:
+          type: string
+          format: email
+        websiteUrl:
+          type: string
+          format: uri
         isActive:
           type: boolean
       required: [name, code]
@@ -2118,6 +2371,20 @@ components:
           type: string
         description:
           type: string
+        industry:
+          type: string
+        region:
+          type: string
+        headquartersAddress:
+          type: string
+        timeZone:
+          type: string
+        primaryContactEmail:
+          type: string
+          format: email
+        websiteUrl:
+          type: string
+          format: uri
         isActive:
           type: boolean
       required: [name, code]
@@ -2533,9 +2800,20 @@ components:
           format: email
         jobTitle:
           type: string
-        departmentId:
+        phoneNumber:
+          type: string
+        employmentType:
+          type: string
+        primaryDepartmentId:
           type: string
           format: uuid
+        primaryDepartmentName:
+          type: string
+        departmentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
         employmentStartDate:
           type: string
           format: date
@@ -2549,8 +2827,6 @@ components:
           nullable: true
         jobArchitecture:
           $ref: '#/components/schemas/EmployeeJobArchitectureDto'
-        departmentAlignment:
-          $ref: '#/components/schemas/EmployeeDepartmentAlignmentDto'
         contracts:
           type: array
           items:
@@ -2559,7 +2835,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EmployeeComplianceDocumentDto'
-      required: [id, firstName, lastName, email, jobTitle, departmentId, employmentStartDate, jobArchitecture, departmentAlignment, contracts, complianceDocuments]
+        profileDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeProfileDocumentDto'
+      required: [id, firstName, lastName, email, jobTitle, phoneNumber, employmentType, primaryDepartmentId, primaryDepartmentName, departmentIds, employmentStartDate, jobArchitecture, contracts, complianceDocuments, profileDocuments]
     EmployeeJobArchitectureDto:
       type: object
       properties:
@@ -2574,26 +2854,6 @@ components:
         careerTrack:
           type: string
       required: [jobFamily, jobFunction, jobLevel, jobCode, careerTrack]
-    EmployeeDepartmentAlignmentDto:
-      type: object
-      properties:
-        primaryDepartmentId:
-          type: string
-          format: uuid
-        secondaryDepartmentIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-        reportingDepartmentId:
-          type: string
-          format: uuid
-          nullable: true
-        costCenter:
-          type: string
-        businessUnit:
-          type: string
-      required: [primaryDepartmentId, secondaryDepartmentIds, costCenter, businessUnit]
     EmploymentContractDto:
       type: object
       properties:
@@ -2650,6 +2910,42 @@ components:
         storagePath:
           type: string
       required: [id, documentType, referenceNumber, status, issuedOn, storagePath]
+    EmployeeProfileDocumentDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        description:
+          type: string
+        storagePath:
+          type: string
+        contentType:
+          type: string
+        uploadedAtUtc:
+          type: string
+          format: date-time
+      required: [id, fileName, storagePath, contentType, uploadedAtUtc]
+    EmployeeProfileDocumentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        description:
+          type: string
+        storagePath:
+          type: string
+        contentType:
+          type: string
+        uploadedAtUtc:
+          type: string
+          format: date-time
+      required: [fileName, storagePath]
     CreateEmployeeRequest:
       type: object
       properties:
@@ -2660,13 +2956,14 @@ components:
         email:
           type: string
           format: email
-        departmentId:
-          type: string
-          format: uuid
         employmentStartDate:
           type: string
           format: date
         jobTitle:
+          type: string
+        phoneNumber:
+          type: string
+        employmentType:
           type: string
         employmentEndDate:
           type: string
@@ -2676,8 +2973,8 @@ components:
           type: string
           format: date
           nullable: true
-        departmentAlignment:
-          $ref: '#/components/schemas/EmployeeDepartmentAlignmentRequest'
+        departmentAssignment:
+          $ref: '#/components/schemas/EmployeeDepartmentAssignmentRequest'
         jobArchitecture:
           $ref: '#/components/schemas/EmployeeJobArchitectureRequest'
         contracts:
@@ -2688,8 +2985,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EmployeeComplianceDocumentRequest'
-      required: [firstName, lastName, email, departmentId, employmentStartDate, jobTitle]
-    EmployeeDepartmentAlignmentRequest:
+        profileDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeProfileDocumentRequest'
+      required: [firstName, lastName, email, departmentAssignment, employmentStartDate, jobTitle]
+    EmployeeDepartmentAssignmentRequest:
       type: object
       properties:
         primaryDepartmentId:
@@ -2700,14 +3001,6 @@ components:
           items:
             type: string
             format: uuid
-        reportingDepartmentId:
-          type: string
-          format: uuid
-          nullable: true
-        costCenter:
-          type: string
-        businessUnit:
-          type: string
       required: [primaryDepartmentId]
     EmployeeDepartmentIdentifiersRequest:
       type: object
@@ -2862,25 +3155,49 @@ components:
           format: date
         shiftName:
           type: string
-        clockInUtc:
-          type: string
-          format: date-time
-          nullable: true
-        clockOutUtc:
-          type: string
-          format: date-time
-          nullable: true
         overtimeMinutes:
           type: integer
         status:
           type: string
         notes:
           type: string
-      required: [id, employeeId, workDate]
+        punches:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendancePunchDto'
+      required: [id, employeeId, workDate, shiftName, overtimeMinutes, status, notes, punches]
+    AttendancePunchDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        timestampUtc:
+          type: string
+          format: date-time
+        notes:
+          type: string
+      required: [id, type, timestampUtc, notes]
+    AttendancePunchRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        timestampUtc:
+          type: string
+          format: date-time
+        notes:
+          type: string
+      required: [type, timestampUtc]
     CreateAttendanceRecordRequest:
       allOf:
         - $ref: '#/components/schemas/UpdateAttendanceRecordRequest'
-      required: [employeeId, workDate]
+      required: [employeeId, workDate, punches]
     ClockInRequest:
       type: object
       properties:
@@ -2888,6 +3205,9 @@ components:
           type: string
           format: date-time
           nullable: true
+        punchType:
+          type: string
+          default: ClockIn
         shiftName:
           type: string
         notes:
@@ -2900,6 +3220,9 @@ components:
           type: string
           format: date-time
           nullable: true
+        punchType:
+          type: string
+          default: ClockOut
         notes:
           type: string
       description: Optional metadata describing the clock-out event
@@ -2914,21 +3237,17 @@ components:
           format: date
         shiftName:
           type: string
-        clockInUtc:
-          type: string
-          format: date-time
-          nullable: true
-        clockOutUtc:
-          type: string
-          format: date-time
-          nullable: true
         overtimeMinutes:
           type: integer
         status:
           type: string
         notes:
           type: string
-      required: [employeeId, workDate]
+        punches:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendancePunchRequest'
+      required: [employeeId, workDate, punches]
     LeaveRequestDto:
       type: object
       properties:

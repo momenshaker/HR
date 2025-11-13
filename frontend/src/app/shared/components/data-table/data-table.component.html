@@ -1,0 +1,35 @@
+<div class="data-table__header">
+  <mat-form-field appearance="outline" class="data-table__search">
+    <mat-label>Search</mat-label>
+    <input matInput [formControl]="filterControl" placeholder="Search" />
+    <button *ngIf="filterControl.value" type="button" mat-icon-button matSuffix (click)="filterControl.setValue('')">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+</div>
+
+<div class="data-table__wrapper" [class.data-table__wrapper--loading]="loading">
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <table mat-table [dataSource]="data" matSort (matSortChange)="onSortChange($event)">
+    <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columns[column] }}</th>
+      <td mat-cell *matCellDef="let row">
+        <ng-container *ngIf="column !== 'actions'; else actions">
+          {{ getCellValue(row, column) }}
+        </ng-container>
+        <ng-template #actions>
+          <ng-container *ngIf="actionsTemplate" [ngTemplateOutlet]="actionsTemplate" [ngTemplateOutletContext]="{ $implicit: row }"></ng-container>
+        </ng-template>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [length]="total"
+    [pageIndex]="query().pageIndex"
+    [pageSize]="query().pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="onPageChange($event)"
+  ></mat-paginator>
+</div>

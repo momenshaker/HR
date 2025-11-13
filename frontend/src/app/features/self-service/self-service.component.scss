@@ -1,0 +1,105 @@
+:host {
+  display: block;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.self-service__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.self-service-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.self-service-hero h5 {
+  margin: 0.25rem 0 0;
+}
+
+.self-service-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.self-service-grid.two-column {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.muted {
+  color: rgba(0, 0, 0, 0.54);
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.hero-hint {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.list .item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.form-group {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.form-label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.salary-slip {
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 0.5rem;
+}
+
+.salary-slip:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.leave {
+  display: flex;
+  flex-direction: column;
+}

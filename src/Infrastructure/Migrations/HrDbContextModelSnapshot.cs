@@ -90,16 +90,38 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("Announcements", (string)null);
                 });
 
-            modelBuilder.Entity("HR.Domain.Entities.AttendanceRecord", b =>
+            modelBuilder.Entity("HR.Domain.Entities.AttendancePunch", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ClockInUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("AttendanceRecordId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ClockOutUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("TimestampUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttendanceRecordId");
+
+                    b.ToTable("AttendancePunches", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.AttendanceRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
@@ -480,7 +502,22 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("BudgetOwner")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BusinessUnit")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CostCenterCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -515,6 +552,11 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("OperatingHours")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
@@ -551,13 +593,17 @@ namespace HR.Infrastructure.Migrations
                         {
                             Id = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
                             Branch = "Global",
+                            BudgetOwner = "Executive Finance",
+                            BusinessUnit = "Corporate",
                             Code = "HQ",
+                            CostCenterCode = "CC-HQ-001",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Corporate headquarters",
                             IsActive = true,
                             Level = 0,
                             Location = "New York",
                             Name = "Head Office",
+                            OperatingHours = "Mon-Fri 08:00-18:00",
                             OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
                             Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"
                         },
@@ -565,13 +611,17 @@ namespace HR.Infrastructure.Migrations
                         {
                             Id = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
                             Branch = "Product",
+                            BudgetOwner = "VP Engineering",
+                            BusinessUnit = "Engineering",
                             Code = "ENG",
+                            CostCenterCode = "CC-ENG-200",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Platform and application engineering",
                             IsActive = true,
                             Level = 1,
                             Location = "Seattle",
                             Name = "Engineering",
+                            OperatingHours = "Mon-Fri 08:00-18:00",
                             OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
                             ParentDepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
                             Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"
@@ -580,13 +630,17 @@ namespace HR.Infrastructure.Migrations
                         {
                             Id = new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"),
                             Branch = "Technology",
+                            BudgetOwner = "Platform Director",
+                            BusinessUnit = "Platform Services",
                             Code = "PLAT",
+                            CostCenterCode = "CC-ENG-210",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Platform services and infrastructure",
                             IsActive = true,
                             Level = 2,
                             Location = "Seattle",
                             Name = "Platform",
+                            OperatingHours = "24/7 (rotating)",
                             OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
                             ParentDepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
                             Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"
@@ -595,13 +649,17 @@ namespace HR.Infrastructure.Migrations
                         {
                             Id = new Guid("13d7a3fd-91c0-44d3-9d63-7f53820f9bde"),
                             Branch = "Product",
+                            BudgetOwner = "Applications Lead",
+                            BusinessUnit = "Customer Experience",
                             Code = "APPS",
+                            CostCenterCode = "CC-ENG-220",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Customer-facing application development",
                             IsActive = true,
                             Level = 2,
                             Location = "Austin",
                             Name = "Applications",
+                            OperatingHours = "Mon-Fri 09:00-17:30",
                             OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
                             ParentDepartmentId = new Guid("2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8"),
                             Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/2ff4b6f1-6f4e-4de0-85ed-2f1b83f6f0d8/13d7a3fd-91c0-44d3-9d63-7f53820f9bde"
@@ -610,13 +668,17 @@ namespace HR.Infrastructure.Migrations
                         {
                             Id = new Guid("dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"),
                             Branch = "Corporate",
+                            BudgetOwner = "Chief People Officer",
+                            BusinessUnit = "People",
                             Code = "HR",
+                            CostCenterCode = "CC-HR-300",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "People operations",
                             IsActive = true,
                             Level = 1,
                             Location = "New York",
                             Name = "HR",
+                            OperatingHours = "Mon-Fri 08:00-17:00",
                             OrganizationId = new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"),
                             ParentDepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
                             Path = "/org/8d741596-7f48-4a44-9a9b-5d4d78f3dc9a/dept/5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90/dc05d230-9a87-4c5c-a8cf-1e1422ecf7b2"
@@ -645,6 +707,13 @@ namespace HR.Infrastructure.Migrations
                     b.Property<DateOnly>("EmploymentStartDate")
                         .HasColumnType("date");
 
+                    b.Property<string>("EmploymentType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasDefaultValue("");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -663,38 +732,55 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("");
+
                     b.ComplexProperty<Dictionary<string, object>>("JobArchitecture", "HR.Domain.Entities.Employee.JobArchitecture#EmployeeJobArchitecture", b1 =>
                         {
                             b1.IsRequired();
 
                             b1.Property<string>("CareerTrack")
                                 .IsRequired()
+                                .ValueGeneratedOnAdd()
                                 .HasMaxLength(150)
                                 .HasColumnType("nvarchar(150)")
+                                .HasDefaultValue("")
                                 .HasColumnName("JobArchitectureCareerTrack");
 
                             b1.Property<string>("JobCode")
                                 .IsRequired()
+                                .ValueGeneratedOnAdd()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
+                                .HasDefaultValue("")
                                 .HasColumnName("JobArchitectureJobCode");
 
                             b1.Property<string>("JobFamily")
                                 .IsRequired()
+                                .ValueGeneratedOnAdd()
                                 .HasMaxLength(150)
                                 .HasColumnType("nvarchar(150)")
+                                .HasDefaultValue("")
                                 .HasColumnName("JobArchitectureJobFamily");
 
                             b1.Property<string>("JobFunction")
                                 .IsRequired()
+                                .ValueGeneratedOnAdd()
                                 .HasMaxLength(150)
                                 .HasColumnType("nvarchar(150)")
+                                .HasDefaultValue("")
                                 .HasColumnName("JobArchitectureJobFunction");
 
                             b1.Property<string>("JobLevel")
                                 .IsRequired()
+                                .ValueGeneratedOnAdd()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
+                                .HasDefaultValue("")
                                 .HasColumnName("JobArchitectureJobLevel");
                         });
 
@@ -858,6 +944,48 @@ namespace HR.Infrastructure.Migrations
                             DepartmentId = new Guid("5b0d38f7-8b37-4f33-9b77-39f8e8e5ef90"),
                             IsPrimary = false
                         });
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeProfileDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasDefaultValue("");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateTimeOffset>("UploadedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("EmployeeProfileDocuments", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.EmploymentContract", b =>
@@ -1194,6 +1322,306 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("LeaveTypes", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.LookupValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category", "Code")
+                        .IsUnique();
+
+                    b.ToTable("LookupValues", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ea6e39b4-7911-43d8-aba5-5e1846f88874"),
+                            Category = "branch",
+                            Code = "HEADQUARTERS",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Headquarters",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("f4aa9d9b-5925-48c6-ba70-220bb9260c6a"),
+                            Category = "branch",
+                            Code = "FIELD",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Field",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"),
+                            Category = "branch",
+                            Code = "REGIONAL_OFFICE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Regional Office",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"),
+                            Category = "businessUnit",
+                            Code = "CORPORATE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Corporate",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"),
+                            Category = "businessUnit",
+                            Code = "PRODUCT",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Product",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("37aa74bb-f001-4ecc-bf7a-b35057c35f0a"),
+                            Category = "businessUnit",
+                            Code = "SERVICES",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Services",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("2f48a4d1-3519-4b02-86c3-1e77fec77bf0"),
+                            Category = "businessUnit",
+                            Code = "OPERATIONS",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Operations",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"),
+                            Category = "operatingHours",
+                            Code = "DAY",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Day",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("36d48abe-4ade-4189-af71-03e38526f06d"),
+                            Category = "operatingHours",
+                            Code = "SWING",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Swing",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"),
+                            Category = "operatingHours",
+                            Code = "NIGHT",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Night",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"),
+                            Category = "operatingHours",
+                            Code = "24_7",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "24/7",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("02029a6d-a17d-4773-92ba-ac63955e8a17"),
+                            Category = "industry",
+                            Code = "TECHNOLOGY",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Technology",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("e03d5548-0998-4b74-836f-ace82fd812f3"),
+                            Category = "industry",
+                            Code = "RETAIL",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Retail",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("17f974c2-ed4d-454a-b592-86e48bf74e3f"),
+                            Category = "industry",
+                            Code = "FINANCE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Finance",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"),
+                            Category = "industry",
+                            Code = "HEALTHCARE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Healthcare",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"),
+                            Category = "region",
+                            Code = "NORTH_AMERICA",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "North America",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("fce559ca-6ff7-4876-a770-c24126aef993"),
+                            Category = "region",
+                            Code = "EMEA",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "EMEA",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"),
+                            Category = "region",
+                            Code = "APAC",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "APAC",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"),
+                            Category = "region",
+                            Code = "LATAM",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "LATAM",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"),
+                            Category = "timeZone",
+                            Code = "UTC",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "UTC",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"),
+                            Category = "timeZone",
+                            Code = "AMERICA_NEW_YORK",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "America/New_York",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("fd228009-14bb-46e0-ade8-aabeb82f8abd"),
+                            Category = "timeZone",
+                            Code = "EUROPE_LONDON",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Europe/London",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"),
+                            Category = "timeZone",
+                            Code = "ASIA_SINGAPORE",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Asia/Singapore",
+                            IsActive = true,
+                            SortOrder = 4,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1212,6 +1640,16 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
+                    b.Property<string>("HeadquartersAddress")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Industry")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -1222,8 +1660,28 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("PrimaryContactEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Region")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("WebsiteUrl")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -1242,8 +1700,14 @@ namespace HR.Infrastructure.Migrations
                             Code = "ACME",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Acme Corp demo organization",
+                            HeadquartersAddress = "1 Summit Avenue, New York, NY 10004",
+                            Industry = "Professional Services",
                             IsActive = true,
-                            Name = "Acme Corp"
+                            Name = "Acme Corp",
+                            PrimaryContactEmail = "hello@acme.test",
+                            Region = "North America",
+                            TimeZone = "America/New_York",
+                            WebsiteUrl = "https://acme.test"
                         });
                 });
 
@@ -2421,6 +2885,17 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.AttendancePunch", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.AttendanceRecord", "AttendanceRecord")
+                        .WithMany("Punches")
+                        .HasForeignKey("AttendanceRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttendanceRecord");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Organization", "Organization")
@@ -2465,6 +2940,17 @@ namespace HR.Infrastructure.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeProfileDocument", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.Employee", "Employee")
+                        .WithMany("ProfileDocuments")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.EmploymentContract", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Employee", null)
@@ -2483,7 +2969,7 @@ namespace HR.Infrastructure.Migrations
                     b.HasOne("HR.Domain.Entities.Subscription", null)
                         .WithMany()
                         .HasForeignKey("SubscriptionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.PayrollItem", b =>
@@ -2783,6 +3269,11 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.AttendanceRecord", b =>
+                {
+                    b.Navigation("Punches");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
                 {
                     b.Navigation("Children");
@@ -2797,6 +3288,8 @@ namespace HR.Infrastructure.Migrations
                     b.Navigation("Contracts");
 
                     b.Navigation("Departments");
+
+                    b.Navigation("ProfileDocuments");
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.Organization", b =>

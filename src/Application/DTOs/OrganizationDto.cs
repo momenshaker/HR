@@ -8,4 +8,10 @@ public sealed record OrganizationDto(
     string Name,
     string Code,
     string Description,
+    string Industry,
+    string Region,
+    string HeadquartersAddress,
+    string TimeZone,
+    string PrimaryContactEmail,
+    string WebsiteUrl,
     bool IsActive);

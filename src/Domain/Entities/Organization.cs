@@ -16,6 +16,18 @@ public sealed class Organization
 
     public string Description { get; init; } = string.Empty;
 
+    public string Industry { get; init; } = string.Empty;
+
+    public string Region { get; init; } = string.Empty;
+
+    public string HeadquartersAddress { get; init; } = string.Empty;
+
+    public string TimeZone { get; init; } = string.Empty;
+
+    public string PrimaryContactEmail { get; init; } = string.Empty;
+
+    public string WebsiteUrl { get; init; } = string.Empty;
+
     public bool IsActive { get; init; } = true;
 
     public DateTime CreatedAtUtc { get; init; }

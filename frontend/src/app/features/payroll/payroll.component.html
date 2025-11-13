@@ -1,0 +1,63 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <div>
+              <h4 class="card-title">Payroll runs</h4>
+              <p class="card-category">Generate payroll cycles and keep track of their processing state.</p>
+            </div>
+            <div class="card-header__actions">
+              <button mat-stroked-button color="primary" type="button" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <section class="feature-section">
+              <div class="section-header">
+                <h5>Generate payroll</h5>
+              </div>
+              <form [formGroup]="form" (ngSubmit)="generate()" class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Period</mat-label>
+                  <input matInput placeholder="YYYY-MM" formControlName="period" />
+                  <mat-error *ngIf="form.controls.period.hasError('required')">Period is required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Pay date</mat-label>
+                  <input matInput type="date" formControlName="payDate" />
+                  <mat-error *ngIf="form.controls.payDate.hasError('required')">Pay date required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Bank file reference</mat-label>
+                  <input matInput formControlName="bankFile" />
+                </mat-form-field>
+                <div class="form-actions">
+                  <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Run payroll</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="feature-section">
+              <div class="section-header">
+                <h5>Payroll history</h5>
+                <p>Review previously generated runs and their statuses.</p>
+              </div>
+              <app-data-table
+                [columns]="columns"
+                [displayedColumns]="displayedColumns"
+                [data]="runs()"
+                [total]="total()"
+                [loading]="loading()"
+                (queryChange)="onQueryChange($event)"
+              ></app-data-table>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -8,8 +8,7 @@ public sealed record AttendanceRecordDto(
     Guid EmployeeId,
     DateOnly WorkDate,
     string ShiftName,
-    DateTime? ClockInUtc,
-    DateTime? ClockOutUtc,
     int OvertimeMinutes,
     string Status,
-    string Notes);
+    string Notes,
+    IReadOnlyCollection<AttendancePunchDto> Punches);
