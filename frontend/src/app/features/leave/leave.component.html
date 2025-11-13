@@ -1,55 +1,70 @@
-<div class="page">
-  <header class="page__header">
-    <div>
-      <h1>Leave management</h1>
-      <p>Submit requests and monitor approvals in one place.</p>
-    </div>
-    <button mat-stroked-button color="primary" type="button" (click)="refresh()">
-      <mat-icon>refresh</mat-icon>
-      Refresh
-    </button>
-  </header>
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Request time off</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Leave type</mat-label>
-          <mat-select formControlName="typeId" required>
-            <mat-option value="annual">Annual leave</mat-option>
-            <mat-option value="sick">Sick leave</mat-option>
-            <mat-option value="unpaid">Unpaid leave</mat-option>
-          </mat-select>
-          <mat-error *ngIf="form.controls.typeId.hasError('required')">Select a leave type</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Start date</mat-label>
-          <input matInput type="date" formControlName="startDate" required />
-          <mat-error *ngIf="form.controls.startDate.hasError('required')">Start date required</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>End date</mat-label>
-          <input matInput type="date" formControlName="endDate" required />
-          <mat-error *ngIf="form.controls.endDate.hasError('required')">End date required</mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="form-grid__full">
-          <mat-label>Reason</mat-label>
-          <textarea matInput formControlName="reason" rows="3"></textarea>
-        </mat-form-field>
-        <div class="form-actions">
-          <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Submit request</button>
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <div>
+              <h4 class="card-title">Leave management</h4>
+              <p class="card-category">Submit requests and monitor approvals in one place.</p>
+            </div>
+            <div class="card-header__actions">
+              <button mat-stroked-button color="primary" type="button" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <section class="feature-section">
+              <div class="section-header">
+                <h5>Request time off</h5>
+              </div>
+              <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Leave type</mat-label>
+                  <mat-select formControlName="typeId" required>
+                    <mat-option value="annual">Annual leave</mat-option>
+                    <mat-option value="sick">Sick leave</mat-option>
+                    <mat-option value="unpaid">Unpaid leave</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="form.controls.typeId.hasError('required')">Select a leave type</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Start date</mat-label>
+                  <input matInput type="date" formControlName="startDate" required />
+                  <mat-error *ngIf="form.controls.startDate.hasError('required')">Start date required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>End date</mat-label>
+                  <input matInput type="date" formControlName="endDate" required />
+                  <mat-error *ngIf="form.controls.endDate.hasError('required')">End date required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Reason</mat-label>
+                  <textarea matInput formControlName="reason" rows="3"></textarea>
+                </mat-form-field>
+                <div class="form-actions">
+                  <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Submit request</button>
+                </div>
+              </form>
+            </section>
+            <section class="feature-section">
+              <div class="section-header">
+                <h5>Leave history</h5>
+              </div>
+              <app-data-table
+                [columns]="columns"
+                [displayedColumns]="displayedColumns"
+                [data]="requests()"
+                [total]="total()"
+                [loading]="loading()"
+                (queryChange)="onQueryChange($event)"
+              ></app-data-table>
+            </section>
+          </div>
         </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-  <app-data-table
-    [columns]="columns"
-    [displayedColumns]="displayedColumns"
-    [data]="requests()"
-    [total]="total()"
-    [loading]="loading()"
-    (queryChange)="onQueryChange($event)"
-  ></app-data-table>
+      </div>
+    </div>
+  </div>
 </div>

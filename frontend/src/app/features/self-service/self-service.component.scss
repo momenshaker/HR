@@ -2,17 +2,37 @@
   display: block;
 }
 
-.self-service-page {
+.card-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.hero {
+.self-service__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.self-service-hero {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: baseline;
   gap: 1rem;
+}
+
+.self-service-hero h5 {
+  margin: 0.25rem 0 0;
+}
+
+.self-service-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.self-service-grid.two-column {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
 .eyebrow {
@@ -23,35 +43,35 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
-.hero h1 {
-  margin: 0.25rem 0;
+.muted {
+  color: rgba(0, 0, 0, 0.54);
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 .hero-hint {
   text-align: right;
-  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.muted {
-  color: rgba(0, 0, 0, 0.54);
-  margin: 0.25rem 0 0;
-  font-size: 0.85rem;
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.grid.two-column {
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+.list .item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
 }
 
 .form-group {
   display: grid;
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+.form-label {
+  margin: 0;
+  font-weight: 600;
 }
 
 .actions {
@@ -68,18 +88,6 @@
   margin-top: 0.5rem;
 }
 
-.list .item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.25rem 0;
-}
-
-.leave {
-  display: flex;
-  flex-direction: column;
-}
-
 .salary-slip {
   margin-bottom: 0.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -89,4 +97,9 @@
 .salary-slip:last-child {
   border-bottom: none;
   margin-bottom: 0;
+}
+
+.leave {
+  display: flex;
+  flex-direction: column;
 }

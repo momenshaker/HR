@@ -2,18 +2,41 @@
   display: block;
 }
 
-.lookups {
+.card-body {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
-.lookups__header {
+.card-header__actions {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lookups-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 280px) 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.lookups__panel {
+  background: var(--mat-sys-surface-container-low, #fff);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--mat-sys-level1, 0 8px 24px rgba(15, 23, 42, 0.08));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lookups__panel--values header {
+  display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .lookups__eyebrow {
@@ -27,6 +50,7 @@
 .lookups__subtitle {
   max-width: 640px;
   color: var(--mat-sys-on-surface-variant, #4b5563);
+  margin: 0;
 }
 
 .lookups__actions {
@@ -34,25 +58,12 @@
   gap: 0.75rem;
 }
 
-.lookups__content {
-  display: grid;
-  grid-template-columns: minmax(240px, 280px) 1fr;
-  gap: 1.5rem;
-  align-items: flex-start;
-}
-
-.lookups__categories,
-.lookups__table {
-  background: var(--mat-sys-surface-container-low, #fff);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: var(--mat-sys-level1, 0 8px 24px rgba(15, 23, 42, 0.08));
-}
-
 .lookups__category-list {
   margin-top: 1rem;
   max-height: 520px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .lookups__category-item {
@@ -74,14 +85,6 @@
 .lookups__category-count {
   font-weight: 600;
   color: var(--mat-sys-on-surface-variant, #475569);
-}
-
-.lookups__table header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .lookups__mat-table {
@@ -138,8 +141,17 @@
   box-shadow: var(--mat-sys-level1, 0 8px 24px rgba(15, 23, 42, 0.08));
 }
 
+.lookups__panel header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.lookups__panel header p {
+  margin: 0;
+}
+
 @media (max-width: 960px) {
-  .lookups__content {
+  .lookups-layout {
     grid-template-columns: 1fr;
   }
 }

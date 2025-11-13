@@ -121,7 +121,7 @@ public sealed class LookupsController(ILookupService lookupService) : Controller
             return null;
         }
 
-        return versionToken.StartsWith('"', StringComparison.Ordinal)
+        return versionToken.StartsWith("\"", StringComparison.Ordinal)
             ? versionToken
             : $"\"{versionToken}\"";
     }

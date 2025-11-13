@@ -1,15 +1,28 @@
-.page {
+:host {
+  display: block;
+}
+
+.card-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.page__header {
+.feature-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
-  flex-wrap: wrap;
+}
+
+.section-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.section-header p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.9rem;
 }
 
 .form-grid {
@@ -23,7 +36,7 @@
 }
 
 .form-actions {
-  grid-column: 1 / -1;
+  margin-top: 0.5rem;
   display: flex;
   justify-content: flex-end;
 }

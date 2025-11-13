@@ -75,7 +75,7 @@ export class DataTableComponent {
     this.queryChange.emit(query);
   }
 
-  getCellValue(row: T, column: string): unknown {
+  getCellValue(row: Record<string, unknown>, column: string): unknown {
     return (row as Record<string, unknown>)[column];
   }
 }

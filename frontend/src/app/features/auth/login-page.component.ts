@@ -42,6 +42,9 @@ export class LoginPageComponent {
     rememberMe: [true]
   });
 
+  readonly emailControl = this.form.controls.email;
+  readonly passwordControl = this.form.controls.password;
+
   readonly loading = this.authStore.loading;
   readonly busy = this.loading;
   readonly error = this.authStore.error;

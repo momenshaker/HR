@@ -1,24 +1,33 @@
-.page {
+:host {
+  display: block;
+}
+
+.card-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.page__header {
+.card-header__actions {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
 }
 
-.attendance-form {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  padding: 1rem;
+.feature-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.section-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.section-header p {
+  margin: 0.25rem 0 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.9rem;
 }
 
 .attendance-form__grid {

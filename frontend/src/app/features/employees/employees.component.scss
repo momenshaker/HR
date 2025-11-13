@@ -1,13 +1,15 @@
-.page {
+:host {
+  display: block;
+}
+
+.card-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.page__header {
+.card-header__actions {
   display: flex;
-  justify-content: space-between;
+  gap: 0.75rem;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
 }
