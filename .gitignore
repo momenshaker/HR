@@ -19,3 +19,6 @@
 /tests/ApiTests/obj
 /tests/ApiTests/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
 /out/build
+/Frontend/.angular/cache/17.3.17
+/Frontend/dist/hr-frontend
+/Frontend/node_modules

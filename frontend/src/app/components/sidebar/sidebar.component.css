@@ -1,0 +1,41 @@
+.nav-group {
+    position: relative;
+}
+
+.nav-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.nav-group-header .nav-link {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-group {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.nav-group.open .toggle-group {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-group .nested-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.nav-group .nested-menu .nav-link {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    padding-left: 0;
+}
+
+.nav-group .nested-menu .nav-link .material-icons {
+    font-size: 18px;
+}

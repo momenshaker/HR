@@ -1,0 +1,92 @@
+:host {
+  display: block;
+}
+
+.self-service-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.hero h1 {
+  margin: 0.25rem 0;
+}
+
+.hero-hint {
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.muted {
+  color: rgba(0, 0, 0, 0.54);
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid.two-column {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.form-group {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.list .item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.leave {
+  display: flex;
+  flex-direction: column;
+}
+
+.salary-slip {
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 0.5rem;
+}
+
+.salary-slip:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
