@@ -23,6 +23,7 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     }
 
     public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<EmployeeProfileDocument> EmployeeProfileDocuments => Set<EmployeeProfileDocument>();
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<EmployeeDepartment> EmployeeDepartments => Set<EmployeeDepartment>();
@@ -32,6 +33,7 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
     public DbSet<DelegatedAuthority> DelegatedAuthorities => Set<DelegatedAuthority>();
     public DbSet<SelfServiceAccount> SelfServiceAccounts => Set<SelfServiceAccount>();
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
+    public DbSet<AttendancePunch> AttendancePunches => Set<AttendancePunch>();
     public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
     public DbSet<LeaveType> LeaveTypes => Set<LeaveType>();
     public DbSet<LeaveBalance> LeaveBalances => Set<LeaveBalance>();

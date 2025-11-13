@@ -9,11 +9,15 @@ public sealed record EmployeeDto(
     string LastName,
     string Email,
     string JobTitle,
+    string PhoneNumber,
+    string EmploymentType,
     Guid PrimaryDepartmentId,
+    string PrimaryDepartmentName,
     IReadOnlyCollection<Guid> DepartmentIds,
     DateOnly EmploymentStartDate,
     DateOnly? EmploymentEndDate,
     DateOnly? DateOfBirth,
     EmployeeJobArchitectureDto JobArchitecture,
     IReadOnlyCollection<EmploymentContractDto> Contracts,
-    IReadOnlyCollection<EmployeeComplianceDocumentDto> ComplianceDocuments);
+    IReadOnlyCollection<EmployeeComplianceDocumentDto> ComplianceDocuments,
+    IReadOnlyCollection<EmployeeProfileDocumentDto> ProfileDocuments);

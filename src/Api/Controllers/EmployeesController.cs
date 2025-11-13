@@ -10,7 +10,7 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for managing employee resources.
 /// </summary>
 [ApiController]
-[Route("api/employees")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public sealed class EmployeesController(
     IEmployeeService employeeService,
     IEmployeeDepartmentService employeeDepartmentService,
@@ -180,3 +180,4 @@ public sealed class EmployeesController(
         return NoContent();
     }
 }
+

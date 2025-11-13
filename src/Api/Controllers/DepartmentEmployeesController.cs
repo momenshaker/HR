@@ -8,7 +8,7 @@ namespace HR.Api.Controllers;
 ///     Provides access to employees assigned to a specific department.
 /// </summary>
 [ApiController]
-[Route("api/departments/{departmentId:guid}/employees")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public sealed class DepartmentEmployeesController(IEmployeeService employeeService) : ControllerBase
 {
     private readonly IEmployeeService _employeeService = employeeService;
@@ -27,3 +27,4 @@ public sealed class DepartmentEmployeesController(IEmployeeService employeeServi
         return Ok(employees);
     }
 }
+

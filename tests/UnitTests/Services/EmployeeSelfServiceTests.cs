@@ -89,11 +89,10 @@ public sealed class EmployeeSelfServiceTests
             employeeId,
             workDate,
             "Morning",
-            DateTime.UtcNow.AddHours(-2),
-            null,
             0,
             "InProgress",
-            string.Empty);
+            string.Empty,
+            Array.Empty<AttendancePunchDto>());
 
         _attendanceServiceMock
             .Setup(service => service.GetAsync(It.IsAny<CancellationToken>()))
@@ -124,11 +123,10 @@ public sealed class EmployeeSelfServiceTests
             employeeId,
             DateOnly.FromDateTime(DateTime.UtcNow),
             "Default",
-            DateTime.UtcNow,
-            null,
             0,
             "InProgress",
-            string.Empty);
+            string.Empty,
+            Array.Empty<AttendancePunchDto>());
 
         _attendanceServiceMock
             .Setup(service => service.CreateAsync(It.IsAny<CreateAttendanceRecordRequest>(), It.IsAny<CancellationToken>()))
@@ -173,11 +171,14 @@ public sealed class EmployeeSelfServiceTests
             employeeId,
             DateOnly.FromDateTime(DateTime.UtcNow),
             "Morning",
-            DateTime.UtcNow.AddHours(-8),
-            DateTime.UtcNow.AddHours(-1),
             0,
             "Completed",
-            string.Empty);
+            string.Empty,
+            new[]
+            {
+                new AttendancePunchDto(Guid.NewGuid(), "ClockIn", DateTimeOffset.UtcNow.AddHours(-8), string.Empty),
+                new AttendancePunchDto(Guid.NewGuid(), "ClockOut", DateTimeOffset.UtcNow.AddHours(-1), string.Empty)
+            });
 
         _attendanceServiceMock
             .Setup(service => service.GetByIdAsync(recordId, It.IsAny<CancellationToken>()))

@@ -1,22 +1,164 @@
-<div class="page">
-  <header class="page__header">
-    <h1>Departments</h1>
-    <button mat-flat-button color="primary" (click)="create()">
-      <mat-icon>add</mat-icon>
-      New department
-    </button>
-  </header>
-  <app-data-table
-    [columns]="columns"
-    [displayedColumns]="displayedColumns"
-    [data]="items()"
-    [total]="total()"
-    [loading]="loading()"
-    (queryChange)="onQueryChange($event)"
-  >
-    <ng-template #actions let-item>
-      <button mat-icon-button color="primary" (click)="edit(item)"><mat-icon>edit</mat-icon></button>
-      <button mat-icon-button color="warn" (click)="remove(item)"><mat-icon>delete</mat-icon></button>
-    </ng-template>
-  </app-data-table>
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <h4 class="card-title">Departments</h4>
+            <p class="card-category">Search, filter, and manage departments</p>
+            <button mat-flat-button class="btn btn-primary" (click)="openCreate()" aria-label="Create department">
+              <mat-icon>add</mat-icon>
+              Create Department
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="filters-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Search</mat-label>
+                <input matInput [(ngModel)]="search" (ngModelChange)="onFilterChanged()" />
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Organization</mat-label>
+                <input matInput [(ngModel)]="organizationFilter" (ngModelChange)="onFilterChanged()" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Business unit</mat-label>
+                <input matInput [(ngModel)]="businessUnitFilter" (ngModelChange)="onFilterChanged()" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Sort</mat-label>
+                <mat-select [(ngModel)]="sort">
+                  <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="filters-actions">
+              <button mat-stroked-button type="button" class="btn" (click)="clearFilters()">
+                <mat-icon>filter_alt_off</mat-icon>
+                Clear
+              </button>
+              <button mat-flat-button type="button" class="btn btn-primary" (click)="applyFilters()">
+                <mat-icon>filter_list</mat-icon>
+                Apply
+              </button>
+            </div>
+
+            <hr />
+
+            <div class="table-wrapper">
+              <ng-container *ngIf="!loading(); else loadingState">
+                <ng-container *ngIf="items().length; else emptyState">
+                  <table mat-table [dataSource]="items()" class="mat-elevation-z1" style="width: 100%">
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef>Name</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.name }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="code">
+                      <th mat-header-cell *matHeaderCellDef>Code</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.code }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="organizationName">
+                      <th mat-header-cell *matHeaderCellDef>Organization</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.organizationName || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="managerName">
+                      <th mat-header-cell *matHeaderCellDef>Manager</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.managerName || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="businessUnit">
+                      <th mat-header-cell *matHeaderCellDef>Business unit</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.businessUnit || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="costCenterCode">
+                      <th mat-header-cell *matHeaderCellDef>Cost center</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.costCenterCode || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="operatingHours">
+                      <th mat-header-cell *matHeaderCellDef>Operating hours</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.operatingHours || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="budgetOwner">
+                      <th mat-header-cell *matHeaderCellDef>Budget owner</th>
+                      <td mat-cell *matCellDef="let dept">{{ dept.budgetOwner || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef></th>
+                      <td mat-cell *matCellDef="let dept" class="actions-cell">
+                        <button
+                          mat-icon-button
+                          color="primary"
+                          matTooltip="Edit"
+                          (click)="openEdit(dept)"
+                        >
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button
+                          mat-icon-button
+                          color="warn"
+                          matTooltip="Delete"
+                          (click)="openDelete(dept)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                  </table>
+                </ng-container>
+              </ng-container>
+            </div>
+
+            <mat-paginator
+              [length]="totalCount()"
+              [pageSize]="pageSize()"
+              [pageIndex]="pageIndex()"
+              [pageSizeOptions]="pageSizeOptions"
+              aria-label="Departments pagination"
+              (page)="onPage($event)"
+            >
+            </mat-paginator>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <mat-icon>business</mat-icon>
+    <div class="empty-title">No departments match the current filters</div>
+    <div class="empty-subtitle">Adjust the filters or create a new department.</div>
+    <div class="empty-actions">
+      <button mat-stroked-button type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Clear Filters
+      </button>
+      <button mat-flat-button class="btn btn-primary" type="button" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        Create Department
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loadingState>
+  <div class="loading-state">
+    <mat-icon>hourglass_empty</mat-icon>
+    <div>Loading departments...</div>
+  </div>
+</ng-template>

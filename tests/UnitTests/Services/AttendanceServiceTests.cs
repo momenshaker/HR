@@ -2,6 +2,7 @@ using HR.Application.Abstractions.Repositories;
 using HR.Application.DTOs;
 using HR.Application.Services;
 using HR.Domain.Entities;
+using System;
 using Moq;
 using Xunit;
 
@@ -25,7 +26,15 @@ public sealed class AttendanceServiceTests
         {
             EmployeeId = Guid.NewGuid(),
             WorkDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            ShiftName = "Morning"
+            ShiftName = "Morning",
+            Punches = new[]
+            {
+                new AttendancePunchRequest
+                {
+                    Type = "ClockIn",
+                    TimestampUtc = DateTimeOffset.UtcNow
+                }
+            }
         };
 
         AttendanceRecord? persisted = null;
@@ -42,6 +51,7 @@ public sealed class AttendanceServiceTests
         Assert.NotNull(persisted);
         Assert.Equal(request.EmployeeId, persisted!.EmployeeId);
         Assert.Equal(persisted.Id, result.Id);
+        Assert.Single(persisted.Punches);
     }
 
     [Fact]

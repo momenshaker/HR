@@ -8,14 +8,26 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { EntityCrudFactory } from '@core/data-access';
 
+interface EmployeeDocument {
+  id: string;
+  fileName: string;
+  storagePath: string;
+  description?: string;
+  contentType?: string;
+  uploadedAtUtc: string;
+}
+
 interface EmployeeProfile {
   id: string;
   fullName: string;
   email: string;
-  phone?: string;
+  phoneNumber?: string;
   departmentName?: string;
   jobTitle?: string;
-  documents?: Array<{ id: string; name: string; url: string }>;
+  employmentType?: string;
+  employmentStartDate?: string;
+  employmentEndDate?: string;
+  profileDocuments?: EmployeeDocument[];
   attendance?: Array<{ date: string; status: string }>;
   payslips?: Array<{ id: string; period: string; url: string }>;
 }

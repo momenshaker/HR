@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace HR.Application.DTOs;
@@ -11,7 +12,10 @@ public sealed class ClockOutRequest
     ///     Optional UTC timestamp representing when the employee clocked out. When not provided the server timestamp
     ///     will be used.
     /// </summary>
-    public DateTime? TimestampUtc { get; init; }
+    public DateTimeOffset? TimestampUtc { get; init; }
+
+    [MaxLength(100)]
+    public string PunchType { get; init; } = "ClockOut";
 
     /// <summary>
     ///     Free-form notes captured at the time of clock-out.

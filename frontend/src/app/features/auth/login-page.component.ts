@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '@core/auth/auth.service';
 import { AuthStore } from '@core/auth/auth.store';
+import { normalizeProblemDetails } from '@core/errors/problem-details';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
@@ -42,6 +43,8 @@ export class LoginPageComponent {
   });
 
   readonly loading = this.authStore.loading;
+  readonly busy = this.loading;
+  readonly error = this.authStore.error;
 
   submit(): void {
     if (this.form.invalid) {
@@ -51,16 +54,31 @@ export class LoginPageComponent {
 
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: (error) => {
-        if (error.errors) {
-          for (const [key, messages] of Object.entries(error.errors)) {
-            const control = this.form.get(key);
-            if (control) {
-              control.setErrors({ server: messages.join(', ') });
-            }
+      error: (error: unknown) => {
+        if (typeof error !== 'object' || error === null) {
+          return;
+        }
+        const payload = normalizeProblemDetails(
+          (error as { error?: unknown }).error ?? error
+        );
+        if (!payload?.errors) {
+          return;
+        }
+        for (const [key, messages] of Object.entries(payload.errors)) {
+          const control = this.form.get(key);
+          if (control) {
+            control.setErrors({ server: messages.join(', ') });
           }
         }
       }
     });
+  }
+
+  get emailControl() {
+    return this.form.controls.email;
+  }
+
+  get passwordControl() {
+    return this.form.controls.password;
   }
 }

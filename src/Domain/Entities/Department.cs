@@ -24,6 +24,14 @@ public sealed class Department
 
     public string Location { get; init; } = string.Empty;
 
+    public string BusinessUnit { get; init; } = string.Empty;
+
+    public string CostCenterCode { get; init; } = string.Empty;
+
+    public string OperatingHours { get; init; } = string.Empty;
+
+    public string BudgetOwner { get; init; } = string.Empty;
+
     public string Description { get; init; } = string.Empty;
 
     public bool IsActive { get; init; } = true;
@@ -65,6 +73,10 @@ public sealed class Department
             ManagerId = ManagerId,
             Branch = Branch,
             Location = Location,
+            BusinessUnit = BusinessUnit,
+            CostCenterCode = CostCenterCode,
+            OperatingHours = OperatingHours,
+            BudgetOwner = BudgetOwner,
             Description = Description,
             IsActive = IsActive,
             Path = path,

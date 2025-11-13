@@ -1,5 +1,6 @@
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR.Infrastructure.Persistence.EntityFramework.Repositories;
 
@@ -12,12 +13,20 @@ internal sealed class EntityFrameworkAttendanceRecordRepository : EntityFramewor
 
     public async Task<IReadOnlyCollection<AttendanceRecord>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await GetAllInternalAsync(cancellationToken).ConfigureAwait(false);
+        return await DbContext.AttendanceRecords
+            .AsNoTracking()
+            .Include(record => record.Punches)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public Task<AttendanceRecord?> GetByIdAsync(Guid attendanceRecordId, CancellationToken cancellationToken = default)
+    public async Task<AttendanceRecord?> GetByIdAsync(Guid attendanceRecordId, CancellationToken cancellationToken = default)
     {
-        return GetByIdInternalAsync(attendanceRecordId, cancellationToken);
+        return await DbContext.AttendanceRecords
+            .AsNoTracking()
+            .Include(record => record.Punches)
+            .FirstOrDefaultAsync(record => record.Id == attendanceRecordId, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public Task<AttendanceRecord> AddAsync(AttendanceRecord attendanceRecord, CancellationToken cancellationToken = default)

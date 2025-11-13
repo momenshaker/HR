@@ -11,19 +11,14 @@ export class NavigationService {
 
   private readonly allItems: NavigationItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', roles: ['Admin', 'HR', 'Manager', 'Employee'] },
-    {
-      label: 'Organization',
-      icon: 'corporate_fare',
-      children: [
-        { label: 'Organizations', icon: 'apartment', route: '/organizations', roles: ['Admin', 'HR'] },
-        { label: 'Departments', icon: 'account_tree', route: '/departments', roles: ['Admin', 'HR', 'Manager'] }
-      ]
-    },
+    { label: 'Organizations', icon: 'domain', route: '/organizations', roles: ['Admin', 'HR'] },
+    { label: 'Departments', icon: 'account_tree', route: '/departments', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Employees', icon: 'people', route: '/employees', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Attendance', icon: 'schedule', route: '/attendance', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Leave', icon: 'beach_access', route: '/leave', roles: ['Admin', 'HR', 'Manager', 'Employee'] },
+    { label: 'Self Service', icon: 'person', route: '/self-service', roles: ['Admin', 'HR', 'Manager', 'Employee'] },
     { label: 'Payroll', icon: 'paid', route: '/payroll', roles: ['Admin', 'HR'] },
-    { label: 'Recruitment', icon: 'badge', route: '/recruitment', roles: ['Admin', 'HR'] },
+    { label: 'Recruitment', icon: 'work', route: '/recruitment', roles: ['Admin', 'HR'] },
     { label: 'Notifications', icon: 'notifications', route: '/notifications', roles: ['Admin', 'HR', 'Manager'] }
   ];
 
@@ -34,15 +29,28 @@ export class NavigationService {
 
   constructor() {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event) => {
-      const path = event.urlAfterRedirects.split('?')[0];
-      this.updateBreadcrumbs(path);
+      const resolvedUrl = event.urlAfterRedirects ?? event.url;
+      if (!resolvedUrl) {
+        return;
+      }
+      const [path] = resolvedUrl.split('?');
+      this.updateBreadcrumbs(path ?? '');
     });
   }
 
   private filterByRole(items: NavigationItem[]): NavigationItem[] {
     const roles = this.authStore.roles();
+    if (roles.length === 0) {
+      return items;
+    }
+
+    const normalizedRoles = roles.map((role) => role.toLowerCase());
     return items
-      .filter((item) => !item.roles || item.roles.some((role) => roles.includes(role)))
+      .filter(
+        (item) =>
+          !item.roles ||
+          item.roles.some((role) => normalizedRoles.includes(role.toLowerCase()))
+      )
       .map((item) => ({
         ...item,
         children: item.children ? this.filterByRole(item.children) : undefined

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HR.Api.Controllers;
 
 [ApiController]
-[Route("api/analytics")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin,HR")]
 [AuditResource("Analytics")]
 [FeatureRequirement(HrFeature.HrAnalytics)]
@@ -64,3 +64,4 @@ public sealed class AnalyticsController(IAnalyticsQueryService analytics) : Cont
         return Ok(result);
     }
 }
+

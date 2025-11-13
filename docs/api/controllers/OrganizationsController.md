@@ -31,7 +31,13 @@
 {
   "name": "Acme Corp",
   "code": "ACME",
-  "description": "",
+  "description": "Enterprise HR platform",
+  "industry": "Professional Services",
+  "region": "North America",
+  "headquartersAddress": "1 Summit Avenue, New York, NY 10004",
+  "timeZone": "America/New_York",
+  "primaryContactEmail": "hello@acme.test",
+  "websiteUrl": "https://acme.test",
   "isActive": true
 }
 JSON
@@ -44,7 +50,13 @@ JSON
 {
   "name": "Acme Inc",
   "code": "ACME",
-  "description": "Updated",
+  "description": "Updated global HR platform",
+  "industry": "Technology",
+  "region": "Global",
+  "headquartersAddress": "1 Summit Avenue, New York, NY 10004",
+  "timeZone": "America/New_York",
+  "primaryContactEmail": "support@acme.inc",
+  "websiteUrl": "https://acme.inc",
   "isActive": true
 }
 JSON

@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using HR.Application.Abstractions.Repositories;
+using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Services;
 using HR.Domain.Entities;
@@ -12,11 +14,15 @@ public sealed class EmployeeServiceTests
 {
     private readonly Mock<IEmployeeRepository> _repositoryMock = new();
     private readonly Mock<IDepartmentRepository> _departmentRepositoryMock = new();
+    private readonly Mock<ISelfServiceAccountService> _selfServiceAccountServiceMock = new();
     private readonly EmployeeService _sut;
 
     public EmployeeServiceTests()
     {
-        _sut = new EmployeeService(_repositoryMock.Object, _departmentRepositoryMock.Object);
+        _sut = new EmployeeService(
+            _repositoryMock.Object,
+            _departmentRepositoryMock.Object,
+            _selfServiceAccountServiceMock.Object);
     }
 
     [Fact]
@@ -75,6 +81,7 @@ public sealed class EmployeeServiceTests
         // Arrange
         var departmentId = Guid.NewGuid();
         var secondaryDepartmentId = Guid.NewGuid();
+        var profileDocumentId = Guid.NewGuid();
         var request = new CreateEmployeeRequest
         {
             FirstName = "John",
@@ -82,6 +89,8 @@ public sealed class EmployeeServiceTests
             Email = "john.smith@example.com",
             EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             JobTitle = "Software Engineer",
+            PhoneNumber = " +1 555 0123 ",
+            EmploymentType = "FullTime",
             DepartmentAssignment = new EmployeeDepartmentAssignmentRequest
             {
                 PrimaryDepartmentId = departmentId,
@@ -121,6 +130,19 @@ public sealed class EmployeeServiceTests
                     StoragePath = "/docs/passport.pdf"
                 }
             }
+            ,
+            ProfileDocuments = new[]
+            {
+                new EmployeeProfileDocumentRequest
+                {
+                    Id = profileDocumentId,
+                    FileName = "profile.pdf",
+                    StoragePath = "/files/profile.pdf",
+                    Description = "Profile brief",
+                    ContentType = "application/pdf",
+                    UploadedAtUtc = DateTimeOffset.UtcNow
+                }
+            }
         };
 
         Employee? persistedEmployee = null;
@@ -129,6 +151,26 @@ public sealed class EmployeeServiceTests
             .Setup(repo => repo.AddAsync(It.IsAny<Employee>(), It.IsAny<CancellationToken>()))
             .Callback<Employee, CancellationToken>((employee, _) => persistedEmployee = employee)
             .ReturnsAsync(() => persistedEmployee!);
+
+        CreateSelfServiceAccountRequest? capturedAccountRequest = null;
+        _selfServiceAccountServiceMock
+            .Setup(service => service.CreateAsync(It.IsAny<CreateSelfServiceAccountRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<CreateSelfServiceAccountRequest, CancellationToken>((accountRequest, _) =>
+            {
+                capturedAccountRequest = accountRequest;
+            })
+            .ReturnsAsync(new SelfServiceAccountDto(
+                Guid.NewGuid(),
+                Guid.Empty,
+                request.Email,
+                "Local",
+                request.Email,
+                false,
+                false,
+                DateTimeOffset.UtcNow,
+                DateTimeOffset.UtcNow,
+                null,
+                Array.Empty<string>()));
 
         // Act
         var result = await _sut.CreateAsync(request, CancellationToken.None);
@@ -145,6 +187,22 @@ public sealed class EmployeeServiceTests
         Assert.Single(result.Contracts);
         Assert.Single(result.ComplianceDocuments);
         Assert.Equal(departmentId, result.PrimaryDepartmentId);
+        Assert.Equal("+1 555 0123", persistedEmployee!.PhoneNumber);
+        Assert.Equal("FullTime", persistedEmployee.EmploymentType);
+        Assert.Single(persistedEmployee.ProfileDocuments);
+        var profileDocument = persistedEmployee.ProfileDocuments.Single();
+        Assert.Equal(profileDocumentId, profileDocument.Id);
+        Assert.Equal("profile.pdf", profileDocument.FileName);
+        Assert.Equal("application/pdf", profileDocument.ContentType);
+        Assert.NotNull(capturedAccountRequest);
+        Assert.Equal(persistedEmployee.Id, capturedAccountRequest!.EmployeeId);
+        Assert.Equal("john.smith@example.com", capturedAccountRequest.Email);
+        Assert.Equal("Local", capturedAccountRequest.OAuthProvider);
+        Assert.Equal("john.smith@example.com", capturedAccountRequest.ExternalIdentifier);
+        Assert.Equal(new[] { "Attendance", "Leave", "Payslips" }, capturedAccountRequest.FeatureAccess);
+        _selfServiceAccountServiceMock.Verify(
+            service => service.CreateAsync(It.IsAny<CreateSelfServiceAccountRequest>(), It.IsAny<CancellationToken>()),
+            Times.Once);
         Assert.Contains(secondaryDepartmentId, result.DepartmentIds);
 
         _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Employee>(), It.IsAny<CancellationToken>()), Times.Once);

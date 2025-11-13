@@ -25,7 +25,7 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/billing/webhooks")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [AllowAnonymous]
 [AuditResource("BillingWebhook")]
 [FeatureRequirement(HrFeature.PlatformServices)]
@@ -288,4 +288,5 @@ public sealed class BillingWebhooksController : ControllerBase
 
     private sealed record StripeSubscriptionPayload(string? Id, string? Customer, string? Status, long? CurrentPeriodEnd);
 }
+
 

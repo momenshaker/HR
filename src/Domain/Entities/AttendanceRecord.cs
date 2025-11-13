@@ -13,13 +13,11 @@ public sealed class AttendanceRecord
 
     public string ShiftName { get; init; } = string.Empty;
 
-    public DateTime? ClockInUtc { get; init; }
-
-    public DateTime? ClockOutUtc { get; init; }
-
     public int OvertimeMinutes { get; init; }
 
     public string Status { get; init; } = string.Empty;
 
     public string Notes { get; init; } = string.Empty;
+
+    public ICollection<AttendancePunch> Punches { get; } = new List<AttendancePunch>();
 }

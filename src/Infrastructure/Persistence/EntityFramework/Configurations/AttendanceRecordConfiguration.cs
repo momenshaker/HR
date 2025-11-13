@@ -22,11 +22,12 @@ internal sealed class AttendanceRecordConfiguration : IEntityTypeConfiguration<A
         builder.Property(record => record.ShiftName)
             .HasMaxLength(100);
 
-        builder.Property(record => record.ClockInUtc)
-            .HasColumnType("datetime2");
+        builder.HasMany(record => record.Punches)
+            .WithOne(punch => punch.AttendanceRecord)
+            .HasForeignKey(punch => punch.AttendanceRecordId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(record => record.ClockOutUtc)
-            .HasColumnType("datetime2");
+        builder.Navigation(record => record.Punches).AutoInclude();
 
         builder.Property(record => record.Status)
             .IsRequired()

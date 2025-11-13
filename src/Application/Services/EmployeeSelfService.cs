@@ -78,29 +78,35 @@ public sealed class EmployeeSelfService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var timestampUtc = (request.TimestampUtc ?? DateTime.UtcNow).ToUniversalTime();
-        var workDate = DateOnly.FromDateTime(timestampUtc);
+        var timestampUtc = (request.TimestampUtc ?? DateTimeOffset.UtcNow).ToUniversalTime();
+        var workDate = DateOnly.FromDateTime(timestampUtc.UtcDateTime);
 
         var existingRecords = await GetAttendanceHistoryAsync(employeeId, cancellationToken).ConfigureAwait(false);
         var openRecord = existingRecords.FirstOrDefault(record =>
             record.WorkDate == workDate &&
-            record.ClockOutUtc is null);
+            !record.Punches.Any(punch => string.Equals(punch.Type, "ClockOut", StringComparison.OrdinalIgnoreCase)));
 
         if (openRecord is not null)
         {
             throw new InvalidOperationException("An open attendance record already exists for the specified work date.");
         }
 
+        var punchRequest = new AttendancePunchRequest
+        {
+            Type = string.IsNullOrWhiteSpace(request.PunchType) ? "ClockIn" : request.PunchType.Trim(),
+            TimestampUtc = timestampUtc,
+            Notes = request.Notes?.Trim() ?? string.Empty
+        };
+
         var createRequest = new CreateAttendanceRecordRequest
         {
             EmployeeId = employeeId,
             WorkDate = workDate,
             ShiftName = string.IsNullOrWhiteSpace(request.ShiftName) ? "Default" : request.ShiftName.Trim(),
-            ClockInUtc = timestampUtc,
-            ClockOutUtc = null,
+            Punches = new[] { punchRequest },
             OvertimeMinutes = 0,
             Status = "InProgress",
-            Notes = request.Notes?.Trim() ?? string.Empty
+            Notes = punchRequest.Notes
         };
 
         return await _attendanceService.CreateAsync(createRequest, cancellationToken).ConfigureAwait(false);
@@ -123,14 +129,19 @@ public sealed class EmployeeSelfService(
             throw new KeyNotFoundException("Attendance record was not found for the specified employee.");
         }
 
-        if (attendanceRecord.ClockOutUtc is not null)
+        if (attendanceRecord.Punches.Any(punch => string.Equals(punch.Type, "ClockOut", StringComparison.OrdinalIgnoreCase)))
         {
             throw new InvalidOperationException("Attendance record is already closed.");
         }
 
-        var timestampUtc = (request.TimestampUtc ?? DateTime.UtcNow).ToUniversalTime();
+        var timestampUtc = (request.TimestampUtc ?? DateTimeOffset.UtcNow).ToUniversalTime();
 
-        if (attendanceRecord.ClockInUtc is { } clockIn && timestampUtc < clockIn)
+        var clockInPunch = attendanceRecord.Punches
+            .Where(punch => string.Equals(punch.Type, "ClockIn", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(punch => punch.TimestampUtc)
+            .FirstOrDefault();
+
+        if (clockInPunch is not null && timestampUtc < clockInPunch.TimestampUtc)
         {
             throw new InvalidOperationException("Clock-out time cannot be earlier than the recorded clock-in time.");
         }
@@ -145,8 +156,21 @@ public sealed class EmployeeSelfService(
             EmployeeId = attendanceRecord.EmployeeId,
             WorkDate = attendanceRecord.WorkDate,
             ShiftName = attendanceRecord.ShiftName,
-            ClockInUtc = attendanceRecord.ClockInUtc ?? timestampUtc,
-            ClockOutUtc = timestampUtc,
+            Punches = attendanceRecord.Punches
+                .Select(punch => new AttendancePunchRequest
+                {
+                    Id = punch.Id,
+                    Type = punch.Type,
+                    TimestampUtc = punch.TimestampUtc,
+                    Notes = punch.Notes
+                })
+                .Append(new AttendancePunchRequest
+                {
+                    Type = string.IsNullOrWhiteSpace(request.PunchType) ? "ClockOut" : request.PunchType.Trim(),
+                    TimestampUtc = timestampUtc,
+                    Notes = request.Notes?.Trim() ?? string.Empty
+                })
+                .ToArray(),
             OvertimeMinutes = attendanceRecord.OvertimeMinutes,
             Status = "Completed",
             Notes = combinedNotes

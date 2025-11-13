@@ -40,6 +40,12 @@ public static class OrganizationStructureSeeder
             Name = "Acme Corp",
             Code = "ACME",
             Description = "Acme Corp demo organization",
+            Industry = "Professional Services",
+            Region = "North America",
+            HeadquartersAddress = "1 Summit Avenue, New York, NY 10004",
+            TimeZone = "America/New_York",
+            PrimaryContactEmail = "hello@acme.test",
+            WebsiteUrl = "https://acme.test",
             IsActive = true,
             CreatedAtUtc = SeedCreatedAt
         });
@@ -55,6 +61,10 @@ public static class OrganizationStructureSeeder
                 Level = 0,
                 Branch = "Global",
                 Location = "New York",
+                BusinessUnit = "Corporate",
+                CostCenterCode = "CC-HQ-001",
+                OperatingHours = "Mon-Fri 08:00-18:00",
+                BudgetOwner = "Executive Finance",
                 Description = "Corporate headquarters",
                 IsActive = true,
                 CreatedAtUtc = SeedCreatedAt
@@ -70,6 +80,10 @@ public static class OrganizationStructureSeeder
                 Level = 1,
                 Branch = "Product",
                 Location = "Seattle",
+                BusinessUnit = "Engineering",
+                CostCenterCode = "CC-ENG-200",
+                OperatingHours = "Mon-Fri 08:00-18:00",
+                BudgetOwner = "VP Engineering",
                 Description = "Platform and application engineering",
                 IsActive = true,
                 CreatedAtUtc = SeedCreatedAt
@@ -85,6 +99,10 @@ public static class OrganizationStructureSeeder
                 Level = 2,
                 Branch = "Technology",
                 Location = "Seattle",
+                BusinessUnit = "Platform Services",
+                CostCenterCode = "CC-ENG-210",
+                OperatingHours = "24/7 (rotating)",
+                BudgetOwner = "Platform Director",
                 Description = "Platform services and infrastructure",
                 IsActive = true,
                 CreatedAtUtc = SeedCreatedAt
@@ -100,6 +118,10 @@ public static class OrganizationStructureSeeder
                 Level = 2,
                 Branch = "Product",
                 Location = "Austin",
+                BusinessUnit = "Customer Experience",
+                CostCenterCode = "CC-ENG-220",
+                OperatingHours = "Mon-Fri 09:00-17:30",
+                BudgetOwner = "Applications Lead",
                 Description = "Customer-facing application development",
                 IsActive = true,
                 CreatedAtUtc = SeedCreatedAt
@@ -115,6 +137,10 @@ public static class OrganizationStructureSeeder
                 Level = 1,
                 Branch = "Corporate",
                 Location = "New York",
+                BusinessUnit = "People",
+                CostCenterCode = "CC-HR-300",
+                OperatingHours = "Mon-Fri 08:00-17:00",
+                BudgetOwner = "Chief People Officer",
                 Description = "People operations",
                 IsActive = true,
                 CreatedAtUtc = SeedCreatedAt

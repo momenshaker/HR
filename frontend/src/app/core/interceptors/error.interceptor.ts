@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { AuthStore } from '../auth/auth.store';
-import { ProblemDetails } from '../auth/auth.models';
+import { extractProblemMessage, normalizeProblemDetails } from '../errors/problem-details';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
@@ -14,8 +14,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      const problem = error.error as ProblemDetails | undefined;
-      const message = problem?.detail ?? problem?.title ?? 'An unexpected error occurred';
+      const payload = error.error ?? error;
+      const problem = normalizeProblemDetails(payload);
+      const message = extractProblemMessage(problem);
       authStore.setError(message, true);
 
       return throwError(() => error);

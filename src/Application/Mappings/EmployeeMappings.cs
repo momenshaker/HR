@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using HR.Application.DTOs;
@@ -21,7 +22,13 @@ public static class EmployeeMappings
             .ToArray() ?? Array.Empty<EmployeeComplianceDocumentDto>();
 
         var departmentIds = employee.DepartmentIds;
-        var primaryDepartmentId = employee.PrimaryDepartmentId;
+        var primaryDepartmentId = employee.PrimaryDepartmentId ?? Guid.Empty;
+        var primaryDepartmentName = employee.Departments
+            .FirstOrDefault(membership => membership.IsPrimary)?
+            .Department?.Name ?? string.Empty;
+        var profileDocuments = employee.ProfileDocuments?
+            .Select(document => document.ToDto())
+            .ToArray() ?? Array.Empty<EmployeeProfileDocumentDto>();
 
         return new EmployeeDto(
             employee.Id,
@@ -29,14 +36,18 @@ public static class EmployeeMappings
             employee.LastName,
             employee.Email,
             employee.JobTitle,
-            primaryDepartmentId ?? Guid.Empty,
+            employee.PhoneNumber ?? string.Empty,
+            employee.EmploymentType ?? string.Empty,
+            primaryDepartmentId,
+            primaryDepartmentName,
             departmentIds,
             employee.EmploymentStartDate,
             employee.EmploymentEndDate,
             employee.DateOfBirth,
             jobArchitecture.ToDto(),
             contracts,
-            complianceDocuments);
+            complianceDocuments,
+            profileDocuments);
     }
 
     public static Employee ToEntity(this CreateEmployeeRequest request)
@@ -46,6 +57,7 @@ public static class EmployeeMappings
         var jobArchitecture = request.JobArchitecture.ToDomain();
         var contracts = request.Contracts.ToDomainContracts();
         var complianceDocuments = request.ComplianceDocuments.ToDomainComplianceDocuments();
+        var profileDocuments = request.ProfileDocuments.ToDomainProfileDocuments();
         var departments = BuildDepartmentAssignments(
             request.DepartmentAssignment.PrimaryDepartmentId,
             request.DepartmentAssignment.SecondaryDepartmentIds);
@@ -57,13 +69,17 @@ public static class EmployeeMappings
             LastName = request.LastName.Trim(),
             Email = request.Email.Trim(),
             JobTitle = request.JobTitle.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            EmploymentType = request.EmploymentType.Trim(),
             EmploymentStartDate = request.EmploymentStartDate,
             EmploymentEndDate = request.EmploymentEndDate,
             DateOfBirth = request.DateOfBirth,
+            CreatedAtUtc = DateTime.UtcNow,
             Departments = departments,
             JobArchitecture = jobArchitecture,
             Contracts = contracts.ToList(),
-            ComplianceDocuments = complianceDocuments.ToList()
+            ComplianceDocuments = complianceDocuments.ToList(),
+            ProfileDocuments = profileDocuments.ToList()
         };
     }
 
@@ -75,6 +91,7 @@ public static class EmployeeMappings
         var jobArchitecture = request.JobArchitecture.ToDomain();
         var contracts = request.Contracts.ToDomainContracts();
         var complianceDocuments = request.ComplianceDocuments.ToDomainComplianceDocuments();
+        var profileDocuments = request.ProfileDocuments.ToDomainProfileDocuments();
         var departments = BuildDepartmentAssignments(
             request.DepartmentAssignment.PrimaryDepartmentId,
             request.DepartmentAssignment.SecondaryDepartmentIds);
@@ -86,13 +103,17 @@ public static class EmployeeMappings
             LastName = request.LastName.Trim(),
             Email = request.Email.Trim(),
             JobTitle = request.JobTitle.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            EmploymentType = request.EmploymentType.Trim(),
             EmploymentStartDate = request.EmploymentStartDate,
             EmploymentEndDate = request.EmploymentEndDate,
             DateOfBirth = request.DateOfBirth,
+            CreatedAtUtc = existingEmployee.CreatedAtUtc,
             Departments = departments,
             JobArchitecture = jobArchitecture,
             Contracts = contracts.ToList(),
-            ComplianceDocuments = complianceDocuments.ToList()
+            ComplianceDocuments = complianceDocuments.ToList(),
+            ProfileDocuments = profileDocuments.ToList()
         };
     }
 
@@ -173,6 +194,19 @@ public static class EmployeeMappings
             document.StoragePath ?? string.Empty);
     }
 
+    private static EmployeeProfileDocumentDto ToDto(this EmployeeProfileDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        return new EmployeeProfileDocumentDto(
+            document.Id,
+            document.FileName ?? string.Empty,
+            document.Description ?? string.Empty,
+            document.StoragePath ?? string.Empty,
+            document.ContentType ?? string.Empty,
+            document.UploadedAtUtc);
+    }
+
     private static EmployeeJobArchitecture ToDomain(this EmployeeJobArchitectureRequest? request)
     {
         if (request is null)
@@ -233,6 +267,27 @@ public static class EmployeeMappings
                 IssuedOn = document.IssuedOn,
                 ExpiresOn = document.ExpiresOn,
                 StoragePath = document.StoragePath?.Trim() ?? string.Empty
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyCollection<EmployeeProfileDocument> ToDomainProfileDocuments(
+        this IEnumerable<EmployeeProfileDocumentRequest>? requests)
+    {
+        if (requests is null)
+        {
+            return Array.Empty<EmployeeProfileDocument>();
+        }
+
+        return requests
+            .Select(document => new EmployeeProfileDocument
+            {
+                Id = document.Id.GetValueOrDefault() == Guid.Empty ? Guid.NewGuid() : document.Id.GetValueOrDefault(),
+                FileName = document.FileName?.Trim() ?? string.Empty,
+                Description = document.Description?.Trim() ?? string.Empty,
+                StoragePath = document.StoragePath?.Trim() ?? string.Empty,
+                ContentType = document.ContentType?.Trim() ?? string.Empty,
+                UploadedAtUtc = document.UploadedAtUtc ?? DateTimeOffset.UtcNow
             })
             .ToArray();
     }

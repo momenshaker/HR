@@ -13,7 +13,7 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/employees/{employeeId:guid}/self-service")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Employee")]
 [AuditResource("EmployeeSelfService")]
 [FeatureRequirement(HrFeature.EmployeeManagement)]
@@ -268,3 +268,4 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
         return deleted ? NoContent() : NotFound();
     }
 }
+

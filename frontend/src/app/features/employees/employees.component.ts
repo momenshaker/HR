@@ -19,6 +19,30 @@ interface EmployeeSummary {
   status?: string;
 }
 
+interface EmployeeDocument {
+  id: string;
+  fileName: string;
+  storagePath: string;
+  description?: string;
+  contentType?: string;
+  uploadedAtUtc: string;
+}
+
+interface EmployeeDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  jobTitle?: string;
+  phoneNumber?: string;
+  employmentType?: 'FullTime' | 'PartTime' | 'Contractor';
+  employmentStartDate?: string;
+  employmentEndDate?: string;
+  primaryDepartmentId: string;
+  departmentIds: string[];
+  profileDocuments?: EmployeeDocument[];
+}
+
 @Component({
   selector: 'app-employees-page',
   standalone: true,
@@ -32,6 +56,7 @@ export class EmployeesPageComponent implements OnInit {
   private readonly snackbar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly service = inject(EntityCrudFactory).create<EmployeeFormValue, EmployeeFormValue, EmployeeSummary>('employees');
+  private readonly detailService = inject(EntityCrudFactory).create<never, never, EmployeeDetail>('employees');
 
   readonly loading = signal(false);
   readonly items = signal<ReadonlyArray<EmployeeSummary>>([]);
@@ -63,46 +88,18 @@ export class EmployeesPageComponent implements OnInit {
   }
 
   create(): void {
-    this.dialog
-      .open(EmployeeFormComponent, {
-        width: '520px'
-      })
-      .afterClosed()
-      .subscribe((value?: EmployeeFormValue) => {
-        if (!value) {
-          return;
-        }
-        this.loading.set(true);
-        this.service.create(value).subscribe({
-          next: () => {
-            this.snackbar.open('Employee created', 'Dismiss', { duration: 3000 });
-            this.load(this.querySignal());
-          },
-          error: () => this.loading.set(false)
-        });
-      });
+    this.openForm();
   }
 
   edit(item: EmployeeSummary): void {
-    this.dialog
-      .open(EmployeeFormComponent, {
-        width: '520px',
-        data: item
-      })
-      .afterClosed()
-      .subscribe((value?: EmployeeFormValue) => {
-        if (!value) {
-          return;
-        }
-        this.loading.set(true);
-        this.service.update(item.id, value).subscribe({
-          next: () => {
-            this.snackbar.open('Employee updated', 'Dismiss', { duration: 3000 });
-            this.load(this.querySignal());
-          },
-          error: () => this.loading.set(false)
-        });
-      });
+    this.loading.set(true);
+    this.detailService.getById(item.id).subscribe({
+      next: (employee) => {
+        this.loading.set(false);
+        this.openForm(item.id, this.toFormValue(employee));
+      },
+      error: () => this.loading.set(false)
+    });
   }
 
   remove(item: EmployeeSummary): void {
@@ -127,6 +124,54 @@ export class EmployeesPageComponent implements OnInit {
           error: () => this.loading.set(false)
         });
       });
+  }
+
+  private openForm(employeeId?: string, payload?: EmployeeFormValue): void {
+    this.dialog
+      .open(EmployeeFormComponent, {
+        width: '520px',
+        data: payload ?? null
+      })
+      .afterClosed()
+      .subscribe((value?: EmployeeFormValue) => {
+        if (!value) {
+          return;
+        }
+
+        this.loading.set(true);
+        const action = employeeId ? this.service.update(employeeId, value) : this.service.create(value);
+        action.subscribe({
+          next: () => {
+            this.snackbar.open(employeeId ? 'Employee updated' : 'Employee created', 'Dismiss', { duration: 3000 });
+            this.load(this.querySignal());
+          },
+          error: () => this.loading.set(false)
+        });
+      });
+  }
+
+  private toFormValue(employee: EmployeeDetail): EmployeeFormValue {
+    return {
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      email: employee.email,
+      jobTitle: employee.jobTitle,
+      phoneNumber: employee.phoneNumber,
+      employmentType: employee.employmentType,
+      employmentStartDate: employee.employmentStartDate,
+      employmentEndDate: employee.employmentEndDate,
+      departmentAssignment: {
+        primaryDepartmentId: employee.primaryDepartmentId,
+        secondaryDepartmentIds: employee.departmentIds.filter((id) => id !== employee.primaryDepartmentId)
+      },
+      profileDocuments: (employee.profileDocuments ?? []).map((document) => ({
+        fileName: document.fileName,
+        storagePath: document.storagePath,
+        description: document.description,
+        contentType: document.contentType,
+        uploadedAtUtc: document.uploadedAtUtc
+      }))
+    };
   }
 
   private load(query: DataTableQuery): void {

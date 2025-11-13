@@ -9,7 +9,7 @@ namespace HR.Api.Controllers;
 ///     Provides REST endpoints for managing departments scoped to an organization.
 /// </summary>
 [ApiController]
-[Route("api/organizations/{organizationId:guid}/departments")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public sealed class DepartmentsController(IDepartmentService departmentService) : ControllerBase
 {
     private readonly IDepartmentService _departmentService = departmentService;
@@ -149,3 +149,4 @@ public sealed class DepartmentsController(IDepartmentService departmentService) 
         return NoContent();
     }
 }
+

@@ -53,6 +53,11 @@ export const APP_ROUTES: Routes = [
     canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
     loadChildren: () => import('./features/notifications/notifications.routes').then((m) => m.NOTIFICATIONS_ROUTES)
   },
+  {
+    path: 'self-service',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
+    loadChildren: () => import('./features/self-service/self-service.routes').then((m) => m.SELF_SERVICE_ROUTES)
+  },
   { path: 'forbidden', component: ForbiddenPageComponent },
   { path: '**', component: NotFoundPageComponent }
 ];

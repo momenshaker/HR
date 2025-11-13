@@ -19,8 +19,9 @@ export class AuthStore {
   readonly roles = computed<ReadonlyArray<UserRole>>(() => this.state().user?.roles ?? []);
   readonly tokens = computed(() => this.state().tokens);
   readonly loading = computed(() => this.state().loading);
+  readonly error = computed(() => this.state().lastError);
   readonly isAuthenticated = computed(() => Boolean(this.state().tokens?.accessToken));
-
+  
   setLoading(isLoading: boolean): void {
     this.patch({ loading: isLoading });
   }

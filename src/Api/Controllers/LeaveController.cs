@@ -12,7 +12,7 @@ namespace HR.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/leave")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin,HR,Manager,Employee")]
 [AuditResource("Leave")]
 [FeatureRequirement(HrFeature.LeaveManagement)]
@@ -164,3 +164,4 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
     public async Task<IActionResult> Cancel(Guid id, [FromQuery] Guid employeeId, CancellationToken cancellationToken)
         => Ok(await _leaveService.CancelAsync(id, employeeId, cancellationToken).ConfigureAwait(false));
 }
+

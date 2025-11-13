@@ -1,61 +1,16 @@
-<ng-container *ngIf="showShell(); else authRoutes">
-  <mat-sidenav-container class="shell">
-    <mat-sidenav mode="side" opened class="shell__sidenav">
-      <div class="shell__brand">
-        <mat-icon>workspace_premium</mat-icon>
-        <span>HR Platform</span>
-      </div>
-      <mat-nav-list>
-        <ng-container *ngFor="let item of navigationItems()">
-          <ng-container *ngIf="!item.children?.length; else nested">
-            <a mat-list-item [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-              <span matListItemTitle>{{ item.label }}</span>
-            </a>
-          </ng-container>
-          <ng-template #nested>
-            <div mat-subheader>{{ item.label }}</div>
-            <a
-              mat-list-item
-              *ngFor="let child of item.children"
-              [routerLink]="child.route"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }"
-            >
-              <mat-icon matListItemIcon>{{ child.icon ?? item.icon }}</mat-icon>
-              <span matListItemTitle>{{ child.label }}</span>
-            </a>
-          </ng-template>
-        </ng-container>
-      </mat-nav-list>
-    </mat-sidenav>
-    <mat-sidenav-content class="shell__content">
-      <mat-toolbar color="primary" class="shell__toolbar">
-        <button mat-icon-button (click)="toggleTheme()" [matTooltip]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
-          <mat-icon>{{ theme() === 'dark' ? 'dark_mode' : 'light_mode' }}</mat-icon>
-        </button>
-        <div class="shell__breadcrumbs">
-          <app-breadcrumbs [items]="breadcrumbs()"></app-breadcrumbs>
-        </div>
-        <span class="shell__spacer"></span>
-        <button mat-button [matMenuTriggerFor]="userMenu">
-          <mat-icon>account_circle</mat-icon>
-          {{ user()?.fullName ?? 'Account' }}
-        </button>
-        <mat-menu #userMenu="matMenu">
-          <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            Sign out
-          </button>
-        </mat-menu>
-      </mat-toolbar>
-      <main class="shell__main">
-        <router-outlet></router-outlet>
-      </main>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+<ng-container *ngIf="!isLoginPage(); else authOnly">
+  <div class="wrapper">
+    <div class="sidebar" data-color="danger" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
+      <app-sidebar></app-sidebar>
+      <div class="sidebar-background" style="background-image: url(./assets/img/sidebar-4.jpg)"></div>
+    </div>
+    <div class="main-panel">
+      <app-navbar></app-navbar>
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </ng-container>
-
-<ng-template #authRoutes>
+<ng-template #authOnly>
   <router-outlet></router-outlet>
+  <!-- Login route renders its own minimal layout -->
 </ng-template>

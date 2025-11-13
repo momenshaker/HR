@@ -6,12 +6,22 @@ import { AppConfig } from '../config/app-config.model';
 import { AuthStore } from './auth.store';
 import { AuthTokens, AuthUser, LoginRequest, ProblemDetails } from './auth.models';
 import { TokenStorageService } from '../services/token-storage.service';
+import { extractProblemMessage, normalizeProblemDetails } from '../errors/problem-details';
+import {
+  decodeJwtPayload,
+  extractRoles,
+  getEmailClaimKeys,
+  getIdClaimKeys,
+  getNameClaimKeys,
+  getJwtClaim,
+  EMPLOYEE_ID_CLAIM
+} from './jwt.utils';
 
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
-  user: AuthUser;
+  user?: AuthUser;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,20 +39,24 @@ export class AuthService {
     }
   }
 
-  login(request: LoginRequest): Observable<AuthUser> {
+  login(request: LoginRequest): Observable<AuthUser | null> {
     this.store.setLoading(true);
     return this.http.post<LoginResponse>(`${this.config.apiBaseUrl}/auth/login`, request).pipe(
-      tap((response) => {
+      map((response) => {
         const tokens: AuthTokens = {
           accessToken: response.accessToken,
           refreshToken: response.refreshToken,
           expiresIn: response.expiresIn
         };
+        const user = response.user ?? this.createUserFromAccessToken(tokens.accessToken);
+        return { tokens, user };
+      }),
+      tap(({ tokens, user }) => {
         this.tokenStorage.save(tokens);
         this.store.setTokens(tokens);
-        this.store.setUser(response.user);
+        this.store.setUser(user ?? null);
       }),
-      map((response) => response.user),
+      map(({ user }) => user ?? null),
       catchError((error) => this.handleError(error)),
       finalize(() => this.store.setLoading(false))
     );
@@ -92,9 +106,33 @@ export class AuthService {
   }
 
   private handleError(error: any): Observable<never> {
-    const problem = (error.error as ProblemDetails | undefined) ?? { title: 'Unexpected error' };
-    const message = problem.detail ?? problem.title ?? 'Unexpected error occurred';
+    const normalized =
+      normalizeProblemDetails(error?.error as ProblemDetails | Record<string, unknown>) ??
+      normalizeProblemDetails(error) ??
+      { title: 'Unexpected error' };
+    const message = extractProblemMessage(normalized);
     this.store.setError(message, true);
-    return throwError(() => problem);
+    return throwError(() => normalized);
+  }
+
+  private createUserFromAccessToken(accessToken: string): AuthUser | null {
+    const payload = decodeJwtPayload(accessToken);
+    if (!payload) {
+      return null;
+    }
+
+    const roles = extractRoles(payload);
+    const id = getJwtClaim(payload, getIdClaimKeys()) ?? '';
+    const fullName = getJwtClaim(payload, getNameClaimKeys()) ?? '';
+    const email = getJwtClaim(payload, getEmailClaimKeys()) ?? '';
+    const employeeId = getJwtClaim(payload, [EMPLOYEE_ID_CLAIM]);
+
+    return {
+      id,
+      fullName,
+      email,
+      roles,
+      employeeId: employeeId ?? undefined
+    };
   }
 }

@@ -29,6 +29,18 @@ public sealed class CreateDepartmentRequest : IValidatableRequest
     [MaxLength(200)]
     public string Location { get; init; } = string.Empty;
 
+    [MaxLength(150)]
+    public string BusinessUnit { get; init; } = string.Empty;
+
+    [MaxLength(50)]
+    public string CostCenterCode { get; init; } = string.Empty;
+
+    [MaxLength(100)]
+    public string OperatingHours { get; init; } = string.Empty;
+
+    [MaxLength(150)]
+    public string BudgetOwner { get; init; } = string.Empty;
+
     [MaxLength(500)]
     public string Description { get; init; } = string.Empty;
 

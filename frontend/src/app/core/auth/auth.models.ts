@@ -1,3 +1,5 @@
+import { ProblemDetails as CoreProblemDetails } from '../errors/problem-details';
+
 export type UserRole = 'Admin' | 'HR' | 'Manager' | 'Employee';
 
 export interface AuthUser {
@@ -6,6 +8,7 @@ export interface AuthUser {
   email: string;
   avatarUrl?: string;
   roles: ReadonlyArray<UserRole>;
+  employeeId?: string;
   organizationIds?: ReadonlyArray<string>;
 }
 
@@ -22,11 +25,4 @@ export interface LoginRequest {
   rememberMe: boolean;
 }
 
-export interface ProblemDetails {
-  type?: string;
-  title?: string;
-  status?: number;
-  detail?: string;
-  instance?: string;
-  errors?: Record<string, string[]>;
-}
+export type ProblemDetails = CoreProblemDetails;

@@ -17,9 +17,7 @@ public sealed class CreateAttendanceRecordRequest : IValidatableRequest
     [MaxLength(100)]
     public string ShiftName { get; init; } = string.Empty;
 
-    public DateTime? ClockInUtc { get; init; }
-
-    public DateTime? ClockOutUtc { get; init; }
+    public IReadOnlyCollection<AttendancePunchRequest> Punches { get; init; } = Array.Empty<AttendancePunchRequest>();
 
     [Range(0, 1440)]
     public int OvertimeMinutes { get; init; }

@@ -1,26 +1,49 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { EntityCrudFactory } from '@core/data-access';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { OrganizationFormComponent, OrganizationFormValue } from './organizations.form';
 
 export interface OrganizationSummary {
   id: string;
   name: string;
   code: string;
-  address?: string;
+  industry?: string;
+  region?: string;
+  primaryContactEmail?: string;
+  websiteUrl?: string;
   createdAt?: string;
 }
+
+type SortOption = undefined | 'createdAt' | '-createdAt' | 'name' | '-name' | 'code' | '-code';
 
 @Component({
   selector: 'app-organizations-page',
   standalone: true,
-  imports: [CommonModule, DataTableComponent, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatTooltipModule
+  ],
   templateUrl: './organizations.component.html',
   styleUrls: ['./organizations.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -32,74 +55,99 @@ export class OrganizationsPageComponent implements OnInit {
     'organizations'
   );
 
-  private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
-  readonly query = this.querySignal.asReadonly();
-
   readonly loading = signal(false);
   readonly items = signal<ReadonlyArray<OrganizationSummary>>([]);
-  readonly total = signal(0);
+  readonly totalCount = signal(0);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
 
-  readonly columns = {
-    name: 'Name',
-    code: 'Code',
-    address: 'Address',
-    createdAt: 'Created',
-    actions: 'Actions'
-  } as const;
+  readonly pageSizeOptions = [10, 25, 50];
+  readonly displayedColumns = ['name', 'code', 'industry', 'region', 'primaryContactEmail', 'createdAt', 'actions'] as const;
 
-  readonly displayedColumns = Object.keys(this.columns);
+  readonly sortOptions: Array<{ label: string; value?: SortOption }> = [
+    { label: 'Default', value: undefined },
+    { label: 'Name A–Z', value: 'name' },
+    { label: 'Name Z–A', value: '-name' },
+    { label: 'Created (newest)', value: '-createdAt' },
+    { label: 'Created (oldest)', value: 'createdAt' }
+  ];
+
+  search = '';
+  industryFilter = '';
+  regionFilter = '';
+  sort: SortOption = undefined;
+
+  readonly filters = computed(() => ({ search: this.search, industry: this.industryFilter, region: this.regionFilter, sort: this.sort }));
 
   ngOnInit(): void {
-    this.load(this.querySignal());
+    this.load();
   }
 
-  onQueryChange(query: DataTableQuery): void {
-    this.querySignal.set(query);
-    this.load(query);
+  applyFilters(): void {
+    this.pageIndex.set(0);
+    this.load();
   }
 
-  create(): void {
+  clearFilters(): void {
+    this.search = '';
+    this.industryFilter = '';
+    this.regionFilter = '';
+    this.sort = undefined;
+    this.applyFilters();
+  }
+
+  onFilterChanged(): void {
+    this.pageIndex.set(0);
+  }
+
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.load();
+  }
+
+  openCreate(): void {
     this.dialog
-      .open(OrganizationFormComponent, {
-        width: '480px'
-      })
+      .open(OrganizationFormComponent, { width: '720px' })
       .afterClosed()
       .subscribe((value?: OrganizationFormValue) => {
-        if (value) {
-          this.loading.set(true);
-          this.service.create(value).subscribe({
-            next: () => {
-              this.snackbar.open('Organization created', 'Dismiss', { duration: 3000 });
-              this.load(this.querySignal());
-            },
-            error: () => this.loading.set(false)
-          });
+        if (!value) {
+          return;
         }
+        this.loading.set(true);
+        this.service.create(value).subscribe({
+          next: () => {
+            this.snackbar.open('Organization created', 'Dismiss', { duration: 3000 });
+            this.reload();
+          },
+          error: () => this.loading.set(false)
+        });
       });
   }
 
-  edit(item: OrganizationSummary): void {
+  openEdit(item: OrganizationSummary): void {
     this.dialog
       .open(OrganizationFormComponent, {
-        width: '480px',
+        width: '520px',
         data: item
       })
       .afterClosed()
       .subscribe((value?: OrganizationFormValue) => {
-        if (value) {
-          this.loading.set(true);
-          this.service.update(item.id, value).subscribe({
-            next: () => {
-              this.snackbar.open('Organization updated', 'Dismiss', { duration: 3000 });
-              this.load(this.querySignal());
-            },
-            error: () => this.loading.set(false)
-          });
+        if (!value) {
+          return;
         }
+        this.loading.set(true);
+        this.service.update(item.id, value).subscribe({
+          next: () => {
+            this.snackbar.open('Organization updated', 'Dismiss', { duration: 3000 });
+            this.reload();
+          },
+          error: () => this.loading.set(false)
+        });
       });
   }
 
-  remove(item: OrganizationSummary): void {
+  openDelete(item: OrganizationSummary): void {
     this.dialog
       .open(ConfirmationDialogComponent, {
         data: {
@@ -109,33 +157,64 @@ export class OrganizationsPageComponent implements OnInit {
       })
       .afterClosed()
       .subscribe((confirmed) => {
-        if (confirmed) {
-          this.loading.set(true);
-          this.service.delete(item.id).subscribe({
-            next: () => {
-              this.snackbar.open('Organization removed', 'Dismiss', { duration: 3000 });
-              this.load(this.querySignal());
-            },
-            error: () => this.loading.set(false)
-          });
+        if (!confirmed) {
+          return;
         }
+        this.loading.set(true);
+        this.service.delete(item.id).subscribe({
+          next: () => {
+            this.snackbar.open('Organization removed', 'Dismiss', { duration: 3000 });
+            this.reload();
+          },
+          error: () => this.loading.set(false)
+        });
       });
   }
 
-  private load(query: DataTableQuery): void {
+  private reload(): void {
+    this.load();
+  }
+
+  private load(): void {
     this.loading.set(true);
+    const { search, industry, region, sort } = this.filters();
+    const sortField = sort?.replace(/^-/, '') ?? undefined;
+    const direction = sort ? (sort.startsWith('-') ? 'desc' : 'asc') : undefined;
+    const filterPayload: Record<string, string> = {};
+    if (industry) {
+      filterPayload['industry'] = industry;
+    }
+    if (region) {
+      filterPayload['region'] = region;
+    }
+
     this.service
       .list({
-        page: query.pageIndex + 1,
-        pageSize: query.pageSize,
-        search: query.search,
-        sort: query.sortField,
-        direction: query.sortDirection
+        page: this.pageIndex() + 1,
+        pageSize: this.pageSize(),
+        search: search || undefined,
+        sort: sortField,
+        direction: direction || undefined,
+        filters: filterPayload
       })
       .subscribe({
         next: (response) => {
-          this.items.set(response.data);
-          this.total.set(response.meta?.totalItems ?? response.data.length);
+          const normalized = response as unknown;
+          const payload =
+            Array.isArray(normalized)
+              ? normalized
+              : 'data' in (normalized as Record<string, unknown>)
+              ? (normalized as { data?: OrganizationSummary[] }).data ?? []
+              : [];
+          const totalItems =
+            Array.isArray(normalized)
+              ? normalized.length
+              : 'meta' in (normalized as Record<string, unknown>)
+              ? (normalized as { meta?: { totalItems?: number } }).meta?.totalItems ?? payload.length
+              : payload.length;
+
+          this.items.set(payload);
+          this.totalCount.set(totalItems);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)

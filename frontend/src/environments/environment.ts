@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:5000',
+  apiBaseUrl: 'https://localhost:60021/api/v1',
   tokenStorageKey: 'hr.token',
   refreshTokenStorageKey: 'hr.refresh-token',
   themeStorageKey: 'hr.theme'

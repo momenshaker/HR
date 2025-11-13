@@ -37,7 +37,7 @@ export interface DataTableQuery {
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
 })
-export class DataTableComponent<T extends Record<string, unknown>> {
+export class DataTableComponent<T = Record<string, unknown>> {
   @Input({ required: true }) displayedColumns: string[] = [];
   @Input({ required: true }) columns: Record<string, string> = {};
   @Input() data: ReadonlyArray<T> = [];
@@ -73,5 +73,9 @@ export class DataTableComponent<T extends Record<string, unknown>> {
     const query = { ...this.querySignal(), ...partial };
     this.querySignal.set(query);
     this.queryChange.emit(query);
+  }
+
+  getCellValue(row: T, column: string): unknown {
+    return (row as Record<string, unknown>)[column];
   }
 }

@@ -11,7 +11,7 @@ namespace HR.Api.Controllers;
 ///     Comms endpoints for organization and department announcements.
 /// </summary>
 [ApiController]
-[Route("api/comms/announcements")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize(Roles = "Admin,HR,Manager,Employee")]
 [AuditResource("CommsAnnouncement")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
@@ -95,4 +95,5 @@ public sealed class CommsAnnouncementsController(ICommsService commsService, Tim
         return NoContent();
     }
 }
+
 

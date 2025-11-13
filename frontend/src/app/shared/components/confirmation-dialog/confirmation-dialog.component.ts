@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -15,15 +15,61 @@ export interface ConfirmationDialogData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>
-      <p>{{ data.message }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>{{ data.cancelLabel ?? 'Cancel' }}</button>
-      <button mat-flat-button color="primary" (click)="onConfirm()">{{ data.confirmLabel ?? 'Confirm' }}</button>
-    </mat-dialog-actions>
-  `
+    <div class="confirmation-card">
+      <header class="confirmation-card__header">
+        <div>
+          <h2>{{ data.title }}</h2>
+        </div>
+      </header>
+      <section class="confirmation-card__body">
+        <p>{{ data.message }}</p>
+      </section>
+      <footer class="confirmation-card__actions">
+        <button mat-button class="btn btn-warning" mat-dialog-close>
+          {{ data.cancelLabel ?? 'Cancel' }}
+        </button>
+        <button mat-flat-button class="btn btn-primary" (click)="onConfirm()">
+          {{ data.confirmLabel ?? 'Confirm' }}
+        </button>
+      </footer>
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [
+    `
+      .confirmation-card {
+        display: flex;
+        flex-direction: column;
+        width: min(520px, 100%);
+        background: #fff;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+      }
+
+      .confirmation-card__header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #eaeaea;
+      }
+
+      .confirmation-card__body {
+        padding: 1.25rem 1.5rem;
+        font-size: 0.95rem;
+        color: rgba(0, 0, 0, 0.8);
+      }
+
+      .confirmation-card__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem 1.25rem;
+      }
+
+      .confirmation-card__actions button {
+        min-width: 110px;
+      }
+    `
+  ]
 })
 export class ConfirmationDialogComponent {
   constructor(

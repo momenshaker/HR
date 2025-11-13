@@ -13,7 +13,7 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [AllowAnonymous]
 [FeatureRequirement(HrFeature.PlatformServices)]
 public sealed class SystemController(IHostEnvironment hostEnvironment) : ControllerBase
@@ -47,3 +47,4 @@ public sealed class SystemController(IHostEnvironment hostEnvironment) : Control
 
     public sealed record SystemVersionResponse(string Version, string Environment);
 }
+

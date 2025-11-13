@@ -26,6 +26,13 @@ public sealed class CreateEmployeeRequest : IValidatableRequest
     [MaxLength(150)]
     public string JobTitle { get; init; } = string.Empty;
 
+    [MaxLength(20)]
+    [Phone]
+    public string PhoneNumber { get; init; } = string.Empty;
+
+    [MaxLength(40)]
+    public string EmploymentType { get; init; } = string.Empty;
+
     public DateOnly? EmploymentEndDate { get; init; }
 
     public DateOnly? DateOfBirth { get; init; }
@@ -38,4 +45,6 @@ public sealed class CreateEmployeeRequest : IValidatableRequest
     public IReadOnlyCollection<EmploymentContractRequest> Contracts { get; init; } = Array.Empty<EmploymentContractRequest>();
 
     public IReadOnlyCollection<EmployeeComplianceDocumentRequest> ComplianceDocuments { get; init; } = Array.Empty<EmployeeComplianceDocumentRequest>();
+
+    public IReadOnlyCollection<EmployeeProfileDocumentRequest> ProfileDocuments { get; init; } = Array.Empty<EmployeeProfileDocumentRequest>();
 }
