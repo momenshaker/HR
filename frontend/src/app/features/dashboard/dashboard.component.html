@@ -1,8 +1,11 @@
-<div class="dashboard">
-  <div class="dashboard__header">
-    <h1>Welcome back, {{ user()?.fullName ?? 'Team Member' }}!</h1>
-    <p>Review workforce metrics and manage your HR operations.</p>
-  </div>
+<div class="page dashboard">
+  <header class="page__header">
+    <div>
+      <p class="eyebrow">Executive dashboard</p>
+      <h1>Welcome back, {{ user()?.fullName ?? 'Team Member' }}!</h1>
+      <p>Review workforce metrics and manage your HR operations.</p>
+    </div>
+  </header>
   <div class="dashboard__grid">
     <mat-card>
       <mat-card-header>

@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EntityCrudFactory } from '@core/data-access';
 
@@ -27,7 +28,8 @@ interface NotificationItem {
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatListModule
+    MatListModule,
+    MatIconModule
   ],
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],
@@ -48,6 +50,10 @@ export class NotificationsPageComponent {
   readonly items = signal<ReadonlyArray<NotificationItem>>([]);
 
   constructor() {
+    this.load();
+  }
+
+  refresh(): void {
     this.load();
   }
 

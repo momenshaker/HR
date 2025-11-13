@@ -1,5 +1,16 @@
 <div class="page">
-  <mat-card>
+  <header class="page__header">
+    <div>
+      <h1>Notifications</h1>
+      <p>Broadcast messages and review recent announcements.</p>
+    </div>
+    <button mat-stroked-button color="primary" type="button" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+  <div class="page__content-grid">
+    <mat-card>
     <mat-card-header>
       <mat-card-title>Broadcast notification</mat-card-title>
     </mat-card-header>
@@ -26,19 +37,20 @@
       </form>
     </mat-card-content>
   </mat-card>
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Recent notifications</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-list>
-        <mat-list-item *ngFor="let notification of items()">
-          <div matListItemTitle>{{ notification.title }}</div>
-          <div matListItemLine>{{ notification.body }}</div>
-          <div matListItemLine class="meta">{{ notification.audience }} • {{ notification.createdAt | date: 'medium' }}</div>
-        </mat-list-item>
-        <p *ngIf="!items().length" class="empty">No notifications yet.</p>
-      </mat-list>
-    </mat-card-content>
-  </mat-card>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Recent notifications</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item *ngFor="let notification of items()">
+            <div matListItemTitle>{{ notification.title }}</div>
+            <div matListItemLine>{{ notification.body }}</div>
+            <div matListItemLine class="meta">{{ notification.audience }} • {{ notification.createdAt | date: 'medium' }}</div>
+          </mat-list-item>
+          <p *ngIf="!items().length" class="empty">No notifications yet.</p>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
