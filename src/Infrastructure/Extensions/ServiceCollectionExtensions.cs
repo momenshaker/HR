@@ -70,6 +70,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReportingRelationshipService, ReportingRelationshipService>();
         services.AddScoped<IDelegatedAuthorityService, DelegatedAuthorityService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<IWorkScheduleService, WorkScheduleService>();
+        services.AddScoped<IEmployeeScheduleService, EmployeeScheduleService>();
+        services.AddScoped<IHolidayService, HolidayService>();
         services.AddScoped<ILeaveManagementService, LeaveManagementService>();
         services.AddSingleton<IWorkdayCalendar, DefaultWorkdayCalendar>();
         services.AddScoped<ILeaveService, LeaveService>();
@@ -162,6 +165,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReportingRelationshipRepository, EntityFrameworkReportingRelationshipRepository>();
         services.AddScoped<IDelegatedAuthorityRepository, EntityFrameworkDelegatedAuthorityRepository>();
         services.AddScoped<IAttendanceRecordRepository, EntityFrameworkAttendanceRecordRepository>();
+        services.AddScoped<IWorkScheduleRepository, EntityFrameworkWorkScheduleRepository>();
+        services.AddScoped<IEmployeeScheduleRepository, EntityFrameworkEmployeeScheduleRepository>();
+        services.AddScoped<IHolidayRepository, EntityFrameworkHolidayRepository>();
         services.AddScoped<ILeaveRequestRepository, EntityFrameworkLeaveRequestRepository>();
         services.AddScoped<IPayrollRunRepository, EntityFrameworkPayrollRunRepository>();
         services.AddScoped<IPerformanceReviewRepository, EntityFrameworkPerformanceReviewRepository>();
@@ -205,6 +211,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReportingRelationshipRepository, InMemoryReportingRelationshipRepository>();
         services.AddSingleton<IDelegatedAuthorityRepository, InMemoryDelegatedAuthorityRepository>();
         services.AddSingleton<IAttendanceRecordRepository, InMemoryAttendanceRecordRepository>();
+        services.AddSingleton<IWorkScheduleRepository, InMemoryWorkScheduleRepository>();
+        services.AddSingleton<IEmployeeScheduleRepository, InMemoryEmployeeScheduleRepository>();
+        services.AddSingleton<IHolidayRepository, InMemoryHolidayRepository>();
         services.AddSingleton<ILeaveRequestRepository, InMemoryLeaveRequestRepository>();
         services.AddSingleton<IPayrollRunRepository, InMemoryPayrollRunRepository>();
         services.AddSingleton<IPerformanceReviewRepository, InMemoryPerformanceReviewRepository>();

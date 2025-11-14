@@ -3,7 +3,10 @@
 - AnalyticsController – docs/api/controllers/AnalyticsController.md
 - AnalyticsSnapshotsController – docs/api/controllers/AnalyticsSnapshotsController.md
 - AnnouncementsController – docs/api/controllers/AnnouncementsController.md
- - AttendanceRecordsController – docs/api/controllers/AttendanceRecordsController.md
+- AttendanceRecordsController – docs/api/controllers/AttendanceRecordsController.md
+- WorkSchedulesController – docs/api/controllers/WorkSchedulesController.md
+- EmployeeSchedulesController – docs/api/controllers/EmployeeSchedulesController.md
+- HolidaysController – docs/api/controllers/HolidaysController.md
 - AuthController – docs/api/controllers/AuthController.md
 - BillingWebhooksController – docs/api/controllers/BillingWebhooksController.md
  - CandidatesController – docs/api/controllers/CandidatesController.md

@@ -18,9 +18,21 @@ public static class AttendanceRecordMappings
             record.EmployeeId,
             record.WorkDate,
             record.ShiftName,
+            record.ScheduledStartTimeUtc,
+            record.ScheduledEndTimeUtc,
+            record.CheckInTimeUtc,
+            record.CheckOutTimeUtc,
+            record.ScheduledWorkMinutes,
+            record.BreakMinutes,
+            record.GracePeriodMinutes,
+            record.TotalWorkedMinutes,
+            record.LateMinutes,
+            record.EarlyLeaveMinutes,
             record.OvertimeMinutes,
+            record.AbsenceMinutes,
             record.Status,
-            record.Notes,
+            record.Source,
+            record.Remarks,
             record.Punches?.Select(punch => punch.ToDto()).ToArray() ?? Array.Empty<AttendancePunchDto>());
     }
 
@@ -34,9 +46,21 @@ public static class AttendanceRecordMappings
             EmployeeId = request.EmployeeId,
             WorkDate = request.WorkDate,
             ShiftName = request.ShiftName.Trim(),
+            ScheduledStartTimeUtc = request.ScheduledStartTimeUtc?.ToUniversalTime(),
+            ScheduledEndTimeUtc = request.ScheduledEndTimeUtc?.ToUniversalTime(),
+            CheckInTimeUtc = request.CheckInTimeUtc?.ToUniversalTime(),
+            CheckOutTimeUtc = request.CheckOutTimeUtc?.ToUniversalTime(),
+            ScheduledWorkMinutes = request.ScheduledWorkMinutes,
+            BreakMinutes = request.BreakMinutes,
+            GracePeriodMinutes = request.GracePeriodMinutes,
             OvertimeMinutes = request.OvertimeMinutes,
+            TotalWorkedMinutes = request.TotalWorkedMinutes,
+            LateMinutes = request.LateMinutes,
+            EarlyLeaveMinutes = request.EarlyLeaveMinutes,
+            AbsenceMinutes = request.AbsenceMinutes,
             Status = request.Status.Trim(),
-            Notes = request.Notes.Trim()
+            Source = request.Source.Trim(),
+            Remarks = request.Remarks.Trim()
         };
 
         foreach (var punch in request.Punches.ToDomainPunches(entity.Id))
@@ -44,7 +68,7 @@ public static class AttendanceRecordMappings
             entity.Punches.Add(punch);
         }
 
-        return entity;
+        return entity.ApplyDerivedMetrics();
     }
 
     public static AttendanceRecord ApplyUpdates(this UpdateAttendanceRecordRequest request, AttendanceRecord existing)
@@ -58,9 +82,21 @@ public static class AttendanceRecordMappings
             EmployeeId = request.EmployeeId,
             WorkDate = request.WorkDate,
             ShiftName = request.ShiftName.Trim(),
+            ScheduledStartTimeUtc = request.ScheduledStartTimeUtc?.ToUniversalTime(),
+            ScheduledEndTimeUtc = request.ScheduledEndTimeUtc?.ToUniversalTime(),
+            CheckInTimeUtc = request.CheckInTimeUtc?.ToUniversalTime(),
+            CheckOutTimeUtc = request.CheckOutTimeUtc?.ToUniversalTime(),
+            ScheduledWorkMinutes = request.ScheduledWorkMinutes,
+            BreakMinutes = request.BreakMinutes,
+            GracePeriodMinutes = request.GracePeriodMinutes,
             OvertimeMinutes = request.OvertimeMinutes,
+            TotalWorkedMinutes = request.TotalWorkedMinutes,
+            LateMinutes = request.LateMinutes,
+            EarlyLeaveMinutes = request.EarlyLeaveMinutes,
+            AbsenceMinutes = request.AbsenceMinutes,
             Status = request.Status.Trim(),
-            Notes = request.Notes.Trim()
+            Source = request.Source.Trim(),
+            Remarks = request.Remarks.Trim()
         };
 
         foreach (var punch in request.Punches.ToDomainPunches(existing.Id))
@@ -68,7 +104,7 @@ public static class AttendanceRecordMappings
             entity.Punches.Add(punch);
         }
 
-        return entity;
+        return entity.ApplyDerivedMetrics();
     }
 
     private static AttendancePunchDto ToDto(this AttendancePunch punch)
@@ -79,6 +115,9 @@ public static class AttendanceRecordMappings
             punch.Id,
             punch.Type ?? string.Empty,
             punch.TimestampUtc,
+            punch.Source ?? string.Empty,
+            punch.DeviceId ?? string.Empty,
+            punch.Location ?? string.Empty,
             punch.Notes ?? string.Empty);
     }
 
@@ -98,8 +137,63 @@ public static class AttendanceRecordMappings
                 AttendanceRecordId = attendanceRecordId,
                 Type = request.Type.Trim(),
                 TimestampUtc = request.TimestampUtc.ToUniversalTime(),
+                Source = string.IsNullOrWhiteSpace(request.Source) ? "Manual" : request.Source.Trim(),
+                DeviceId = request.DeviceId.Trim(),
+                Location = request.Location.Trim(),
                 Notes = request.Notes.Trim()
             })
             .ToArray();
+    }
+
+    private static AttendanceRecord ApplyDerivedMetrics(this AttendanceRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        var orderedPunches = record.Punches.OrderBy(punch => punch.TimestampUtc).ToArray();
+
+        record.CheckInTimeUtc = record.CheckInTimeUtc ?? orderedPunches.FirstOrDefault()?.TimestampUtc;
+        record.CheckOutTimeUtc = record.CheckOutTimeUtc ?? orderedPunches.LastOrDefault()?.TimestampUtc;
+
+        if (record.CheckInTimeUtc.HasValue && record.CheckOutTimeUtc.HasValue)
+        {
+            var duration = record.CheckOutTimeUtc.Value - record.CheckInTimeUtc.Value;
+            var derivedWorkMinutes = Math.Max(0, (int)Math.Round(duration.TotalMinutes) - record.BreakMinutes);
+            record.TotalWorkedMinutes = Math.Max(0, derivedWorkMinutes);
+        }
+        else
+        {
+            record.TotalWorkedMinutes = 0;
+        }
+
+        if (record.ScheduledStartTimeUtc.HasValue && record.CheckInTimeUtc.HasValue)
+        {
+            var graceCutoff = record.ScheduledStartTimeUtc.Value.AddMinutes(record.GracePeriodMinutes);
+            record.LateMinutes = Math.Max(0, (int)Math.Round((record.CheckInTimeUtc.Value - graceCutoff).TotalMinutes));
+        }
+
+        if (record.ScheduledEndTimeUtc.HasValue && record.CheckOutTimeUtc.HasValue)
+        {
+            record.EarlyLeaveMinutes = Math.Max(0, (int)Math.Round((record.ScheduledEndTimeUtc.Value - record.CheckOutTimeUtc.Value).TotalMinutes));
+        }
+
+        if (record.ScheduledWorkMinutes > 0)
+        {
+            record.AbsenceMinutes = Math.Max(0, record.ScheduledWorkMinutes - record.TotalWorkedMinutes);
+            record.OvertimeMinutes = Math.Max(0, record.TotalWorkedMinutes - record.ScheduledWorkMinutes);
+        }
+
+        if (string.IsNullOrWhiteSpace(record.Status))
+        {
+            record.Status = orderedPunches.Any() ? "Present" : "Absent";
+        }
+
+        if (string.IsNullOrWhiteSpace(record.Source))
+        {
+            record.Source = "Manual";
+        }
+
+        record.Remarks = record.Remarks?.Trim() ?? string.Empty;
+
+        return record;
     }
 }

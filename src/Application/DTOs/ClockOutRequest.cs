@@ -17,6 +17,12 @@ public sealed class ClockOutRequest
     [MaxLength(100)]
     public string PunchType { get; init; } = "ClockOut";
 
+    [MaxLength(100)]
+    public string DeviceId { get; init; } = string.Empty;
+
+    [MaxLength(200)]
+    public string Location { get; init; } = string.Empty;
+
     /// <summary>
     ///     Free-form notes captured at the time of clock-out.
     /// </summary>

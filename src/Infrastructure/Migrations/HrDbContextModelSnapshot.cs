@@ -98,10 +98,22 @@ namespace HR.Infrastructure.Migrations
                     b.Property<Guid>("AttendanceRecordId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("DeviceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTimeOffset>("TimestampUtc")
                         .HasColumnType("datetimeoffset");
@@ -123,26 +135,81 @@ namespace HR.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AbsenceMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("BreakMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTimeOffset?>("CheckInTimeUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("CheckOutTimeUtc")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Notes")
+                    b.Property<int>("EarlyLeaveMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("GracePeriodMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("LateMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("OvertimeMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Remarks")
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
-                    b.Property<int>("OvertimeMinutes")
-                        .HasColumnType("int");
+                    b.Property<DateTimeOffset?>("ScheduledEndTimeUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("ScheduledStartTimeUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("ScheduledWorkMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ShiftName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Manual");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TotalWorkedMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateOnly>("WorkDate")
                         .HasColumnType("date");
@@ -153,6 +220,134 @@ namespace HR.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("AttendanceRecords", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WorkScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId", "EffectiveFrom");
+
+                    b.HasIndex("WorkScheduleId");
+
+                    b.ToTable("EmployeeSchedules", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Holiday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("Holidays", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.ShiftTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BreakMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("GracePeriodMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("MinimumOvertimeMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("WorkScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkScheduleId");
+
+                    b.ToTable("ShiftTemplates", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.WorkSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDefaultForOrganization")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TimeZoneId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorkSchedules", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.AuditLog", b =>
@@ -2999,6 +3194,28 @@ namespace HR.Infrastructure.Migrations
                     b.Navigation("AttendanceRecord");
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeSchedule", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.WorkSchedule", "WorkSchedule")
+                        .WithMany()
+                        .HasForeignKey("WorkScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkSchedule");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.ShiftTemplate", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.WorkSchedule", "WorkSchedule")
+                        .WithMany("ShiftTemplates")
+                        .HasForeignKey("WorkScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkSchedule");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Organization", "Organization")
@@ -3375,6 +3592,11 @@ namespace HR.Infrastructure.Migrations
             modelBuilder.Entity("HR.Domain.Entities.AttendanceRecord", b =>
                 {
                     b.Navigation("Punches");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.WorkSchedule", b =>
+                {
+                    b.Navigation("ShiftTemplates");
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
