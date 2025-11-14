@@ -1,0 +1,74 @@
+.timesheets-page {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.timesheet-card {
+  grid-column: span 2;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.entries-table,
+.approvals-table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.entry-form {
+  margin-top: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.form-grid .span-2 {
+  grid-column: span 2;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  grid-column: 1 / -1;
+}
+
+.approvals-card {
+  grid-column: span 2;
+}
+
+.notes-field {
+  grid-column: 1 / -1;
+}
+
+.empty-state {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  padding: 1rem 0;
+}

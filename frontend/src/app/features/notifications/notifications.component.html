@@ -5,8 +5,8 @@
         <div class="card">
           <div class="card-header card-header-danger">
             <div>
-              <h4 class="card-title">Notifications</h4>
-              <p class="card-category">Broadcast messages and keep track of recent announcements.</p>
+              <h4 class="card-title">Engagement campaigns</h4>
+              <p class="card-category">Schedule multi-channel communications from the engagement service.</p>
             </div>
             <div class="card-header__actions">
               <button mat-stroked-button color="primary" type="button" (click)="refresh()">
@@ -18,42 +18,61 @@
           <div class="card-body">
             <section class="feature-section">
               <div class="section-header">
-                <h5>Broadcast notification</h5>
+                <h5>Plan campaign</h5>
               </div>
               <form [formGroup]="form" (ngSubmit)="send()" class="form-grid">
                 <mat-form-field appearance="outline">
-                  <mat-label>Title</mat-label>
-                  <input matInput formControlName="title" />
-                  <mat-error *ngIf="form.controls.title.hasError('required')">Title is required</mat-error>
+                  <mat-label>Campaign name</mat-label>
+                  <input matInput formControlName="name" />
+                  <mat-error *ngIf="form.controls.name.hasError('required')">Name is required</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                  <mat-label>Audience</mat-label>
-                  <input matInput formControlName="audience" />
-                  <mat-error *ngIf="form.controls.audience.hasError('required')">Audience required</mat-error>
+                  <mat-label>Target audience</mat-label>
+                  <input matInput formControlName="targetAudience" />
+                  <mat-error *ngIf="form.controls.targetAudience.hasError('required')">Audience required</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="form-grid__full">
-                  <mat-label>Message</mat-label>
-                  <textarea matInput formControlName="body" rows="4"></textarea>
-                  <mat-error *ngIf="form.controls.body.hasError('required')">Message required</mat-error>
+                  <mat-label>Campaign brief</mat-label>
+                  <textarea matInput formControlName="description" rows="4"></textarea>
+                  <mat-error *ngIf="form.controls.description.hasError('required')">Description required</mat-error>
                 </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Channels</mat-label>
+                  <input matInput formControlName="channels" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Launch date (UTC)</mat-label>
+                  <input matInput type="datetime-local" formControlName="launchDateUtc" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>End date (UTC)</mat-label>
+                  <input matInput type="datetime-local" formControlName="endDateUtc" />
+                </mat-form-field>
+                <mat-checkbox formControlName="isAutomated">Automated follow-ups</mat-checkbox>
                 <div class="form-actions">
-                  <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Send</button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Save campaign</button>
                 </div>
               </form>
             </section>
 
             <section class="feature-section">
               <div class="section-header">
-                <h5>Recent notifications</h5>
+                <h5>Recent campaigns</h5>
               </div>
               <div class="notifications-list">
                 <mat-list>
-                  <mat-list-item *ngFor="let notification of items()">
-                    <div matListItemTitle>{{ notification.title }}</div>
-                    <div matListItemLine>{{ notification.body }}</div>
-                    <div matListItemLine class="meta">{{ notification.audience }} · {{ notification.createdAt | date: 'medium' }}</div>
+                  <mat-list-item *ngFor="let campaign of items()">
+                    <div matListItemTitle>{{ campaign.name }}</div>
+                    <div matListItemLine>
+                      {{ campaign.targetAudience }} · {{ campaign.channels }}
+                    </div>
+                    <div matListItemLine class="meta">
+                      Launches {{ campaign.launchDateUtc | date: 'medium' }}
+                      <ng-container *ngIf="campaign.endDateUtc"> · Ends {{ campaign.endDateUtc | date: 'medium' }}</ng-container>
+                      <ng-container *ngIf="campaign.isAutomated"> · Automated</ng-container>
+                    </div>
                   </mat-list-item>
-                  <p *ngIf="!items().length" class="empty">No notifications yet.</p>
+                  <p *ngIf="!items().length" class="empty">No campaigns scheduled yet.</p>
                 </mat-list>
               </div>
             </section>

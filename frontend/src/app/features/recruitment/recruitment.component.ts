@@ -11,12 +11,31 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { EntityCrudFactory } from '@core/data-access';
 
-interface JobPosting {
+interface VacancyDto {
   id: string;
   title: string;
-  departmentName: string;
+  department: string;
+  location: string;
+  employmentType: string;
   status: string;
-  candidates: number;
+  postedAtUtc: string;
+  closingAtUtc?: string | null;
+  hiringTeam: readonly string[];
+  pipelineStages: readonly string[];
+}
+
+interface CreateVacancyRequest {
+  title: string;
+  department: string;
+  location: string;
+  employmentType: string;
+  description: string;
+  responsibilities: readonly string[];
+  requirements: readonly string[];
+  pipelineStages: readonly string[];
+  hiringTeam: readonly string[];
+  applicationUrl: string;
+  closingAtUtc?: string | null;
 }
 
 @Component({
@@ -40,26 +59,43 @@ interface JobPosting {
 export class RecruitmentPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly snackbar = inject(MatSnackBar);
-  private readonly service = inject(EntityCrudFactory).create<any, any, JobPosting>('recruitment/jobs');
+  private readonly service = inject(EntityCrudFactory).create<
+    CreateVacancyRequest,
+    CreateVacancyRequest,
+    VacancyDto
+  >('Vacancies');
 
   readonly form = this.fb.nonNullable.group({
-    title: ['', Validators.required],
-    departmentId: ['', Validators.required],
-    description: ['', Validators.required]
+    title: ['', [Validators.required, Validators.maxLength(200)]],
+    department: ['', [Validators.required, Validators.maxLength(150)]],
+    location: ['', [Validators.required, Validators.maxLength(150)]],
+    employmentType: ['Full-time', Validators.required],
+    description: ['', [Validators.required, Validators.maxLength(4000)]],
+    responsibilities: [''],
+    requirements: [''],
+    pipelineStages: ['Screening\nInterview\nOffer'],
+    hiringTeam: [''],
+    applicationUrl: [''],
+    closingAtUtc: ['']
   });
 
   readonly loading = signal(false);
-  readonly jobs = signal<ReadonlyArray<JobPosting>>([]);
+  readonly jobs = signal<ReadonlyArray<VacancyDto>>([]);
   readonly total = signal(0);
   private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
 
   readonly columns = {
-    title: 'Job title',
-    departmentName: 'Department',
+    title: 'Role',
+    department: 'Department',
+    location: 'Location',
+    employmentType: 'Type',
     status: 'Status',
-    candidates: 'Candidates'
+    postedAtUtc: 'Posted',
+    closingAtUtc: 'Closes'
   } as const;
   readonly displayedColumns = Object.keys(this.columns);
+
+  readonly employmentTypes = ['Full-time', 'Part-time', 'Contract', 'Temporary', 'Internship'] as const;
 
   publish(): void {
     if (this.form.invalid) {
@@ -68,10 +104,24 @@ export class RecruitmentPageComponent {
     }
 
     this.loading.set(true);
-    this.service.create(this.form.getRawValue()).subscribe({
+    const payload = this.buildPayload();
+
+    this.service.create(payload).subscribe({
       next: () => {
         this.snackbar.open('Job published', 'Dismiss', { duration: 3000 });
-        this.form.reset({ title: '', departmentId: '', description: '' });
+        this.form.reset({
+          title: '',
+          department: '',
+          location: '',
+          employmentType: 'Full-time',
+          description: '',
+          responsibilities: '',
+          requirements: '',
+          pipelineStages: 'Screening\nInterview\nOffer',
+          hiringTeam: '',
+          applicationUrl: '',
+          closingAtUtc: ''
+        });
         this.load(this.querySignal());
       },
       error: () => this.loading.set(false)
@@ -105,5 +155,32 @@ export class RecruitmentPageComponent {
         },
         error: () => this.loading.set(false)
       });
+  }
+
+  private buildPayload(): CreateVacancyRequest {
+    const formValue = this.form.getRawValue();
+    return {
+      title: formValue.title,
+      department: formValue.department,
+      location: formValue.location,
+      employmentType: formValue.employmentType,
+      description: formValue.description,
+      responsibilities: this.toCollection(formValue.responsibilities),
+      requirements: this.toCollection(formValue.requirements),
+      pipelineStages: this.toCollection(formValue.pipelineStages),
+      hiringTeam: this.toCollection(formValue.hiringTeam),
+      applicationUrl: formValue.applicationUrl ?? '',
+      closingAtUtc: formValue.closingAtUtc ? new Date(formValue.closingAtUtc).toISOString() : null
+    };
+  }
+
+  private toCollection(value?: string | null): readonly string[] {
+    if (!value) {
+      return [];
+    }
+    return value
+      .split(/\r?\n|,/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
   }
 }
