@@ -60,6 +60,29 @@ export class LookupStore {
       );
   }
 
+  loadCategory(category: string): Observable<void> {
+    if (!category) {
+      return new Observable<void>((subscriber) => subscriber.complete());
+    }
+
+    return this.api.getByCategory(category).pipe(
+      tap((values) => {
+        this.replaceCategory(category, values);
+        this.etagSignal.set(null);
+      }),
+      catchError((error: HttpErrorResponse) => throwError(() => error)),
+      map(() => void 0)
+    );
+  }
+
+  fetchValue(id: string): Observable<LookupValue> {
+    return this.api.getById(id).pipe(
+      tap((value) => {
+        this.insertValue(value);
+      })
+    );
+  }
+
   create(payload: LookupValuePayload): Observable<LookupValue> {
     return this.api.create(payload).pipe(
       tap((value) => {
@@ -150,4 +173,8 @@ export class LookupStore {
     }
     return a.sortOrder - b.sortOrder;
   };
+
+  private replaceCategory(category: string, values: readonly LookupValue[]): void {
+    this.state.update((current) => ({ ...current, [category]: [...values].sort(this.sortValues) }));
+  }
 }

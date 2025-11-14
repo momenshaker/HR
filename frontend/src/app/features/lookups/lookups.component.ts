@@ -57,6 +57,9 @@ export class LookupsPageComponent implements OnInit {
   });
 
   readonly displayedColumns = ['displayName', 'code', 'sortOrder', 'isActive', 'updatedAtUtc', 'actions'] as const;
+  readonly selectedValueId = signal<string | null>(null);
+  readonly valueDetail = signal<LookupValue | null>(null);
+  readonly valueLoading = signal(false);
 
   constructor() {
     effect(
@@ -76,6 +79,14 @@ export class LookupsPageComponent implements OnInit {
       },
       { allowSignalWrites: true }
     );
+    effect(() => {
+      const category = this.selectedCategory();
+      if (!category) {
+        this.clearValueSelection();
+        return;
+      }
+      this.loadCategoryValues(category);
+    });
   }
 
   ngOnInit(): void {
@@ -187,6 +198,31 @@ export class LookupsPageComponent implements OnInit {
       });
   }
 
+  viewDetails(value: LookupValue): void {
+    if (this.valueLoading()) {
+      return;
+    }
+    this.selectedValueId.set(value.id);
+    this.valueLoading.set(true);
+    this.store
+      .fetchValue(value.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (detail) => {
+          this.valueDetail.set(detail);
+          this.valueLoading.set(false);
+        },
+        error: (error) => {
+          this.valueLoading.set(false);
+          this.handleError('Unable to load lookup value details.', error);
+        }
+      });
+  }
+
+  closeDetails(): void {
+    this.clearValueSelection();
+  }
+
   getCount(category: string): number {
     return this.store.getValues(category).length;
   }
@@ -203,5 +239,21 @@ export class LookupsPageComponent implements OnInit {
     // eslint-disable-next-line no-console
     console.error(message, error);
     this.snackbar.open(message, 'Dismiss', { duration: 4000 });
+  }
+
+  private loadCategoryValues(category: string): void {
+    this.clearValueSelection();
+    this.store
+      .loadCategory(category)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: (error) => this.handleError(`Failed to load ${category} lookup values.`, error)
+      });
+  }
+
+  private clearValueSelection(): void {
+    this.selectedValueId.set(null);
+    this.valueDetail.set(null);
+    this.valueLoading.set(false);
   }
 }

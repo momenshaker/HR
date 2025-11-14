@@ -1,4 +1,4 @@
-<div class="main-content">
+﻿<div class="main-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
@@ -62,54 +62,158 @@
                     </button>
                   </header>
 
-                  <table mat-table [dataSource]="values()" class="lookups__mat-table" *ngIf="values().length > 0; else emptyState">
-                    <ng-container matColumnDef="displayName">
-                      <th mat-header-cell *matHeaderCellDef>Name</th>
-                      <td mat-cell *matCellDef="let value">
-                        <div class="lookups__value-name">{{ value.displayName }}</div>
-                        <div class="lookups__value-description" *ngIf="value.description">{{ value.description }}</div>
-                      </td>
-                    </ng-container>
+                  <ng-container *ngIf="values().length > 0; else emptyState">
+                    <table mat-table [dataSource]="values()" class="lookups__mat-table">
+                      <ng-container matColumnDef="displayName">
+                        <th mat-header-cell *matHeaderCellDef>Name</th>
+                        <td mat-cell *matCellDef="let value">
+                          <div class="lookups__value-name">{{ value.displayName }}</div>
+                          <div class="lookups__value-description" *ngIf="value.description">{{ value.description }}</div>
+                        </td>
+                      </ng-container>
 
-                    <ng-container matColumnDef="code">
-                      <th mat-header-cell *matHeaderCellDef>Code</th>
-                      <td mat-cell *matCellDef="let value">{{ value.code }}</td>
-                    </ng-container>
+                      <ng-container matColumnDef="code">
+                        <th mat-header-cell *matHeaderCellDef>Code</th>
+                        <td mat-cell *matCellDef="let value">{{ value.code }}</td>
+                      </ng-container>
 
-                    <ng-container matColumnDef="sortOrder">
-                      <th mat-header-cell *matHeaderCellDef>Sort order</th>
-                      <td mat-cell *matCellDef="let value">{{ value.sortOrder }}</td>
-                    </ng-container>
+                      <ng-container matColumnDef="sortOrder">
+                        <th mat-header-cell *matHeaderCellDef>Sort order</th>
+                        <td mat-cell *matCellDef="let value">{{ value.sortOrder }}</td>
+                      </ng-container>
 
-                    <ng-container matColumnDef="isActive">
-                      <th mat-header-cell *matHeaderCellDef>Status</th>
-                      <td mat-cell *matCellDef="let value">
-                        <span class="lookups__status" [class.lookups__status--inactive]="!value.isActive">
-                          {{ value.isActive ? 'Active' : 'Inactive' }}
-                        </span>
-                      </td>
-                    </ng-container>
+                      <ng-container matColumnDef="isActive">
+                        <th mat-header-cell *matHeaderCellDef>Status</th>
+                        <td mat-cell *matCellDef="let value">
+                          <span class="lookups__status" [class.lookups__status--inactive]="!value.isActive">
+                            {{ value.isActive ? 'Active' : 'Inactive' }}
+                          </span>
+                        </td>
+                      </ng-container>
 
-                    <ng-container matColumnDef="updatedAtUtc">
-                      <th mat-header-cell *matHeaderCellDef>Updated</th>
-                      <td mat-cell *matCellDef="let value">{{ value.updatedAtUtc | date: 'medium' }}</td>
-                    </ng-container>
+                      <ng-container matColumnDef="updatedAtUtc">
+                        <th mat-header-cell *matHeaderCellDef>Updated</th>
+                        <td mat-cell *matCellDef="let value">{{ value.updatedAtUtc | date: 'medium' }}</td>
+                      </ng-container>
 
-                    <ng-container matColumnDef="actions">
-                      <th mat-header-cell *matHeaderCellDef></th>
-                      <td mat-cell *matCellDef="let value" class="lookups__actions-cell">
-                        <button mat-icon-button color="primary" type="button" aria-label="Edit" (click)="openEdit(value)">
-                          <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" type="button" aria-label="Delete" (click)="confirmDelete(value)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </ng-container>
+                      <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let value" class="lookups__actions-cell">
+                          <button
+                            mat-icon-button
+                            color="primary"
+                            type="button"
+                            aria-label="Details"
+                            (click)="viewDetails(value); $event.stopPropagation()"
+                          >
+                            <mat-icon>visibility</mat-icon>
+                          </button>
+                          <button
+                            mat-icon-button
+                            color="primary"
+                            type="button"
+                            aria-label="Edit"
+                            (click)="openEdit(value); $event.stopPropagation()"
+                          >
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button
+                            mat-icon-button
+                            color="warn"
+                            type="button"
+                            aria-label="Delete"
+                            (click)="confirmDelete(value); $event.stopPropagation()"
+                          >
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </td>
+                      </ng-container>
 
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByValue"></tr>
-                  </table>
+                      <tr
+                        mat-header-row
+                        *matHeaderRowDef="displayedColumns"
+                      ></tr>
+                      <tr
+                        mat-row
+                        *matRowDef="let row; columns: displayedColumns; trackBy: trackByValue"
+                        [class.lookups__value-row--selected]="row.id === selectedValueId()"
+                        (click)="viewDetails(row)"
+                      ></tr>
+                    </table>
+
+                    <div class="lookups__detail-wrapper">
+                      <ng-container *ngIf="valueDetail() as detail; else detailPlaceholder">
+                        <section class="lookups__detail-card">
+                          <header>
+                            <div>
+                              <p class="lookups__eyebrow">Details</p>
+                              <h5>{{ detail.displayName }}</h5>
+                              <p class="lookups__subtitle">
+                                {{ detail.category }} · {{ detail.code }}
+                              </p>
+                            </div>
+                            <button
+                              mat-icon-button
+                              color="primary"
+                              type="button"
+                              aria-label="Close details"
+                              (click)="closeDetails()"
+                            >
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          </header>
+                          <mat-progress-bar *ngIf="valueLoading()" mode="indeterminate"></mat-progress-bar>
+                          <div class="lookups__detail-grid">
+                            <div class="lookups__detail-item">
+                              <span>ID</span>
+                              <strong>{{ detail.id }}</strong>
+                            </div>
+                            <div class="lookups__detail-item">
+                              <span>Sort order</span>
+                              <strong>{{ detail.sortOrder }}</strong>
+                            </div>
+                            <div class="lookups__detail-item">
+                              <span>Status</span>
+                              <strong>{{ detail.isActive ? 'Active' : 'Inactive' }}</strong>
+                            </div>
+                            <div class="lookups__detail-item">
+                              <span>Updated</span>
+                              <strong>{{ detail.updatedAtUtc | date: 'medium' }}</strong>
+                            </div>
+                            <div class="lookups__detail-item" *ngIf="detail.description">
+                              <span>Description</span>
+                              <p>{{ detail.description }}</p>
+                            </div>
+                          </div>
+                          <div class="lookups__detail-actions">
+                            <button
+                              mat-stroked-button
+                              color="primary"
+                              type="button"
+                              (click)="openEdit(detail); $event.stopPropagation()"
+                            >
+                              <mat-icon>edit</mat-icon>
+                              Edit
+                            </button>
+                            <button
+                              mat-stroked-button
+                              color="warn"
+                              type="button"
+                              (click)="confirmDelete(detail); $event.stopPropagation()"
+                            >
+                              <mat-icon>delete</mat-icon>
+                              Delete
+                            </button>
+                          </div>
+                        </section>
+                      </ng-container>
+                      <ng-template #detailPlaceholder>
+                        <div class="lookups__detail-empty">
+                          <p>Select a lookup value to load its full metadata.</p>
+                        </div>
+                      </ng-template>
+                    </div>
+                  </ng-container>
 
                   <ng-template #emptyState>
                     <div class="lookups__empty">
@@ -132,3 +236,4 @@
     <p>Select or create a category to start managing lookup values.</p>
   </div>
 </ng-template>
+

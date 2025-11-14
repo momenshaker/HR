@@ -70,9 +70,21 @@ namespace HR.Infrastructure.Migrations
                     EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     WorkDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ShiftName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    OvertimeMinutes = table.Column<int>(type: "int", nullable: false),
+                    ScheduledStartTimeUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    ScheduledEndTimeUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    ScheduledWorkMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    BreakMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    GracePeriodMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    CheckInTimeUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CheckOutTimeUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    TotalWorkedMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    LateMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    EarlyLeaveMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    OvertimeMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    AbsenceMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false)
+                    Source = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, defaultValue: "Manual"),
+                    Remarks = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -252,6 +264,23 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Holidays",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateOnly>(type: "date", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
+                    CountryCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Holidays", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InterviewSchedules",
                 columns: table => new
                 {
@@ -274,6 +303,23 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LeaveApprovalSteps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StepOrder = table.Column<int>(type: "int", nullable: false),
+                    ApproverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ActionAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Comment = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaveApprovalSteps", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LeaveBalances",
                 columns: table => new
                 {
@@ -292,22 +338,21 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LookupValues",
+                name: "LeavePolicies",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccrualMethod = table.Column<int>(type: "int", nullable: false),
+                    DaysPerYear = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    CarryForwardAllowed = table.Column<bool>(type: "bit", nullable: false),
+                    MaxCarryForwardDays = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    IsNegativeBalanceAllowed = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LookupValues", x => x.Id);
+                    table.PrimaryKey("PK_LeavePolicies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -356,38 +401,22 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LeavePolicies",
+                name: "LookupValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LeaveTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccrualMethod = table.Column<int>(type: "int", nullable: false),
-                    DaysPerYear = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
-                    CarryForwardAllowed = table.Column<bool>(type: "bit", nullable: false),
-                    MaxCarryForwardDays = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
-                    IsNegativeBalanceAllowed = table.Column<bool>(type: "bit", nullable: false)
+                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LeavePolicies", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LeaveApprovalSteps",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LeaveRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StepOrder = table.Column<int>(type: "int", nullable: false),
-                    ApproverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ActionAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Comment = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LeaveApprovalSteps", x => x.Id);
+                    table.PrimaryKey("PK_LookupValues", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -640,6 +669,22 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WorkSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDefaultForOrganization = table.Column<bool>(type: "bit", nullable: false),
+                    TimeZoneId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkSchedules", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -668,6 +713,9 @@ namespace HR.Infrastructure.Migrations
                     AttendanceRecordId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     TimestampUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DeviceId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
@@ -998,6 +1046,51 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EmployeeSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WorkScheduleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EffectiveFrom = table.Column<DateOnly>(type: "date", nullable: false),
+                    EffectiveTo = table.Column<DateOnly>(type: "date", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeSchedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmployeeSchedules_WorkSchedules_WorkScheduleId",
+                        column: x => x.WorkScheduleId,
+                        principalTable: "WorkSchedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShiftTemplates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WorkScheduleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    BreakMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    GracePeriodMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    MinimumOvertimeMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShiftTemplates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ShiftTemplates_WorkSchedules_WorkScheduleId",
+                        column: x => x.WorkScheduleId,
+                        principalTable: "WorkSchedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Invoices",
                 columns: table => new
                 {
@@ -1263,6 +1356,36 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "LookupValues",
+                columns: new[] { "Id", "Category", "Code", "CreatedAtUtc", "Description", "DisplayName", "IsActive", "SortOrder", "UpdatedAtUtc" },
+                values: new object[,]
+                {
+                    { new Guid("02029a6d-a17d-4773-92ba-ac63955e8a17"), "industry", "TECHNOLOGY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Technology", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("17f974c2-ed4d-454a-b592-86e48bf74e3f"), "industry", "FINANCE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Finance", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("2f48a4d1-3519-4b02-86c3-1e77fec77bf0"), "businessUnit", "OPERATIONS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Operations", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("36d48abe-4ade-4189-af71-03e38526f06d"), "operatingHours", "SWING", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Swing", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("37aa74bb-f001-4ecc-bf7a-b35057c35f0a"), "businessUnit", "SERVICES", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Services", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"), "timeZone", "ASIA_SINGAPORE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Asia/Singapore", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"), "timeZone", "UTC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "UTC", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"), "region", "NORTH_AMERICA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "North America", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"), "industry", "HEALTHCARE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Healthcare", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"), "branch", "REGIONAL_OFFICE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Regional Office", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"), "businessUnit", "CORPORATE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Corporate", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"), "operatingHours", "DAY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Day", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"), "businessUnit", "PRODUCT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Product", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"), "operatingHours", "NIGHT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Night", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"), "region", "LATAM", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "LATAM", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"), "region", "APAC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "APAC", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"), "timeZone", "AMERICA_NEW_YORK", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "America/New_York", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"), "operatingHours", "24_7", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "24/7", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("e03d5548-0998-4b74-836f-ace82fd812f3"), "industry", "RETAIL", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Retail", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("ea6e39b4-7911-43d8-aba5-5e1846f88874"), "branch", "HEADQUARTERS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Headquarters", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("f4aa9d9b-5925-48c6-ba70-220bb9260c6a"), "branch", "FIELD", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Field", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("fce559ca-6ff7-4876-a770-c24126aef993"), "region", "EMEA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "EMEA", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("fd228009-14bb-46e0-ade8-aabeb82f8abd"), "timeZone", "EUROPE_LONDON", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Europe/London", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Organizations",
                 columns: new[] { "Id", "Code", "CreatedAtUtc", "Description", "HeadquartersAddress", "Industry", "IsActive", "Name", "PrimaryContactEmail", "Region", "TimeZone", "UpdatedAtUtc", "WebsiteUrl" },
                 values: new object[] { new Guid("8d741596-7f48-4a44-9a9b-5d4d78f3dc9a"), "ACME", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Acme Corp demo organization", "1 Summit Avenue, New York, NY 10004", "Professional Services", true, "Acme Corp", "hello@acme.test", "North America", "America/New_York", null, "https://acme.test" });
@@ -1321,42 +1444,6 @@ namespace HR.Infrastructure.Migrations
                     { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), true },
                     { new Guid("3c7d4f9a-0f8b-4f33-9ed9-6bff8e75b5f2"), new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), false }
                 });
-
-            migrationBuilder.InsertData(
-                table: "LookupValues",
-                columns: new[] { "Id", "Category", "Code", "CreatedAtUtc", "Description", "DisplayName", "IsActive", "SortOrder", "UpdatedAtUtc" },
-                values: new object[,]
-                {
-                    { new Guid("ea6e39b4-7911-43d8-aba5-5e1846f88874"), "branch", "HEADQUARTERS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Headquarters", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("f4aa9d9b-5925-48c6-ba70-220bb9260c6a"), "branch", "FIELD", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Field", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"), "branch", "REGIONAL_OFFICE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Regional Office", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"), "businessUnit", "CORPORATE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Corporate", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"), "businessUnit", "PRODUCT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Product", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("37aa74bb-f001-4ecc-bf7a-b35057c35f0a"), "businessUnit", "SERVICES", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Services", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("2f48a4d1-3519-4b02-86c3-1e77fec77bf0"), "businessUnit", "OPERATIONS", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Operations", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"), "operatingHours", "DAY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Day", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("36d48abe-4ade-4189-af71-03e38526f06d"), "operatingHours", "SWING", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Swing", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"), "operatingHours", "NIGHT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Night", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"), "operatingHours", "24_7", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "24/7", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("02029a6d-a17d-4773-92ba-ac63955e8a17"), "industry", "TECHNOLOGY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Technology", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("e03d5548-0998-4b74-836f-ace82fd812f3"), "industry", "RETAIL", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Retail", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("17f974c2-ed4d-454a-b592-86e48bf74e3f"), "industry", "FINANCE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Finance", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"), "industry", "HEALTHCARE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Healthcare", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"), "region", "NORTH_AMERICA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "North America", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("fce559ca-6ff7-4876-a770-c24126aef993"), "region", "EMEA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "EMEA", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"), "region", "APAC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "APAC", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"), "region", "LATAM", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "LATAM", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"), "timeZone", "UTC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "UTC", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"), "timeZone", "AMERICA_NEW_YORK", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "America/New_York", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("fd228009-14bb-46e0-ade8-aabeb82f8abd"), "timeZone", "EUROPE_LONDON", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Europe/London", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"), "timeZone", "ASIA_SINGAPORE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Asia/Singapore", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LookupValues_Category_Code",
-                table: "LookupValues",
-                columns: new[] { "Category", "Code" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -1508,9 +1595,25 @@ namespace HR.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_EmployeeSchedules_EmployeeId_EffectiveFrom",
+                table: "EmployeeSchedules",
+                columns: new[] { "EmployeeId", "EffectiveFrom" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeSchedules_WorkScheduleId",
+                table: "EmployeeSchedules",
+                column: "WorkScheduleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EmploymentContract_EmployeeId",
                 table: "EmploymentContract",
                 column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Holidays_OrganizationId_Date",
+                table: "Holidays",
+                columns: new[] { "OrganizationId", "Date" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Invoices_CustomerId",
@@ -1529,24 +1632,10 @@ namespace HR.Infrastructure.Migrations
                 column: "SubscriptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LeaveRequests_EmployeeId",
-                table: "LeaveRequests",
-                column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LeaveRequests_StartDate_EndDate",
-                table: "LeaveRequests",
-                columns: new[] { "StartDate", "EndDate" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LeaveRequests_LeaveTypeId",
-                table: "LeaveRequests",
-                column: "LeaveTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LeaveRequests_Status",
-                table: "LeaveRequests",
-                column: "Status");
+                name: "IX_LeaveApprovalSteps_LeaveRequestId_StepOrder",
+                table: "LeaveApprovalSteps",
+                columns: new[] { "LeaveRequestId", "StepOrder" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_LeavePolicies_OrganizationId_LeaveTypeId",
@@ -1555,15 +1644,35 @@ namespace HR.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_LeaveApprovalSteps_LeaveRequestId_StepOrder",
-                table: "LeaveApprovalSteps",
-                columns: new[] { "LeaveRequestId", "StepOrder" },
-                unique: true);
+                name: "IX_LeaveRequests_EmployeeId",
+                table: "LeaveRequests",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_LeaveTypeId",
+                table: "LeaveRequests",
+                column: "LeaveTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_StartDate_EndDate",
+                table: "LeaveRequests",
+                columns: new[] { "StartDate", "EndDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_Status",
+                table: "LeaveRequests",
+                column: "Status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LeaveTypes_Code",
                 table: "LeaveTypes",
                 column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LookupValues_Category_Code",
+                table: "LookupValues",
+                columns: new[] { "Category", "Code" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1661,6 +1770,11 @@ namespace HR.Infrastructure.Migrations
                 table: "SelfServiceAccounts",
                 column: "EmployeeId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShiftTemplates_WorkScheduleId",
+                table: "ShiftTemplates",
+                column: "WorkScheduleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubscriptionEntitlements_PlanCode_FeatureKey_SubscriptionId",
@@ -1768,10 +1882,16 @@ namespace HR.Infrastructure.Migrations
                 name: "EmployeeProfileDocuments");
 
             migrationBuilder.DropTable(
+                name: "EmployeeSchedules");
+
+            migrationBuilder.DropTable(
                 name: "EmploymentContract");
 
             migrationBuilder.DropTable(
                 name: "EngagementCampaigns");
+
+            migrationBuilder.DropTable(
+                name: "Holidays");
 
             migrationBuilder.DropTable(
                 name: "InterviewSchedules");
@@ -1780,7 +1900,13 @@ namespace HR.Infrastructure.Migrations
                 name: "Invoices");
 
             migrationBuilder.DropTable(
+                name: "LeaveApprovalSteps");
+
+            migrationBuilder.DropTable(
                 name: "LeaveBalances");
+
+            migrationBuilder.DropTable(
+                name: "LeavePolicies");
 
             migrationBuilder.DropTable(
                 name: "LeaveRequests");
@@ -1828,6 +1954,9 @@ namespace HR.Infrastructure.Migrations
                 name: "SelfServiceAccounts");
 
             migrationBuilder.DropTable(
+                name: "ShiftTemplates");
+
+            migrationBuilder.DropTable(
                 name: "SubscriptionEntitlements");
 
             migrationBuilder.DropTable(
@@ -1856,6 +1985,9 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "PerformanceReviews");
+
+            migrationBuilder.DropTable(
+                name: "WorkSchedules");
 
             migrationBuilder.DropTable(
                 name: "Departments");

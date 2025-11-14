@@ -9,7 +9,6 @@ namespace HR.Application.DTOs;
 public sealed class UpdateLeaveRequest : IValidatableRequest
 {
     [Required]
-    [Required]
     public Guid LeaveTypeId { get; init; }
 
     [Required]

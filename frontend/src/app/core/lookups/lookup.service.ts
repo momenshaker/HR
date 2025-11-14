@@ -30,4 +30,12 @@ export class LookupApiService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
   }
+
+  getByCategory(category: string): Observable<LookupValue[]> {
+    return this.http.get<LookupValue[]>(`${this.resourceUrl}/category/${category}`);
+  }
+
+  getById(id: string): Observable<LookupValue> {
+    return this.http.get<LookupValue>(`${this.resourceUrl}/value/${id}`);
+  }
 }

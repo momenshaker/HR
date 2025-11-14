@@ -90,6 +90,41 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("Announcements", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.ApprovalStep", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ActionAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ApproverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid>("LeaveRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("StepOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LeaveRequestId", "StepOrder")
+                        .IsUnique();
+
+                    b.ToTable("LeaveApprovalSteps", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.AttendancePunch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -99,10 +134,12 @@ namespace HR.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DeviceId")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -112,6 +149,7 @@ namespace HR.Infrastructure.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Source")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -151,13 +189,13 @@ namespace HR.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("CheckOutTimeUtc")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("EarlyLeaveMinutes")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("GracePeriodMinutes")
                         .ValueGeneratedOnAdd()
@@ -197,6 +235,7 @@ namespace HR.Infrastructure.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("Manual");
@@ -220,134 +259,6 @@ namespace HR.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("AttendanceRecords", (string)null);
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.EmployeeSchedule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateOnly>("EffectiveFrom")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly?>("EffectiveTo")
-                        .HasColumnType("date");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("WorkScheduleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId", "EffectiveFrom");
-
-                    b.HasIndex("WorkScheduleId");
-
-                    b.ToTable("EmployeeSchedules", (string)null);
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.Holiday", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("CountryCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId", "Date")
-                        .IsUnique();
-
-                    b.ToTable("Holidays", (string)null);
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.ShiftTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BreakMinutes")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("GracePeriodMinutes")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("MinimumOvertimeMinutes")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
-
-                    b.Property<Guid>("WorkScheduleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WorkScheduleId");
-
-                    b.ToTable("ShiftTemplates", (string)null);
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.WorkSchedule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDefaultForOrganization")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TimeZoneId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WorkSchedules", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.AuditLog", b =>
@@ -1183,6 +1094,32 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("EmployeeProfileDocuments", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WorkScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkScheduleId");
+
+                    b.HasIndex("EmployeeId", "EffectiveFrom");
+
+                    b.ToTable("EmployeeSchedules", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.EmploymentContract", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1275,6 +1212,43 @@ namespace HR.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EngagementCampaigns", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.Holiday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("Holidays", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.InterviewSchedule", b =>
@@ -1438,10 +1412,47 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("LeaveBalances", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.LeavePolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccrualMethod")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CarryForwardAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("DaysPerYear")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("IsNegativeBalanceAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("MaxCarryForwardDays")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "LeaveTypeId")
+                        .IsUnique();
+
+                    b.ToTable("LeavePolicies", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.LeaveRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid?>("ApproverId")
                         .HasColumnType("uniqueidentifier");
@@ -1450,16 +1461,10 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(260)
                         .HasColumnType("nvarchar(260)");
 
-                    b.Property<DateTime?>("ApprovedAtUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("CancelledAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("LeaveTypeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly>("EndDate")
@@ -1469,6 +1474,9 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("NumberOfDays")
                         .HasColumnType("decimal(5,2)");
@@ -1529,13 +1537,13 @@ namespace HR.Infrastructure.Migrations
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("MaxConsecutiveDays")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("MaxConsecutiveDays")
-                        .HasColumnType("int");
 
                     b.Property<bool>("RequiresApproval")
                         .HasColumnType("bit");
@@ -1549,75 +1557,6 @@ namespace HR.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("LeaveTypes", (string)null);
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.LeavePolicy", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AccrualMethod")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("CarryForwardAllowed")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("MaxCarryForwardDays")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<bool>("IsNegativeBalanceAllowed")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("LeaveTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("DaysPerYear")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId", "LeaveTypeId")
-                        .IsUnique();
-
-                    b.ToTable("LeavePolicies", (string)null);
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.ApprovalStep", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ApproverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ActionAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
-
-                    b.Property<Guid>("LeaveRequestId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("StepOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LeaveRequestId", "StepOrder")
-                        .IsUnique();
-
-                    b.ToTable("LeaveApprovalSteps", (string)null);
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.LookupValue", b =>
@@ -2464,6 +2403,45 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("SelfServiceAccounts", (string)null);
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.ShiftTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BreakMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("GracePeriodMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("MinimumOvertimeMinutes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("WorkScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkScheduleId");
+
+                    b.ToTable("ShiftTemplates", (string)null);
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2945,6 +2923,35 @@ namespace HR.Infrastructure.Migrations
                     b.ToTable("Vacancies");
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.WorkSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDefaultForOrganization")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorkSchedules", (string)null);
+                });
+
             modelBuilder.Entity("HR.Infrastructure.Security.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3194,28 +3201,6 @@ namespace HR.Infrastructure.Migrations
                     b.Navigation("AttendanceRecord");
                 });
 
-            modelBuilder.Entity("HR.Domain.Entities.EmployeeSchedule", b =>
-                {
-                    b.HasOne("HR.Domain.Entities.WorkSchedule", "WorkSchedule")
-                        .WithMany()
-                        .HasForeignKey("WorkScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("WorkSchedule");
-                });
-
-            modelBuilder.Entity("HR.Domain.Entities.ShiftTemplate", b =>
-                {
-                    b.HasOne("HR.Domain.Entities.WorkSchedule", "WorkSchedule")
-                        .WithMany("ShiftTemplates")
-                        .HasForeignKey("WorkScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("WorkSchedule");
-                });
-
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Organization", "Organization")
@@ -3269,6 +3254,17 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.EmployeeSchedule", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.WorkSchedule", "WorkSchedule")
+                        .WithMany()
+                        .HasForeignKey("WorkScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkSchedule");
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.EmploymentContract", b =>
@@ -3477,6 +3473,17 @@ namespace HR.Infrastructure.Migrations
                     b.Navigation("KeyPerformanceIndicators");
                 });
 
+            modelBuilder.Entity("HR.Domain.Entities.ShiftTemplate", b =>
+                {
+                    b.HasOne("HR.Domain.Entities.WorkSchedule", "WorkSchedule")
+                        .WithMany("ShiftTemplates")
+                        .HasForeignKey("WorkScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkSchedule");
+                });
+
             modelBuilder.Entity("HR.Domain.Entities.Subscription", b =>
                 {
                     b.HasOne("HR.Domain.Entities.Customer", null)
@@ -3594,11 +3601,6 @@ namespace HR.Infrastructure.Migrations
                     b.Navigation("Punches");
                 });
 
-            modelBuilder.Entity("HR.Domain.Entities.WorkSchedule", b =>
-                {
-                    b.Navigation("ShiftTemplates");
-                });
-
             modelBuilder.Entity("HR.Domain.Entities.Department", b =>
                 {
                     b.Navigation("Children");
@@ -3632,6 +3634,11 @@ namespace HR.Infrastructure.Migrations
             modelBuilder.Entity("HR.Domain.Entities.Timesheet", b =>
                 {
                     b.Navigation("Entries");
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.WorkSchedule", b =>
+                {
+                    b.Navigation("ShiftTemplates");
                 });
 #pragma warning restore 612, 618
         }
