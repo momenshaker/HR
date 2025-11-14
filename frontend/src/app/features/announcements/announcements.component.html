@@ -1,0 +1,123 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-info">
+            <div>
+              <h4 class="card-title">Announcements</h4>
+              <p class="card-category">Publish critical updates to everyone who needs to know.</p>
+            </div>
+            <div class="card-header__actions">
+              <button mat-stroked-button color="primary" type="button" (click)="refresh()" [disabled]="loading()">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <section class="feature-section">
+              <div class="section-header">
+                <div>
+                  <h5>Publish announcement</h5>
+                  <p>Share organization-wide communications with a defined audience.</p>
+                </div>
+              </div>
+              <form [formGroup]="form" (ngSubmit)="publish()" class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Title</mat-label>
+                  <input matInput formControlName="title" maxlength="200" />
+                  <mat-hint align="end">{{ form.controls.title.value?.length || 0 }}/200</mat-hint>
+                  <mat-error *ngIf="form.controls.title.hasError('required')">Title is required</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Audience</mat-label>
+                  <input matInput formControlName="audience" maxlength="100" />
+                  <mat-hint align="end">{{ form.controls.audience.value?.length || 0 }}/100</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Message</mat-label>
+                  <textarea matInput formControlName="message" rows="4" maxlength="5000"></textarea>
+                  <mat-hint align="end">{{ form.controls.message.value?.length || 0 }}/5000</mat-hint>
+                  <mat-error *ngIf="form.controls.message.hasError('required')">Message is required</mat-error>
+                </mat-form-field>
+
+                <mat-checkbox formControlName="requiresAcknowledgement">
+                  Require recipients to acknowledge
+                </mat-checkbox>
+
+                <div class="form-actions">
+                  <button mat-flat-button color="primary" type="submit" [disabled]="publishDisabled()">
+                    <mat-icon>send</mat-icon>
+                    Publish
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="feature-section">
+              <div class="section-header">
+                <div>
+                  <h5>Recent announcements</h5>
+                  <p>Latest communications published through the API.</p>
+                </div>
+              </div>
+
+              <div class="list-container" *ngIf="!loading(); else loadingState">
+                <ng-container *ngIf="announcements().length; else emptyState">
+                  <article class="announcement-card" *ngFor="let announcement of announcements()">
+                    <header>
+                      <div>
+                        <h6>{{ announcement.title }}</h6>
+                        <p class="meta">{{ announcement.audience || 'All employees' }}</p>
+                      </div>
+                      <button
+                        type="button"
+                        mat-icon-button
+                        color="warn"
+                        (click)="confirmDelete(announcement)"
+                        [disabled]="deletingId() === announcement.id"
+                        aria-label="Delete announcement"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </header>
+                    <p class="message">{{ announcement.message }}</p>
+                    <footer>
+                      <div class="footer-meta">
+                        <span>
+                          <mat-icon>schedule</mat-icon>
+                          {{ announcement.publishedAtUtc | date: 'medium' }}
+                        </span>
+                        <span class="ack" *ngIf="announcement.requiresAcknowledgement">
+                          <mat-icon>check_circle</mat-icon>
+                          Acknowledgement required
+                        </span>
+                      </div>
+                    </footer>
+                  </article>
+                </ng-container>
+              </div>
+
+              <ng-template #loadingState>
+                <div class="loading-state">
+                  <mat-spinner diameter="36"></mat-spinner>
+                  <span>Loading announcements…</span>
+                </div>
+              </ng-template>
+
+              <ng-template #emptyState>
+                <div class="empty-state">
+                  <mat-icon>campaign</mat-icon>
+                  <p>No announcements yet. Publish your first update above.</p>
+                </div>
+              </ng-template>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

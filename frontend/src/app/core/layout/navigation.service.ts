@@ -19,6 +19,7 @@ export class NavigationService {
     { label: 'Self Service', icon: 'person', route: '/self-service', roles: ['Admin', 'HR', 'Manager', 'Employee'] },
     { label: 'Payroll', icon: 'paid', route: '/payroll', roles: ['Admin', 'HR'] },
     { label: 'Recruitment', icon: 'work', route: '/recruitment', roles: ['Admin', 'HR'] },
+    { label: 'Announcements', icon: 'campaign', route: '/announcements', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Notifications', icon: 'notifications', route: '/notifications', roles: ['Admin', 'HR', 'Manager'] }
   ];
 
