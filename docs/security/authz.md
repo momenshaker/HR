@@ -7,6 +7,9 @@ The API enforces bearer authentication and role-based authorization across every
 | AnalyticsSnapshots | Admin, HR |
 | Announcements | Admin, HR, Manager |
 | AttendanceRecords | Admin, HR, Manager |
+| WorkSchedules | Admin, HR, Manager |
+| EmployeeSchedules | Admin, HR, Manager |
+| Holidays | Admin, HR, Manager |
 | BillingWebhooks | Public (signature verification handled separately) |
 | Candidates | Admin, HR |
 | DelegatedAuthorities | Admin, HR |

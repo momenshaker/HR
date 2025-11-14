@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Delivered attendance scheduling foundations including work schedules, shift templates, employee assignments, enhanced attendance metrics (late/early/absences), public holidays, REST controllers, and service/test coverage for the new data model.
 - Expanded leave management with richer leave type metadata, per-organization policies, enhanced request tracking (days, attachments, multi-step statuses), updated REST/EF layers, and refreshed Angular self-service workflows that surface dynamic leave types.
 - Delivered end-to-end lookup management covering the `LookupService`, repositories, controller, Angular admin workspace, and documentation for cache-aware dynamic catalogues.
 - Exposed organization, department, and employee assignment endpoints with nested routing, pagination, and documented OpenAPI updates for hierarchy management workflows.

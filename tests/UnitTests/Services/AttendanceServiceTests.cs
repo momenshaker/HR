@@ -32,6 +32,11 @@ public sealed class AttendanceServiceTests
                 new AttendancePunchRequest
                 {
                     Type = "ClockIn",
+                    TimestampUtc = DateTimeOffset.UtcNow.AddHours(-8)
+                },
+                new AttendancePunchRequest
+                {
+                    Type = "ClockOut",
                     TimestampUtc = DateTimeOffset.UtcNow
                 }
             }
@@ -51,7 +56,8 @@ public sealed class AttendanceServiceTests
         Assert.NotNull(persisted);
         Assert.Equal(request.EmployeeId, persisted!.EmployeeId);
         Assert.Equal(persisted.Id, result.Id);
-        Assert.Single(persisted.Punches);
+        Assert.Equal(2, persisted.Punches.Count);
+        Assert.True(persisted.TotalWorkedMinutes > 0);
     }
 
     [Fact]
