@@ -59,6 +59,12 @@ export const APP_ROUTES: Routes = [
     loadChildren: () => import('./features/notifications/notifications.routes').then((m) => m.NOTIFICATIONS_ROUTES)
   },
   {
+    path: 'announcements',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    loadChildren: () =>
+      import('./features/announcements/announcements.routes').then((m) => m.ANNOUNCEMENTS_ROUTES)
+  },
+  {
     path: 'self-service',
     canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
     loadChildren: () => import('./features/self-service/self-service.routes').then((m) => m.SELF_SERVICE_ROUTES)
