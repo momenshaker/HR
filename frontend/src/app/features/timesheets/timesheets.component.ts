@@ -275,8 +275,12 @@ export class TimesheetsPageComponent {
           if (this.currentTimesheet()?.id === timesheet.id) {
             this.loadTimesheet();
           }
-        }
-      });
+      }
+    });
+  }
+
+  totalHours(entries: TimesheetEntryDto[]): number {
+    return entries.reduce((sum, entry) => sum + entry.hours, 0);
   }
 
   statusChipColor(status: TimesheetStatus): 'primary' | 'accent' | 'warn' | undefined {

@@ -40,7 +40,7 @@
                 <mat-form-field appearance="outline" class="form-grid__full">
                   <mat-label>Message</mat-label>
                   <textarea matInput formControlName="message" rows="4" maxlength="5000"></textarea>
-                  <mat-hint align="end">{{ form.controls.message.value?.length || 0 }}/5000</mat-hint>
+                  <mat-hint align="end">{{ form.controls.message.value.length || 0 }}/5000</mat-hint>
                   <mat-error *ngIf="form.controls.message.hasError('required')">Message is required</mat-error>
                 </mat-form-field>
 

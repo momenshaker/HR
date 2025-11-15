@@ -270,13 +270,13 @@ export class PerformancePageComponent implements OnInit {
     this.goals.push(
       this.fb.group({
         id: this.fb.control<string | null>(null),
-        title: this.fb.control('', Validators.required),
-        description: this.fb.control(''),
+        title: this.fb.nonNullable.control('', Validators.required),
+        description: this.fb.nonNullable.control(''),
         weight: this.fb.control<number | null>(null),
-        alignment: this.fb.control(''),
-        status: this.fb.control('NotStarted'),
+        alignment: this.fb.nonNullable.control(''),
+        status: this.fb.nonNullable.control('NotStarted'),
         parentGoalId: this.fb.control<string | null>(null)
-      })
+      }) as GoalFormGroup
     );
   }
 
@@ -288,12 +288,12 @@ export class PerformancePageComponent implements OnInit {
     this.kpis.push(
       this.fb.group({
         id: this.fb.control<string | null>(null),
-        name: this.fb.control('', Validators.required),
+        name: this.fb.nonNullable.control('', Validators.required),
         targetValue: this.fb.control<number | null>(null, Validators.required),
         actualValue: this.fb.control<number | null>(null, Validators.required),
-        unitOfMeasure: this.fb.control(''),
-        status: this.fb.control('OnTrack')
-      })
+        unitOfMeasure: this.fb.nonNullable.control(''),
+        status: this.fb.nonNullable.control('OnTrack')
+      }) as KpiFormGroup
     );
   }
 
@@ -305,11 +305,11 @@ export class PerformancePageComponent implements OnInit {
     this.feedback.push(
       this.fb.group({
         id: this.fb.control<string | null>(null),
-        feedbackType: this.fb.control('Manager', Validators.required),
-        comments: this.fb.control('', Validators.required),
-        submittedBy: this.fb.control('', Validators.required),
-        submittedAtUtc: this.fb.control(new Date().toISOString())
-      })
+        feedbackType: this.fb.nonNullable.control('Manager', Validators.required),
+        comments: this.fb.nonNullable.control('', Validators.required),
+        submittedBy: this.fb.nonNullable.control('', Validators.required),
+        submittedAtUtc: this.fb.nonNullable.control(new Date().toISOString())
+      }) as FeedbackFormGroup
     );
   }
 
@@ -322,8 +322,9 @@ export class PerformancePageComponent implements OnInit {
     this.http.get<PerformanceReviewDto[]>(this.resourceUrl).subscribe({
       next: (reviews) => {
         this.reviews.set(reviews);
-        if (reviews.length > 0 && !this.selectedReview()) {
-          this.selectedReview.set(reviews[0]);
+        const firstReview = reviews[0];
+        if (firstReview && !this.selectedReview()) {
+          this.selectedReview.set(firstReview);
         }
         this.loading.set(false);
       },
@@ -446,10 +447,10 @@ export class PerformancePageComponent implements OnInit {
       : null;
 
     return {
-      employeeId: formValue.employeeId,
-      cycleName: formValue.cycleName,
-      periodStart: formValue.periodStart,
-      periodEnd: formValue.periodEnd,
+      employeeId: formValue.employeeId ?? '',
+      cycleName: formValue.cycleName ?? '',
+      periodStart: formValue.periodStart ?? '',
+      periodEnd: formValue.periodEnd ?? '',
       overallScore: Number(formValue.overallScore ?? 0),
       managerComments: formValue.managerComments ?? '',
       goalsSummary: formValue.goalsSummary ?? '',

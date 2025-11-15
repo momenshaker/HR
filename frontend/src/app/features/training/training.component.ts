@@ -184,8 +184,9 @@ export class TrainingPageComponent implements OnInit {
     this.http.get<TrainingCourseDto[]>(this.trainingCoursesUrl).subscribe({
       next: (courses) => {
         this.courses.set(courses);
-        if (courses.length > 0 && !this.selectedCourse()) {
-          this.selectCourse(courses[0]);
+        const firstCourse = courses[0];
+        if (firstCourse && !this.selectedCourse()) {
+          this.selectCourse(firstCourse);
         }
         this.loadingCatalog.set(false);
       },
