@@ -4,9 +4,11 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header card-header-danger">
-            <h4 class="card-title">Organizations</h4>
-            <p class="card-category">Search, filter, and manage organizations</p>
-            <button mat-flat-button class="btn btn-primary" (click)="openCreate()" aria-label="Create organization">
+            <div>
+              <h4 class="card-title">Organizations</h4>
+              <p class="card-category">Search, filter, and manage organizations</p>
+            </div>
+            <button class="btn btn-primary" (click)="openCreate()" aria-label="Create organization">
               <mat-icon>add</mat-icon>
               Create Organization
             </button>
@@ -18,17 +20,14 @@
                 <input matInput [(ngModel)]="search" (ngModelChange)="onFilterChanged()" />
                 <mat-icon matSuffix>search</mat-icon>
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Industry</mat-label>
                 <input matInput [(ngModel)]="industryFilter" (ngModelChange)="onFilterChanged()" />
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Region</mat-label>
                 <input matInput [(ngModel)]="regionFilter" (ngModelChange)="onFilterChanged()" />
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Sort</mat-label>
                 <mat-select [(ngModel)]="sort">
@@ -38,101 +37,101 @@
             </div>
 
             <div class="filters-actions">
-              <button mat-stroked-button type="button" class="btn "(click)="clearFilters()">
+              <button type="button" class="btn" (click)="clearFilters()">
                 <mat-icon>filter_alt_off</mat-icon>
                 Clear
               </button>
-              <button mat-flat-button type="button" class="btn btn-primary" (click)="applyFilters()">
+              <button type="button" class="btn btn-primary" (click)="applyFilters()">
                 <mat-icon>filter_list</mat-icon>
                 Apply
               </button>
             </div>
             <hr />
 
-            <div class="table-wrapper">
-              <ng-container *ngIf="!loading(); else loadingState">
-                <ng-container *ngIf="items().length; else emptyState">
-                  <table mat-table [dataSource]="items()" class="mat-elevation-z1" style="width: 100%">
-                    <ng-container matColumnDef="name">
-                      <th mat-header-cell *matHeaderCellDef>Name</th>
-                      <td mat-cell *matCellDef="let org">{{ org.name }}</td>
-                    </ng-container>
+            <ng-container *ngIf="!loading(); else loadingState">
+              <ng-container *ngIf="items().length; else emptyState">
+                <table mat-table [dataSource]="items()" class="mat-elevation-z1" style="width: 100%">
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let org">{{ org.name }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="code">
+                    <th mat-header-cell *matHeaderCellDef>Code</th>
+                    <td mat-cell *matCellDef="let org">{{ org.code }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="industry">
+                    <th mat-header-cell *matHeaderCellDef>Industry</th>
+                    <td mat-cell *matCellDef="let org">{{ org.industry || '—' }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="region">
+                    <th mat-header-cell *matHeaderCellDef>Region</th>
+                    <td mat-cell *matCellDef="let org">{{ org.region || '—' }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="primaryContactEmail">
+                    <th mat-header-cell *matHeaderCellDef>Contact</th>
+                    <td mat-cell *matCellDef="let org">
+                      <a *ngIf="org.primaryContactEmail" href="mailto:{{ org.primaryContactEmail }}">{{
+                        org.primaryContactEmail }}</a>
+                      <span *ngIf="!org.primaryContactEmail">—</span>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="createdAt">
+                    <th mat-header-cell *matHeaderCellDef>Created</th>
+                    <td mat-cell *matCellDef="let org">{{ org.createdAt | date: 'short' }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let org" class="actions-cell">
+                      <button class="btn btn-info" (click)="openEdit(org)">
+                        <mat-icon>edit</mat-icon>
+                        Edit
+                      </button>
+                      <button class="btn btn-warning" (click)="viewDepartments(org)">
+                        <mat-icon>business</mat-icon>
+                        View departments
+                      </button>
+                      <button class="btn btn-danger" matTooltip="Delete" (click)="openDelete(org)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
 
-                    <ng-container matColumnDef="code">
-                      <th mat-header-cell *matHeaderCellDef>Code</th>
-                      <td mat-cell *matCellDef="let org">{{ org.code }}</td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="industry">
-                      <th mat-header-cell *matHeaderCellDef>Industry</th>
-                      <td mat-cell *matCellDef="let org">{{ org.industry || '—' }}</td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="region">
-                      <th mat-header-cell *matHeaderCellDef>Region</th>
-                      <td mat-cell *matCellDef="let org">{{ org.region || '—' }}</td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="primaryContactEmail">
-                      <th mat-header-cell *matHeaderCellDef>Contact</th>
-                      <td mat-cell *matCellDef="let org">{{ org.primaryContactEmail || '—' }}</td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="createdAt">
-                      <th mat-header-cell *matHeaderCellDef>Created</th>
-                      <td mat-cell *matCellDef="let org">{{ org.createdAt | date: 'short' }}</td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="actions">
-                      <th mat-header-cell *matHeaderCellDef></th>
-                      <td mat-cell *matCellDef="let org" class="actions-cell">
-                        <button mat-icon-button color="primary" matTooltip="Edit" (click)="openEdit(org)">
-                          <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" matTooltip="Delete" (click)="openDelete(org)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-                  </table>
-                </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                </table>
+                <mat-paginator [length]="totalCount()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+                  [pageSizeOptions]="pageSizeOptions" aria-label="Organizations pagination" (page)="onPage($event)">
+                </mat-paginator>
               </ng-container>
-            </div>
-
-            <mat-paginator [length]="totalCount()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
-              [pageSizeOptions]="pageSizeOptions" aria-label="Organizations pagination" (page)="onPage($event)">
-            </mat-paginator>
+            </ng-container>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<ng-template #emptyState>
-  <div class="empty-state">
-    <mat-icon>business</mat-icon>
-    <div class="empty-title">No organizations match the current filters</div>
-    <div class="empty-subtitle">Adjust the filters or create a new organization.</div>
-    <div class="empty-actions">
-      <button mat-stroked-button type="button" (click)="clearFilters()">
-        <mat-icon>filter_alt_off</mat-icon>
-        Clear Filters
-      </button>
-      <button mat-flat-buttonclass="btn btn-primary" type="button" (click)="openCreate()">
-        <mat-icon>add</mat-icon>
-        Create Organization
-      </button>
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <mat-icon>business</mat-icon>
+      <div class="empty-title">No organizations match the current filters</div>
+      <div class="empty-subtitle">Adjust the filters or create a new organization.</div>
+      <div class="empty-actions">
+        <button type="button" (click)="clearFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Clear Filters
+        </button>
+        <button class="btn btn-primary" type="button" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+          Create Organization
+        </button>
+      </div>
     </div>
-  </div>
-</ng-template>
+  </ng-template>
 
-<ng-template #loadingState>
-  <div class="loading-state">
-    <mat-icon>hourglass_empty</mat-icon>
-    <div>Loading organizations...</div>
-  </div>
-</ng-template>
+  <ng-template #loadingState>
+    <div class="loading-state">
+      <mat-icon>hourglass_empty</mat-icon>
+      <div>Loading organizations...</div>
+    </div>
+  </ng-template>
+</div>

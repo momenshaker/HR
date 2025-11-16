@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -38,6 +38,7 @@ interface EmployeeDetail {
   employmentType?: 'FullTime' | 'PartTime' | 'Contractor';
   employmentStartDate?: string;
   employmentEndDate?: string;
+  dateOfBirth?: string;
   primaryDepartmentId: string;
   departmentIds: string[];
   profileDocuments?: EmployeeDocument[];
@@ -55,6 +56,7 @@ export class EmployeesPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly service = inject(EntityCrudFactory).create<EmployeeFormValue, EmployeeFormValue, EmployeeSummary>('employees');
   private readonly detailService = inject(EntityCrudFactory).create<never, never, EmployeeDetail>('employees');
 
@@ -62,6 +64,7 @@ export class EmployeesPageComponent implements OnInit {
   readonly items = signal<ReadonlyArray<EmployeeSummary>>([]);
   readonly total = signal(0);
   private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
+  private departmentFilter?: string;
 
   readonly columns = {
     fullName: 'Name',
@@ -75,7 +78,12 @@ export class EmployeesPageComponent implements OnInit {
   readonly displayedColumns = Object.keys(this.columns);
 
   ngOnInit(): void {
-    this.load(this.querySignal());
+    this.route.queryParamMap.subscribe((params) => {
+      const departmentId = params.get('departmentId');
+      this.departmentFilter = departmentId ?? undefined;
+      this.querySignal.set({ ...this.querySignal(), pageIndex: 0 });
+      this.load(this.querySignal());
+    });
   }
 
   view(item: EmployeeSummary): void {
@@ -127,10 +135,15 @@ export class EmployeesPageComponent implements OnInit {
   }
 
   private openForm(employeeId?: string, payload?: EmployeeFormValue): void {
+    const dialogData = this.buildDialogData(payload);
+    if (!dialogData) {
+      return;
+    }
+
     this.dialog
       .open(EmployeeFormComponent, {
         width: '520px',
-        data: payload ?? null
+        data: dialogData
       })
       .afterClosed()
       .subscribe((value?: EmployeeFormValue) => {
@@ -160,6 +173,7 @@ export class EmployeesPageComponent implements OnInit {
       employmentType: employee.employmentType,
       employmentStartDate: employee.employmentStartDate,
       employmentEndDate: employee.employmentEndDate,
+      dateOfBirth: employee.dateOfBirth,
       departmentAssignment: {
         primaryDepartmentId: employee.primaryDepartmentId,
         secondaryDepartmentIds: employee.departmentIds.filter((id) => id !== employee.primaryDepartmentId)
@@ -176,21 +190,39 @@ export class EmployeesPageComponent implements OnInit {
 
   private load(query: DataTableQuery): void {
     this.loading.set(true);
+    const filters = this.departmentFilter ? { departmentId: this.departmentFilter } : undefined;
     this.service
       .list({
         page: query.pageIndex + 1,
         pageSize: query.pageSize,
         search: query.search,
         sort: query.sortField,
-        direction: query.sortDirection
+        direction: query.sortDirection,
+        filters
       })
       .subscribe({
         next: (response) => {
-          this.items.set(response.data);
-          this.total.set(response.meta?.totalItems ?? response.data.length);
+          this.items.set(response.items);
+          this.total.set(response.totalCount);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false)
-      });
+      error: () => this.loading.set(false)
+    });
+  }
+
+  private buildDialogData(payload?: EmployeeFormValue): Partial<EmployeeFormValue> | null {
+    if (payload) {
+      return payload;
+    }
+    if (!this.departmentFilter) {
+      this.snackbar.open('Select a department before adding employees.', 'Dismiss', { duration: 3000 });
+      return null;
+    }
+    return {
+      departmentAssignment: {
+        primaryDepartmentId: this.departmentFilter,
+        secondaryDepartmentIds: []
+      }
+    };
   }
 }

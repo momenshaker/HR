@@ -9,4 +9,7 @@ public sealed record AttendancePunchDto(
     Guid Id,
     string Type,
     DateTimeOffset TimestampUtc,
+    string Source,
+    string DeviceId,
+    string Location,
     string Notes);

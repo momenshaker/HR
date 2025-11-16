@@ -9,11 +9,15 @@ public sealed class LeaveRequest
 
     public Guid EmployeeId { get; init; }
 
+    public Guid LeaveTypeId { get; init; }
+
     public string LeaveType { get; init; } = string.Empty;
 
     public DateOnly StartDate { get; init; }
 
     public DateOnly EndDate { get; init; }
+
+    public decimal NumberOfDays { get; init; }
 
     public string Status { get; init; } = string.Empty;
 
@@ -21,7 +25,13 @@ public sealed class LeaveRequest
 
     public string Reason { get; init; } = string.Empty;
 
-    public DateTime RequestedAtUtc { get; init; }
+    public string? AttachmentPath { get; init; }
 
-    public DateTime? DecisionAtUtc { get; init; }
+    public DateTime SubmittedAtUtc { get; init; }
+
+    public DateTime? ApprovedAtUtc { get; init; }
+
+    public DateTime? RejectedAtUtc { get; init; }
+
+    public DateTime? CancelledAtUtc { get; init; }
 }

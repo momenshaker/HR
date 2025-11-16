@@ -8,8 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [CommonModule, MatButtonModule],
   template: `
     <div class="form-actions">
-      <button mat-stroked-button class="btn btn-warning" type="button" (click)="onCancel?.()">Cancel</button>
-      <button mat-flat-button class="btn btn-primary" type="submit" [disabled]="disabled">{{ submitLabel }}</button>
+      <button class="btn btn-danger" type="button" (click)="onCancel?.()">Cancel</button>
+      <button  class="btn btn-primary" type="submit" [disabled]="disabled">{{ submitLabel }}</button>
     </div>
   `,
   styles: [

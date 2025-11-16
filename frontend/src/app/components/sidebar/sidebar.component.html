@@ -1,85 +1,50 @@
-<div class="logo">
-    <a href="https://herculesit.ae/" class="simple-text">
-        <img src="../../../assets/img/logo-dark.03d7eb6b.png" style="    width: 150px;">
-
-    </a>
-</div>
-<div class="sidebar-wrapper">
-    <div *ngIf="isMobileMenu()">
-        <form class="navbar-form">
-            <span class="bmd-form-group">
-                <div class="input-group no-border">
-                    <input type="text" value="" class="form-control" placeholder="Search...">
-                    <button mat-raised-button type="submit" class="btn btn-white btn-round btn-just-icon">
-                        <i class="material-icons">search</i>
-                        <div class="ripple-container"></div>
-                    </button>
-                </div>
+<div class="pcoded-inner-navbar">
+  <div class="pcoded-navigation-label">Navigation</div>
+  <ul class="pcoded-item pcoded-left-item">
+    <li
+      *ngFor="let menuItem of menuItems"
+      class="pcoded-hasmenu"
+      [ngClass]="{ 'pcoded-trigger': isGroupExpanded(menuItem) }"
+    >
+      <a
+        *ngIf="!menuItem.children?.length"
+        [routerLink]="[menuItem.path]"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="pcoded-mlink"
+      >
+        <span class="pcoded-micon">
+          <i class="material-icons">{{ menuItem.icon }}</i>
+        </span>
+        <span class="pcoded-mtext">{{ menuItem.title }}</span>
+      </a>
+      <a
+        *ngIf="menuItem.children?.length"
+        href="javascript:void(0)"
+        class="pcoded-mlink"
+        (click)="toggleGroup(menuItem); $event.preventDefault();"
+      >
+        <span class="pcoded-micon">
+          <i class="material-icons">{{ menuItem.icon }}</i>
+        </span>
+        <span class="pcoded-mtext">{{ menuItem.title }}</span>
+        <span class="pcoded-mcaret"></span>
+      </a>
+      <ul class="pcoded-submenu" *ngIf="isGroupExpanded(menuItem)">
+        <li *ngFor="let child of menuItem.children">
+          <a
+            [routerLink]="[child.path]"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="pcoded-mlink"
+          >
+            <span class="pcoded-micon">
+              <i class="material-icons">{{ child.icon }}</i>
             </span>
-        </form>
-        <ul class="nav navbar-nav nav-mobile-menu">
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)">
-                    <i class="material-icons">dashboard</i>
-                    <p>
-                        <span class="d-lg-none d-md-block">Stats</span>
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link" href="javascript:void(0)" id="navbarDropdownMenuLink" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-                    <i class="material-icons">notifications</i>
-                    <span class="notification">5</span>
-                    <p>
-                        <span class="d-lg-none d-md-block">Some Actions</span>
-                    </p>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="#">Mike John responded to your email</a>
-                    <a class="dropdown-item" href="#">You have 5 new tasks</a>
-                    <a class="dropdown-item" href="#">You're now friend with Andrew</a>
-                    <a class="dropdown-item" href="#">Another Notification</a>
-                    <a class="dropdown-item" href="#">Another One</a>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)">
-                    <i class="material-icons">person</i>
-                    <p>
-                        <span class="d-lg-none d-md-block">Account</span>
-                    </p>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <ul class="nav">
-        <ng-container *ngFor="let menuItem of menuItems">
-            <li *ngIf="!menuItem.children?.length" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-                class="nav-item" [ngClass]="menuItem.class || ''">
-                <a class="nav-link" [routerLink]="[menuItem.path]">
-                    <i class="material-icons">{{menuItem.icon}}</i>
-                    <p>{{menuItem.title}}</p>
-                </a>
-            </li>
-            <li *ngIf="menuItem.children?.length" class="nav-item nav-group"
-                [ngClass]="[menuItem.class, isGroupExpanded(menuItem) ? 'open' : '']">
-                <div class="nav-group-header">
-                    <a class="nav-link" href="#" (click)="toggleGroup(menuItem); $event.preventDefault();">
-                        <i class="material-icons">{{menuItem.icon}}</i>
-                        <p>{{menuItem.title}}</p>
-                    </a>
-                </div>
-                <ul class="nav nested-menu" *ngIf="isGroupExpanded(menuItem)">
-                    <li *ngFor="let child of menuItem.children" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
-                        <a class="nav-link" [routerLink]="[child.path]">
-                            <i class="material-icons">{{child.icon}}</i>
-                            <p>{{child.title}}</p>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ng-container>
-    </ul>
+            <span class="pcoded-mtext">{{ child.title }}</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
 </div>

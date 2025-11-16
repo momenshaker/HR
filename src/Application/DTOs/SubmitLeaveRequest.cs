@@ -18,5 +18,8 @@ public sealed class SubmitLeaveRequest
 
     [MaxLength(500)]
     public string? Reason { get; init; }
+
+    [MaxLength(260)]
+    public string? AttachmentPath { get; init; }
 }
 

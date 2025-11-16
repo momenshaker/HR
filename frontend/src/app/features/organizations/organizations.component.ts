@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { EntityCrudFactory } from '@core/data-access';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { OrganizationFormComponent, OrganizationFormValue } from './organizations.form';
@@ -22,7 +24,6 @@ export interface OrganizationSummary {
   industry?: string;
   region?: string;
   primaryContactEmail?: string;
-  websiteUrl?: string;
   createdAt?: string;
 }
 
@@ -35,13 +36,14 @@ type SortOption = undefined | 'createdAt' | '-createdAt' | 'name' | '-name' | 'c
     CommonModule,
     FormsModule,
     MatButtonModule,
-    MatIconModule,
+    MatCheckboxModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
+    MatPaginatorModule,
     MatSelectModule,
     MatTableModule,
-    MatPaginatorModule,
     MatTooltipModule
   ],
   templateUrl: './organizations.component.html',
@@ -51,6 +53,7 @@ type SortOption = undefined | 'createdAt' | '-createdAt' | 'name' | '-name' | 'c
 export class OrganizationsPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly router = inject(Router);
   private readonly service = inject(EntityCrudFactory).create<OrganizationFormValue, OrganizationFormValue, OrganizationSummary>(
     'organizations'
   );
@@ -77,7 +80,12 @@ export class OrganizationsPageComponent implements OnInit {
   regionFilter = '';
   sort: SortOption = undefined;
 
-  readonly filters = computed(() => ({ search: this.search, industry: this.industryFilter, region: this.regionFilter, sort: this.sort }));
+  readonly filters = computed(() => ({
+    search: this.search,
+    industry: this.industryFilter,
+    region: this.regionFilter,
+    sort: this.sort
+  }));
 
   ngOnInit(): void {
     this.load();
@@ -171,6 +179,10 @@ export class OrganizationsPageComponent implements OnInit {
       });
   }
 
+  viewDepartments(item: OrganizationSummary): void {
+    this.router.navigate(['/departments'], { queryParams: { organizationId: item.id } });
+  }
+
   private reload(): void {
     this.load();
   }
@@ -199,22 +211,8 @@ export class OrganizationsPageComponent implements OnInit {
       })
       .subscribe({
         next: (response) => {
-          const normalized = response as unknown;
-          const payload =
-            Array.isArray(normalized)
-              ? normalized
-              : 'data' in (normalized as Record<string, unknown>)
-              ? (normalized as { data?: OrganizationSummary[] }).data ?? []
-              : [];
-          const totalItems =
-            Array.isArray(normalized)
-              ? normalized.length
-              : 'meta' in (normalized as Record<string, unknown>)
-              ? (normalized as { meta?: { totalItems?: number } }).meta?.totalItems ?? payload.length
-              : payload.length;
-
-          this.items.set(payload);
-          this.totalCount.set(totalItems);
+          this.items.set(response.items);
+          this.totalCount.set(response.totalCount);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)

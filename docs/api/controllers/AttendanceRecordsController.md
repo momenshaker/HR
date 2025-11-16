@@ -31,11 +31,14 @@
   - employeeId (uuid, required)
   - workDate (date, required)
   - shiftName (string, ≤100)
-  - clockInUtc (string, date-time)
-  - clockOutUtc (string, date-time)
-  - overtimeMinutes (int, 0..1440)
+  - scheduledStartTimeUtc / scheduledEndTimeUtc (string, date-time)
+  - scheduledWorkMinutes, breakMinutes, gracePeriodMinutes (int)
+  - checkInTimeUtc / checkOutTimeUtc (string, date-time)
+  - totalWorkedMinutes, lateMinutes, earlyLeaveMinutes, overtimeMinutes, absenceMinutes (int, 0..1440)
   - status (string, ≤50)
-  - notes (string, ≤500)
+  - source (string, ≤50)
+  - remarks (string, ≤500)
+  - punches[] (id?, type, timestampUtc, source, deviceId, location, notes)
 - Responses: `AttendanceRecordDto`, `IReadOnlyCollection<AttendanceRecordDto>`
 
 **cURL Examples**
@@ -53,11 +56,24 @@
   "employeeId": "<uuid>",
   "workDate": "2025-01-01",
   "shiftName": "Day",
-  "clockInUtc": "2025-01-01T09:00:00Z",
-  "clockOutUtc": null,
-  "overtimeMinutes": 0,
-  "status": "Open",
-  "notes": ""
+  "scheduledStartTimeUtc": "2025-01-01T09:00:00Z",
+  "scheduledEndTimeUtc": "2025-01-01T18:00:00Z",
+  "scheduledWorkMinutes": 480,
+  "breakMinutes": 60,
+  "gracePeriodMinutes": 10,
+  "punches": [
+    {
+      "type": "ClockIn",
+      "timestampUtc": "2025-01-01T09:05:00Z",
+      "source": "SelfService",
+      "deviceId": "web",
+      "location": "HQ",
+      "notes": ""
+    }
+  ],
+  "status": "InProgress",
+  "source": "SelfService",
+  "remarks": "First punch"
 }
 JSON
 - Update
@@ -70,11 +86,33 @@ JSON
   "employeeId": "<uuid>",
   "workDate": "2025-01-01",
   "shiftName": "Day",
-  "clockInUtc": "2025-01-01T09:00:00Z",
-  "clockOutUtc": "2025-01-01T17:00:00Z",
-  "overtimeMinutes": 0,
-  "status": "Closed",
-  "notes": "Completed"
+  "scheduledStartTimeUtc": "2025-01-01T09:00:00Z",
+  "scheduledEndTimeUtc": "2025-01-01T18:00:00Z",
+  "scheduledWorkMinutes": 480,
+  "breakMinutes": 60,
+  "gracePeriodMinutes": 10,
+  "punches": [
+    {
+      "id": "<existing-punch-id>",
+      "type": "ClockIn",
+      "timestampUtc": "2025-01-01T09:05:00Z",
+      "source": "SelfService",
+      "deviceId": "web",
+      "location": "HQ",
+      "notes": ""
+    },
+    {
+      "type": "ClockOut",
+      "timestampUtc": "2025-01-01T18:15:00Z",
+      "source": "SelfService",
+      "deviceId": "web",
+      "location": "HQ",
+      "notes": "Overtime"
+    }
+  ],
+  "status": "Completed",
+  "source": "SelfService",
+  "remarks": "Completed"
 }
 JSON
 - Delete

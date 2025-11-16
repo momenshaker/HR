@@ -18,7 +18,7 @@
           <div class="card-body">
             <section class="feature-section">
               <div class="section-header">
-                <h5>Publish job</h5>
+                <h5>Publish vacancy</h5>
               </div>
               <form [formGroup]="form" (ngSubmit)="publish()" class="form-grid">
                 <mat-form-field appearance="outline">
@@ -28,17 +28,48 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Department</mat-label>
-                  <mat-select formControlName="departmentId" required>
-                    <mat-option value="hr">Human Resources</mat-option>
-                    <mat-option value="engineering">Engineering</mat-option>
-                    <mat-option value="sales">Sales</mat-option>
+                  <input matInput formControlName="department" />
+                  <mat-error *ngIf="form.controls.department.hasError('required')">Department is required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Location</mat-label>
+                  <input matInput formControlName="location" />
+                  <mat-error *ngIf="form.controls.location.hasError('required')">Location is required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Employment type</mat-label>
+                  <mat-select formControlName="employmentType">
+                    <mat-option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</mat-option>
                   </mat-select>
-                  <mat-error *ngIf="form.controls.departmentId.hasError('required')">Select a department</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="form-grid__full">
                   <mat-label>Job description</mat-label>
                   <textarea matInput formControlName="description" rows="4"></textarea>
                   <mat-error *ngIf="form.controls.description.hasError('required')">Description required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Responsibilities (one per line)</mat-label>
+                  <textarea matInput formControlName="responsibilities" rows="3"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Requirements (one per line)</mat-label>
+                  <textarea matInput formControlName="requirements" rows="3"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Pipeline stages</mat-label>
+                  <textarea matInput formControlName="pipelineStages" rows="2"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Hiring team (comma or new line separated)</mat-label>
+                  <textarea matInput formControlName="hiringTeam" rows="2"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Application link</mat-label>
+                  <input matInput formControlName="applicationUrl" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Closing date</mat-label>
+                  <input matInput type="date" formControlName="closingAtUtc" />
                 </mat-form-field>
                 <div class="form-actions">
                   <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Publish</button>
@@ -49,7 +80,7 @@
             <section class="feature-section">
               <div class="section-header">
                 <h5>Open roles</h5>
-                <p>Filter and manage job postings from a single table.</p>
+                <p>Filter and manage vacancies backed by the VacanciesController.</p>
               </div>
               <app-data-table
                 [columns]="columns"

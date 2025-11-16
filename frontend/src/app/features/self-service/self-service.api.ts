@@ -10,6 +10,7 @@ import {
   EmployeeOrganizationSnapshot,
   LeaveRequest,
   LeaveRequestPayload,
+  LeaveType,
   SalarySlip,
   SelfServiceAccount,
   SelfServiceAccountPayload,
@@ -32,6 +33,10 @@ export class SelfServiceApiService {
 
   submitLeaveRequest(employeeId: string, payload: LeaveRequestPayload) {
     return this.http.post<LeaveRequest>(`${this.base(employeeId)}/leave-requests`, payload);
+  }
+
+  getLeaveTypes() {
+    return this.http.get<LeaveType[]>(`${this.config.apiBaseUrl}/leave/types`);
   }
 
   clockIn(employeeId: string, payload: ClockInPayload) {

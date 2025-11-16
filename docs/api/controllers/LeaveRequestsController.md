@@ -32,10 +32,11 @@
         -d @- <<'JSON'
 {
   "employeeId": "<uuid>",
-  "leaveType": "Annual",
+  "leaveTypeId": "<uuid>",
   "startDate": "2025-02-01",
   "endDate": "2025-02-05",
-  "reason": "Vacation"
+  "reason": "Vacation",
+  "attachmentPath": "https://files.example.com/medical-note.pdf"
 }
 JSON
 - Update
@@ -45,13 +46,16 @@ JSON
         -H "Content-Type: application/json" \
         -d @- <<'JSON'
 {
-  "leaveType": "Annual",
+  "leaveTypeId": "<uuid>",
   "startDate": "2025-02-01",
   "endDate": "2025-02-05",
   "reason": "Updated reason",
-  "status": "Submitted",
+  "status": "PendingApproval",
   "approverId": "<uuid>",
-  "decisionAtUtc": null
+  "approvedAtUtc": null,
+  "rejectedAtUtc": null,
+  "cancelledAtUtc": null,
+  "attachmentPath": "https://files.example.com/updated-note.pdf"
 }
 JSON
 - Delete

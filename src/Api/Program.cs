@@ -134,6 +134,7 @@ builder.Services.AddControllers(options =>
         options.Filters.Add(new AuthorizeFilter());
         options.Filters.Add(new AuthorizeFilter("OrgGuard"));
         options.Filters.AddService<AuditLoggingFilter>();
+        options.Filters.Add(new PaginatedResponseWrappingFilter());
         options.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResponse), StatusCodes.Status401Unauthorized));
         options.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResponse), StatusCodes.Status403Forbidden));
         options.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResponse), StatusCodes.Status422UnprocessableEntity));

@@ -16,11 +16,13 @@ import {
   getJwtClaim,
   EMPLOYEE_ID_CLAIM
 } from './jwt.utils';
+import { PaginatedResponse } from '@core/data-access/paginated-response.model';
 
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
+  tokenType?: string;
   user?: AuthUser;
 }
 
@@ -39,16 +41,34 @@ export class AuthService {
     }
   }
 
+  private unwrapResponse<T>(response: PaginatedResponse<T>): T {
+    if (response.items.length === 0 || response.items[0] === undefined) {
+      throw new Error('Auth API returned an empty payload.');
+    }
+
+    return response.items[0];
+  }
+
+  private toAuthTokens(payload: { accessToken: string; refreshToken: string; expiresIn: number; tokenType?: string }): AuthTokens {
+    if (!payload.refreshToken) {
+      throw new Error('Auth API returned a payload without a refresh token.');
+    }
+
+    return {
+      accessToken: payload.accessToken,
+      refreshToken: payload.refreshToken,
+      expiresIn: payload.expiresIn,
+      tokenType: payload.tokenType
+    };
+  }
+
   login(request: LoginRequest): Observable<AuthUser | null> {
     this.store.setLoading(true);
-    return this.http.post<LoginResponse>(`${this.config.apiBaseUrl}/auth/login`, request).pipe(
+    return this.http.post<PaginatedResponse<LoginResponse>>(`${this.config.apiBaseUrl}/auth/login`, request).pipe(
       map((response) => {
-        const tokens: AuthTokens = {
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
-          expiresIn: response.expiresIn
-        };
-        const user = response.user ?? this.createUserFromAccessToken(tokens.accessToken);
+        const payload = this.unwrapResponse(response);
+        const tokens = this.toAuthTokens(payload);
+        const user = payload.user ?? this.createUserFromAccessToken(tokens.accessToken);
         return { tokens, user };
       }),
       tap(({ tokens, user }) => {
@@ -69,8 +89,10 @@ export class AuthService {
     }
 
     return this.http
-      .post<AuthTokens>(`${this.config.apiBaseUrl}/auth/refresh`, { refreshToken })
+      .post<PaginatedResponse<LoginResponse>>(`${this.config.apiBaseUrl}/auth/refresh`, { refreshToken })
       .pipe(
+        map((response) => this.unwrapResponse(response)),
+        map((payload) => this.toAuthTokens(payload)),
         tap((tokens) => {
           this.tokenStorage.save(tokens);
           this.store.setTokens(tokens);
@@ -80,7 +102,8 @@ export class AuthService {
   }
 
   loadProfile(): Observable<AuthUser | null> {
-    return this.http.get<AuthUser>(`${this.config.apiBaseUrl}/auth/me`).pipe(
+    return this.http.get<PaginatedResponse<AuthUser>>(`${this.config.apiBaseUrl}/auth/me`).pipe(
+      map((response) => this.unwrapResponse(response)),
       tap((user) => this.store.setUser(user)),
       catchError((error) => {
         if (error.status === 401) {

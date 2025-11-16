@@ -4,10 +4,10 @@ public sealed record LeaveBalanceDto(
     Guid EmployeeId,
     Guid LeaveTypeId,
     int Year,
-    decimal Opening,
+    decimal OpeningBalance,
     decimal Accrued,
     decimal Taken,
-    decimal CarriedOver,
+    decimal CarriedForward,
     decimal Reserved,
-    decimal Available);
+    decimal Remaining);
 

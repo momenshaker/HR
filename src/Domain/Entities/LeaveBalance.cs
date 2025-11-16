@@ -21,5 +21,7 @@ public sealed class LeaveBalance
     public decimal CarriedOver { get; init; }
 
     public byte[]? RowVersion { get; init; }
+
+    public decimal Remaining => Opening + Accrued + CarriedOver - Taken;
 }
 

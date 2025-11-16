@@ -23,6 +23,12 @@ public sealed class ClockInRequest
     [MaxLength(100)]
     public string ShiftName { get; init; } = string.Empty;
 
+    [MaxLength(100)]
+    public string DeviceId { get; init; } = string.Empty;
+
+    [MaxLength(200)]
+    public string Location { get; init; } = string.Empty;
+
     /// <summary>
     ///     Free-form notes captured at the time of clock-in.
     /// </summary>

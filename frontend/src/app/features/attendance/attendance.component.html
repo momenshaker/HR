@@ -9,32 +9,43 @@
               <p class="card-category">Log attendance and review records in one place.</p>
             </div>
             <div class="card-header__actions">
-              <button mat-stroked-button color="primary" (click)="refresh()" aria-label="Refresh attendance">
+              <button class="btn btn-primary"  (click)="refresh()" aria-label="Refresh attendance">
                 <mat-icon>refresh</mat-icon>
                 Refresh
               </button>
             </div>
           </div>
           <div class="card-body">
-            <section class="feature-section">
+            <section class="feature-section attendance-form-section">
               <div class="section-header">
-                <h5>Record attendance</h5>
-                <p>Use the form below to capture punches and notes.</p>
+                <div>
+                  <h5>{{ isEditing() ? 'Update attendance record' : 'Record attendance' }}</h5>
+                  <ng-container *ngIf="isEditing(); else createCopy">
+                    <p>Edit punches or status before saving the confirmed record.</p>
+                  </ng-container>
+                  <ng-template #createCopy>
+                    <p>Capture punches, scheduling, and metrics for a new attendance entry.</p>
+                  </ng-template>
+                </div>
+                <div class="section-header__actions" *ngIf="isEditing()">
+                  <button mat-stroked-button color="warn" type="button" (click)="cancelEditing()">Cancel editing</button>
+                </div>
               </div>
-              <form [formGroup]="createForm" (ngSubmit)="submit()" class="attendance-form__grid">
+              <form [formGroup]="attendanceForm" (ngSubmit)="submit()" class="attendance-form__grid">
                 <mat-form-field appearance="outline">
                   <mat-label>Employee</mat-label>
                   <mat-select formControlName="employeeId">
+                    <mat-option value="">Choose employee</mat-option>
                     <mat-option *ngFor="let employee of employees" [value]="employee.id">
-                      {{ employee.fullName }}
+                      {{ employee.email }}
                     </mat-option>
                   </mat-select>
-                  <mat-error *ngIf="createForm.controls.employeeId.hasError('required')">Employee is required</mat-error>
+                  <mat-error *ngIf="attendanceForm.controls.employeeId.hasError('required')">Employee is required</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Work date</mat-label>
                   <input matInput type="date" formControlName="workDate" />
-                  <mat-error *ngIf="createForm.controls.workDate.hasError('required')">Date is required</mat-error>
+                  <mat-error *ngIf="attendanceForm.controls.workDate.hasError('required')">Date is required</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Shift name</mat-label>
@@ -43,17 +54,64 @@
                 <mat-form-field appearance="outline">
                   <mat-label>Status</mat-label>
                   <mat-select formControlName="status">
-                    <mat-option value="InProgress">In progress</mat-option>
-                    <mat-option value="Completed">Completed</mat-option>
+                    <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                  <mat-label>Overtime (minutes)</mat-label>
-                  <input matInput type="number" formControlName="overtimeMinutes" />
+                  <mat-label>Source</mat-label>
+                  <input matInput formControlName="source" />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Notes</mat-label>
-                  <input matInput formControlName="notes" />
+                  <input matInput formControlName="remarks" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Scheduled start</mat-label>
+                  <input matInput type="datetime-local" formControlName="scheduledStartTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Scheduled end</mat-label>
+                  <input matInput type="datetime-local" formControlName="scheduledEndTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Check-in time</mat-label>
+                  <input matInput type="datetime-local" formControlName="checkInTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Check-out time</mat-label>
+                  <input matInput type="datetime-local" formControlName="checkOutTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Scheduled work (minutes)</mat-label>
+                  <input matInput type="number" formControlName="scheduledWorkMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Break minutes</mat-label>
+                  <input matInput type="number" formControlName="breakMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Grace period</mat-label>
+                  <input matInput type="number" formControlName="gracePeriodMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Total worked (minutes)</mat-label>
+                  <input matInput type="number" formControlName="totalWorkedMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Late minutes</mat-label>
+                  <input matInput type="number" formControlName="lateMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Early leave</mat-label>
+                  <input matInput type="number" formControlName="earlyLeaveMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Overtime minutes</mat-label>
+                  <input matInput type="number" formControlName="overtimeMinutes" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Absence minutes</mat-label>
+                  <input matInput type="number" formControlName="absenceMinutes" />
                 </mat-form-field>
                 <div formArrayName="punches" class="attendance-form__punches">
                   <h3>Punches</h3>
@@ -62,19 +120,40 @@
                     *ngFor="let control of punchControls.controls; index as i"
                     [formGroupName]="i"
                   >
-                    <mat-form-field appearance="outline">
-                      <mat-label>Type</mat-label>
-                      <input matInput formControlName="type" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Timestamp</mat-label>
-                      <input matInput type="datetime-local" formControlName="timestamp" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Notes</mat-label>
-                      <input matInput formControlName="notes" />
-                    </mat-form-field>
-                    <button mat-icon-button type="button" color="warn" (click)="removePunch(i)" *ngIf="punchControls.length > 1">
+                    <div class="attendance-form__punch-fields">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Type</mat-label>
+                        <input matInput formControlName="type" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Timestamp</mat-label>
+                        <input matInput type="datetime-local" formControlName="timestamp" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Source</mat-label>
+                        <input matInput formControlName="source" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Device</mat-label>
+                        <input matInput formControlName="deviceId" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Location</mat-label>
+                        <input matInput formControlName="location" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Notes</mat-label>
+                        <input matInput formControlName="notes" />
+                      </mat-form-field>
+                    </div>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      color="warn"
+                      (click)="removePunch(i)"
+                      [disabled]="punchControls.length === 1"
+                      aria-label="Remove punch"
+                    >
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
@@ -83,21 +162,123 @@
                     Add punch
                   </button>
                 </div>
-                <button mat-raised-button color="primary" type="submit">Submit attendance</button>
+                <div class="attendance-form__actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+                    <mat-icon *ngIf="saving()">autorenew</mat-icon>
+                    {{ isEditing() ? 'Save changes' : 'Submit attendance' }}
+                  </button>
+                </div>
               </form>
             </section>
 
-            <section class="feature-section">
+            <section class="feature-section attendance-filters">
               <div class="section-header">
                 <h5>Filter records</h5>
                 <p>Tighten the date range before reviewing the table.</p>
               </div>
-              <app-date-range-picker [form]="filterForm"></app-date-range-picker>
+              <div class="attendance-filters__grid">
+                <app-date-range-picker [form]="filterForm"></app-date-range-picker>
+                <mat-form-field appearance="outline">
+                  <mat-label>Employee</mat-label>
+                  <mat-select formControlName="employeeId">
+                    <mat-option value="">All employees</mat-option>
+                    <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                      {{ employee.fullName }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Status</mat-label>
+                  <mat-select formControlName="status">
+                    <mat-option value="">Any status</mat-option>
+                    <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </section>
+
+            <section class="feature-section attendance-detail" *ngIf="selectedRecord() as record">
+              <div class="section-header">
+                <div>
+                  <h5>Record overview</h5>
+                  <p>
+                    Attendance for {{ record.employeeName ?? record.employeeId }} on {{ record.workDate }}
+                  </p>
+                </div>
+                <div class="section-header__actions">
+                  <button
+                    mat-stroked-button
+                    color="primary"
+                    type="button"
+                    (click)="editRecord(record)"
+                    aria-label="Edit record"
+                  >
+                    <mat-icon>edit</mat-icon>
+                    Edit record
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="detailLoading()" class="attendance-detail__loading">Loading record details...</div>
+              <div class="attendance-detail__grid">
+                <div class="attendance-detail__item">
+                  <span>Shift</span>
+                  <strong>{{ record.shiftName || '—' }}</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Status</span>
+                  <strong>{{ record.status }}</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Source</span>
+                  <strong>{{ record.source || '—' }}</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Check-in</span>
+                  <strong>{{ formatTime(record.checkInTimeUtc) }}</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Check-out</span>
+                  <strong>{{ formatTime(record.checkOutTimeUtc) }}</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Total worked</span>
+                  <strong>{{ record.totalWorkedMinutes }} min</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Overtime</span>
+                  <strong>{{ record.overtimeMinutes }} min</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Late</span>
+                  <strong>{{ record.lateMinutes }} min</strong>
+                </div>
+                <div class="attendance-detail__item">
+                  <span>Absence</span>
+                  <strong>{{ record.absenceMinutes }} min</strong>
+                </div>
+              </div>
+              <div class="attendance-detail__remarks" *ngIf="record.remarks">
+                <strong>Notes</strong>
+                <p>{{ record.remarks }}</p>
+              </div>
+              <h6>Punches</h6>
+              <mat-list>
+                <mat-list-item *ngFor="let punch of record.punches">
+                  <div mat-line>{{ punch.type }} &#64; {{ formatTime(punch.timestampUtc) }}</div>
+                  <div mat-line class="attendance-detail__punch-meta">
+                    <span>Source: {{ punch.source || '—' }}</span>
+                    <span>Device: {{ punch.deviceId || '—' }}</span>
+                    <span>Location: {{ punch.location || '—' }}</span>
+                  </div>
+                  <div mat-line *ngIf="punch.notes">{{ punch.notes }}</div>
+                </mat-list-item>
+              </mat-list>
             </section>
 
             <section class="feature-section">
               <div class="section-header">
                 <h5>Attendance records</h5>
+                <p>Browse and manage every attendance entry stored in the system.</p>
               </div>
               <app-data-table
                 [columns]="columns"
@@ -106,7 +287,19 @@
                 [total]="total()"
                 [loading]="loading()"
                 (queryChange)="onQueryChange($event)"
-              ></app-data-table>
+              >
+                <ng-template #actions let-record>
+                  <button mat-icon-button color="primary" (click)="viewRecord(record)" aria-label="View record">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button mat-icon-button color="primary" (click)="editRecord(record)" aria-label="Edit record">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="confirmDelete(record)" aria-label="Delete record">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </ng-template>
+              </app-data-table>
             </section>
           </div>
         </div>

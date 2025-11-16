@@ -99,8 +99,8 @@ export class PayrollPageComponent {
       })
       .subscribe({
         next: (response) => {
-          this.runs.set(response.data);
-          this.total.set(response.meta?.totalItems ?? response.data.length);
+          this.runs.set(response.items);
+          this.total.set(response.totalCount);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)

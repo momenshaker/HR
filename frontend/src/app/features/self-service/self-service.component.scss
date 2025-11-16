@@ -103,3 +103,22 @@
   display: flex;
   flex-direction: column;
 }
+
+.admin-config-card {
+  mat-card {
+    padding: 0.5rem;
+  }
+}
+
+.admin-config__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attendance-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}

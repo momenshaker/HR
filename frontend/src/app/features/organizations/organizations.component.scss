@@ -1,90 +1,45 @@
-/* Reuse list page styles from Accounts */
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  align-items: end;
-  margin-bottom: 12px;
-}
-
-.filters-grid mat-form-field {
-  width: 100%;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .filters-actions {
   display: flex;
-  gap: 8px;
   justify-content: flex-end;
-  margin-top: 12px;
-  height: 56px;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-.filters-actions button {
-  height: 56px;
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-@media (max-width: 768px) {
-  .filters-actions {
-    width: 100%;
-    justify-content: stretch;
-  }
-
-  .filters-actions button {
-    flex: 1 1 auto;
-  }
-}
-
-.empty-cell {
-  padding: 24px 12px;
-}
-
-.empty-state {
+.empty-state,
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.empty-state mat-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 8px;
-  color: rgba(0, 0, 0, 0.38);
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .empty-title {
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .empty-subtitle {
-  font-size: 13px;
-  margin-bottom: 12px;
-  color: rgba(0, 0, 0, 0.54);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .empty-actions {
   display: flex;
-  gap: 8px;
-}
-
-/* Match empty-state button icon sizing with Accounts */
-.empty-actions button mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-/* Full width helpers, matches Accounts */
-.example-full-width {
-  width: 100% !important;
-}
-
-.item-full-width mat-form-field {
-  width: 100% !important;
+  gap: 0.5rem;
 }

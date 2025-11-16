@@ -23,6 +23,15 @@ internal sealed class AttendancePunchConfiguration : IEntityTypeConfiguration<At
             .IsRequired()
             .HasColumnType("datetimeoffset");
 
+        builder.Property(punch => punch.Source)
+            .HasMaxLength(100);
+
+        builder.Property(punch => punch.DeviceId)
+            .HasMaxLength(100);
+
+        builder.Property(punch => punch.Location)
+            .HasMaxLength(200);
+
         builder.Property(punch => punch.Notes)
             .HasMaxLength(500);
 

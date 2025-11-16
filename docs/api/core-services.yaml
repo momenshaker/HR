@@ -3257,6 +3257,9 @@ components:
         employeeId:
           type: string
           format: uuid
+        leaveTypeId:
+          type: string
+          format: uuid
         leaveType:
           type: string
         startDate:
@@ -3265,30 +3268,47 @@ components:
         endDate:
           type: string
           format: date
+        numberOfDays:
+          type: number
+          format: decimal
         status:
           type: string
+          enum: [Draft, PendingApproval, Approved, Rejected, Cancelled]
         approverId:
           type: string
           format: uuid
           nullable: true
         reason:
           type: string
-        requestedAtUtc:
+        attachmentPath:
+          type: string
+          nullable: true
+        submittedAtUtc:
           type: string
           format: date-time
-        decisionAtUtc:
+        approvedAtUtc:
           type: string
           format: date-time
           nullable: true
-      required: [id, employeeId, leaveType, startDate, endDate, status, requestedAtUtc]
+        rejectedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        [id, employeeId, leaveTypeId, leaveType, startDate, endDate, numberOfDays, status, submittedAtUtc]
     CreateLeaveRequest:
       type: object
       properties:
         employeeId:
           type: string
           format: uuid
-        leaveType:
+        leaveTypeId:
           type: string
+          format: uuid
         startDate:
           type: string
           format: date
@@ -3297,7 +3317,10 @@ components:
           format: date
         reason:
           type: string
-      required: [employeeId, leaveType, startDate, endDate]
+        attachmentPath:
+          type: string
+          nullable: true
+      required: [employeeId, leaveTypeId, startDate, endDate]
     UpdateLeaveRequest:
       allOf:
         - $ref: '#/components/schemas/CreateLeaveRequest'
@@ -3308,11 +3331,19 @@ components:
           type: string
           format: uuid
           nullable: true
-        decisionAtUtc:
+        approvedAtUtc:
           type: string
           format: date-time
           nullable: true
-      required: [leaveType, startDate, endDate]
+        rejectedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+      required: [leaveTypeId, startDate, endDate]
     PayrollRunDto:
       type: object
       properties:

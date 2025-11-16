@@ -22,6 +22,9 @@
 
 **Object Schemas**
 - Responses: `IReadOnlyCollection<LeaveTypeDto>`, `IReadOnlyCollection<LeaveBalanceDto>`, `LeaveRequestDto`, `PagedLeaveRequestsDto`
+- `LeaveTypeDto` → `{ id, code, name, isPaid, requiresApproval, requiresAttachment, annualAllowanceDays, carryOverDays, maxConsecutiveDays, color }`
+- `LeaveBalanceDto` → `{ employeeId, leaveTypeId, year, openingBalance, accrued, taken, carriedForward, reserved, remaining }`
+- `LeaveRequestDto` → `{ id, employeeId, leaveTypeId, leaveType, startDate, endDate, numberOfDays, status (Draft|PendingApproval|Approved|Rejected|Cancelled), approverId, reason, attachmentPath, submittedAtUtc, approvedAtUtc, rejectedAtUtc, cancelledAtUtc }`
 
 **cURL Examples**
 - List leave types

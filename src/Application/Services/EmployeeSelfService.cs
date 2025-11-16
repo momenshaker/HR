@@ -52,10 +52,11 @@ public sealed class EmployeeSelfService(
         var payload = new CreateLeaveRequest
         {
             EmployeeId = employeeId,
-            LeaveType = request.LeaveType,
+            LeaveTypeId = request.LeaveTypeId,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Reason = request.Reason
+            Reason = request.Reason,
+            AttachmentPath = request.AttachmentPath
         };
 
         return await _leaveService.CreateAsync(payload, cancellationToken).ConfigureAwait(false);
@@ -95,6 +96,9 @@ public sealed class EmployeeSelfService(
         {
             Type = string.IsNullOrWhiteSpace(request.PunchType) ? "ClockIn" : request.PunchType.Trim(),
             TimestampUtc = timestampUtc,
+            Source = "SelfService",
+            DeviceId = request.DeviceId?.Trim() ?? string.Empty,
+            Location = request.Location?.Trim() ?? string.Empty,
             Notes = request.Notes?.Trim() ?? string.Empty
         };
 
@@ -106,7 +110,8 @@ public sealed class EmployeeSelfService(
             Punches = new[] { punchRequest },
             OvertimeMinutes = 0,
             Status = "InProgress",
-            Notes = punchRequest.Notes
+            Source = "SelfService",
+            Remarks = punchRequest.Notes
         };
 
         return await _attendanceService.CreateAsync(createRequest, cancellationToken).ConfigureAwait(false);
@@ -148,7 +153,7 @@ public sealed class EmployeeSelfService(
 
         var combinedNotes = string.Join(
             Environment.NewLine,
-            new[] { attendanceRecord.Notes, request.Notes?.Trim() }
+            new[] { attendanceRecord.Remarks, request.Notes?.Trim() }
                 .Where(note => !string.IsNullOrWhiteSpace(note)));
 
         var updateRequest = new UpdateAttendanceRecordRequest
@@ -156,24 +161,40 @@ public sealed class EmployeeSelfService(
             EmployeeId = attendanceRecord.EmployeeId,
             WorkDate = attendanceRecord.WorkDate,
             ShiftName = attendanceRecord.ShiftName,
+            ScheduledStartTimeUtc = attendanceRecord.ScheduledStartTimeUtc,
+            ScheduledEndTimeUtc = attendanceRecord.ScheduledEndTimeUtc,
+            ScheduledWorkMinutes = attendanceRecord.ScheduledWorkMinutes,
+            BreakMinutes = attendanceRecord.BreakMinutes,
+            GracePeriodMinutes = attendanceRecord.GracePeriodMinutes,
             Punches = attendanceRecord.Punches
                 .Select(punch => new AttendancePunchRequest
                 {
                     Id = punch.Id,
                     Type = punch.Type,
                     TimestampUtc = punch.TimestampUtc,
+                    Source = punch.Source,
+                    DeviceId = punch.DeviceId,
+                    Location = punch.Location,
                     Notes = punch.Notes
                 })
                 .Append(new AttendancePunchRequest
                 {
                     Type = string.IsNullOrWhiteSpace(request.PunchType) ? "ClockOut" : request.PunchType.Trim(),
                     TimestampUtc = timestampUtc,
+                    Source = "SelfService",
+                    DeviceId = request.DeviceId?.Trim() ?? string.Empty,
+                    Location = request.Location?.Trim() ?? string.Empty,
                     Notes = request.Notes?.Trim() ?? string.Empty
                 })
                 .ToArray(),
             OvertimeMinutes = attendanceRecord.OvertimeMinutes,
+            TotalWorkedMinutes = attendanceRecord.TotalWorkedMinutes,
+            LateMinutes = attendanceRecord.LateMinutes,
+            EarlyLeaveMinutes = attendanceRecord.EarlyLeaveMinutes,
+            AbsenceMinutes = attendanceRecord.AbsenceMinutes,
             Status = "Completed",
-            Notes = combinedNotes
+            Source = "SelfService",
+            Remarks = combinedNotes
         };
 
         var updated = await _attendanceService.UpdateAsync(attendanceRecordId, updateRequest, cancellationToken)

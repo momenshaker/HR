@@ -12,8 +12,7 @@ public sealed class CreateLeaveRequest : IValidatableRequest
     public Guid EmployeeId { get; init; }
 
     [Required]
-    [MaxLength(50)]
-    public string LeaveType { get; init; } = string.Empty;
+    public Guid LeaveTypeId { get; init; }
 
     [Required]
     public DateOnly StartDate { get; init; }
@@ -23,4 +22,7 @@ public sealed class CreateLeaveRequest : IValidatableRequest
 
     [MaxLength(500)]
     public string Reason { get; init; } = string.Empty;
+
+    [MaxLength(260)]
+    public string? AttachmentPath { get; init; }
 }

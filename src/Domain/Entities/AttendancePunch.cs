@@ -12,6 +12,12 @@ public sealed class AttendancePunch
 
     public DateTimeOffset TimestampUtc { get; init; }
 
+    public string Source { get; init; } = string.Empty;
+
+    public string DeviceId { get; init; } = string.Empty;
+
+    public string Location { get; init; } = string.Empty;
+
     public string Notes { get; init; } = string.Empty;
 
     public AttendanceRecord? AttendanceRecord { get; init; }

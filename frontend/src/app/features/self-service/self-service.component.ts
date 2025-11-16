@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthStore } from '@core/auth/auth.store';
 import { finalize } from 'rxjs';
@@ -19,10 +20,16 @@ import {
   DelegatedAuthority,
   EmployeeOrganizationSnapshot,
   LeaveRequest,
+  LeaveType,
   SalarySlip,
   SelfServiceAccount,
   TrainingCourse
 } from './self-service.models';
+
+interface AdminConfig {
+  showAttendanceCard: boolean;
+  showPunchButton: boolean;
+}
 
 @Component({
   selector: 'app-self-service-page',
@@ -38,7 +45,8 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatListModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSlideToggleModule
   ],
   templateUrl: './self-service.component.html',
   styleUrls: ['./self-service.component.scss'],
@@ -63,26 +71,22 @@ export class SelfServicePageComponent implements OnInit {
   readonly loading = signal(false);
 
   private lastLoadedEmployeeId: string | null = null;
+  private readonly adminConfigKey = 'self-service-admin-config';
+  private readonly defaultAdminConfig: AdminConfig = {
+    showAttendanceCard: true,
+    showPunchButton: true
+  };
+
+  readonly adminConfig = signal<AdminConfig>(this.defaultAdminConfig);
+  readonly isAdmin = computed(() => (this.user()?.roles ?? []).includes('Admin'));
+  readonly attendanceCardVisible = computed(() => this.adminConfig().showAttendanceCard);
 
   readonly leaveForm = this.fb.nonNullable.group({
-    leaveType: ['', Validators.required],
+    leaveTypeId: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
-    reason: ['']
-  });
-
-  readonly clockInForm = this.fb.nonNullable.group({
-    shiftName: [''],
-    timestamp: [this.toLocalDateTime(new Date())],
-    punchType: ['ClockIn', Validators.required],
-    notes: ['']
-  });
-
-  readonly clockOutForm = this.fb.nonNullable.group({
-    attendanceRecordId: ['', Validators.required],
-    timestamp: [''],
-    punchType: ['ClockOut', Validators.required],
-    notes: ['']
+    reason: [''],
+    attachmentPath: ['']
   });
 
   readonly accountForm = this.fb.nonNullable.group({
@@ -94,10 +98,11 @@ export class SelfServicePageComponent implements OnInit {
     featureAccess: ['']
   });
 
-  readonly leaveTypes = ['Annual', 'Sick', 'Unpaid', 'Bereavement'];
-  readonly punchTypes = ['ClockIn', 'ClockOut', 'BreakStart', 'BreakEnd', 'Meal', 'FieldWork', 'Training'];
+  readonly leaveTypes = signal<LeaveType[]>([]);
 
   ngOnInit(): void {
+    this.loadAdminConfig();
+    this.loadLeaveTypes();
     effect(() => {
       const id = this.employeeId();
       if (!id) {
@@ -134,20 +139,22 @@ export class SelfServicePageComponent implements OnInit {
     this.api
       .submitLeaveRequest(employeeId, {
         employeeId,
-        leaveType: raw.leaveType.trim(),
+        leaveTypeId: raw.leaveTypeId,
         startDate: raw.startDate,
         endDate: raw.endDate,
-        reason: raw.reason?.trim()
+        reason: raw.reason?.trim(),
+        attachmentPath: raw.attachmentPath?.trim()
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
           this.snackbar.open('Leave request submitted.', 'Dismiss', { duration: 3000 });
           this.leaveForm.reset({
-            leaveType: '',
+            leaveTypeId: '',
             startDate: '',
             endDate: '',
-            reason: ''
+            reason: '',
+            attachmentPath: ''
           });
           this.loadLeaveRequests(employeeId);
         },
@@ -157,75 +164,36 @@ export class SelfServicePageComponent implements OnInit {
       });
   }
 
-  submitClockIn(): void {
-    if (this.clockInForm.invalid) {
-      this.clockInForm.markAllAsTouched();
-      return;
-    }
-
+  recordAttendance(action: 'ClockIn' | 'ClockOut'): void {
     const employeeId = this.employeeId();
     if (!employeeId) {
       return;
     }
 
-    const raw = this.clockInForm.getRawValue();
-    const timestampUtc = this.normalizeTimestamp(raw.timestamp);
-
-    this.loading.set(true);
-    this.api
-      .clockIn(employeeId, {
-        timestampUtc,
-        shiftName: raw.shiftName?.trim(),
-        notes: raw.notes?.trim(),
-        punchType: raw.punchType
-      })
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (record) => {
-          this.snackbar.open('Clock-in recorded.', 'Dismiss', { duration: 3000 });
-          this.lastAttendanceRecordId.set(record.id);
-          this.clockOutForm.controls.attendanceRecordId.setValue(record.id);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.snackbar.open(
-            error?.error?.title ?? 'Unable to register clock-in.',
-            'Dismiss',
-            { duration: 3000 }
-          );
-        }
-      });
-  }
-
-  submitClockOut(): void {
-    if (this.clockOutForm.invalid) {
-      this.clockOutForm.markAllAsTouched();
+    if (action === 'ClockOut' && !this.lastAttendanceRecordId()) {
+      this.snackbar.open('No attendance record available for clocking out.', 'Dismiss', { duration: 3000 });
       return;
     }
 
-    const employeeId = this.employeeId();
-    if (!employeeId) {
-      return;
-    }
-
-    const raw = this.clockOutForm.getRawValue();
-    const timestampUtc = this.normalizeTimestamp(raw.timestamp);
-
+    const timestampUtc = new Date().toISOString();
     this.loading.set(true);
-    this.api
-      .clockOut(employeeId, raw.attendanceRecordId, {
-        timestampUtc,
-        notes: raw.notes?.trim(),
-        punchType: raw.punchType
-      })
+    const request =
+      action === 'ClockIn'
+        ? this.api.clockIn(employeeId, { timestampUtc, punchType: action })
+        : this.api.clockOut(employeeId, this.lastAttendanceRecordId()!, { timestampUtc, punchType: action });
+
+    request
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (record) => {
-          this.snackbar.open('Clock-out recorded.', 'Dismiss', { duration: 3000 });
+          this.snackbar.open(`${action === 'ClockIn' ? 'Clock-in' : 'Clock-out'} recorded.`, 'Dismiss', {
+            duration: 3000
+          });
           this.lastAttendanceRecordId.set(record.id);
         },
         error: (error: HttpErrorResponse) => {
           this.snackbar.open(
-            error?.error?.title ?? 'Unable to register clock-out.',
+            error?.error?.title ?? `Unable to record ${action === 'ClockIn' ? 'clock-in' : 'clock-out'}.`,
             'Dismiss',
             { duration: 3000 }
           );
@@ -302,6 +270,13 @@ export class SelfServicePageComponent implements OnInit {
     this.loadSalarySlips(employeeId);
     this.loadTrainingCourses(employeeId);
     this.loadAccount(employeeId);
+  }
+
+  private loadLeaveTypes(): void {
+    this.api.getLeaveTypes().subscribe({
+      next: (types) => this.leaveTypes.set(types),
+      error: () => this.snackbar.open('Failed to load leave types.', 'Dismiss', { duration: 3000 })
+    });
   }
 
   private loadLeaveRequests(employeeId: string): void {
@@ -384,16 +359,26 @@ export class SelfServicePageComponent implements OnInit {
     });
   }
 
-  private normalizeTimestamp(value: string | null | undefined): string | undefined {
-    if (!value) {
-      return undefined;
+  private loadAdminConfig(): void {
+    try {
+      const stored = window.localStorage.getItem(this.adminConfigKey);
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<AdminConfig>;
+        this.adminConfig.set({ ...this.defaultAdminConfig, ...parsed });
+      }
+    } catch {
+      // ignore malformed values
     }
-    const parsed = new Date(value);
-    return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : undefined;
   }
 
-  private toLocalDateTime(date: Date): string {
-    return date.toISOString().slice(0, 16);
+  private persistAdminConfig(config: AdminConfig): void {
+    window.localStorage.setItem(this.adminConfigKey, JSON.stringify(config));
+  }
+
+  updateAdminConfig<K extends keyof AdminConfig>(key: K, value: AdminConfig[K]): void {
+    const next = { ...this.adminConfig(), [key]: value };
+    this.adminConfig.set(next);
+    this.persistAdminConfig(next);
   }
 
   private parseAccessList(raw: string | null): string[] {

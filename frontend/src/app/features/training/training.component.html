@@ -1,0 +1,364 @@
+<mat-tab-group>
+  <mat-tab label="Enterprise catalog">
+    <div class="catalog-layout">
+      <mat-card class="catalog-card">
+        <div class="card-header">
+          <div>
+            <h2>Instructor-led courses</h2>
+            <p>Manage competency-aligned development programmes.</p>
+          </div>
+          <button mat-stroked-button color="primary" type="button" (click)="loadCourses()" [disabled]="loadingCatalog()">
+            Refresh
+          </button>
+        </div>
+        <mat-progress-bar *ngIf="loadingCatalog()" mode="indeterminate"></mat-progress-bar>
+        <table mat-table [dataSource]="courses()" class="courses-table">
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Course</th>
+            <td mat-cell *matCellDef="let course">
+              <div class="primary-cell">
+                <strong>{{ course.title }}</strong>
+                <small>{{ course.category }}</small>
+              </div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="dates">
+            <th mat-header-cell *matHeaderCellDef>Dates</th>
+            <td mat-cell *matCellDef="let course">{{ course.startDate | date }} - {{ course.endDate | date }}</td>
+          </ng-container>
+          <ng-container matColumnDef="mode">
+            <th mat-header-cell *matHeaderCellDef>Mode</th>
+            <td mat-cell *matCellDef="let course">{{ course.deliveryMode }}</td>
+          </ng-container>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let course">
+              <button mat-button type="button" (click)="selectCourse(course)" [disabled]="selectedCourse()?.id === course.id">
+                View
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['title', 'dates', 'mode', 'select']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['title', 'dates', 'mode', 'select']"></tr>
+        </table>
+      </mat-card>
+
+      <mat-card class="form-card">
+        <h2>Create course</h2>
+        <form [formGroup]="courseForm" (ngSubmit)="createCourse()" class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <input matInput formControlName="category" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Instructor</mat-label>
+            <input matInput formControlName="instructor" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Delivery mode</mat-label>
+            <mat-select formControlName="deliveryMode">
+              <mat-option value="Virtual">Virtual</mat-option>
+              <mat-option value="Onsite">Onsite</mat-option>
+              <mat-option value="Hybrid">Hybrid</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Skill level</mat-label>
+            <mat-select formControlName="skillLevel">
+              <mat-option value="Beginner">Beginner</mat-option>
+              <mat-option value="Intermediate">Intermediate</mat-option>
+              <mat-option value="Advanced">Advanced</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Capacity</mat-label>
+            <input matInput type="number" formControlName="capacity" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Duration hours</mat-label>
+            <input matInput type="number" formControlName="durationHours" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Start date</mat-label>
+            <input matInput type="date" formControlName="startDate" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>End date</mat-label>
+            <input matInput type="date" formControlName="endDate" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="2" formControlName="description"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Competency codes</mat-label>
+            <textarea matInput rows="2" formControlName="competencyCodes" placeholder="Comma or newline separated"></textarea>
+          </mat-form-field>
+          <mat-slide-toggle formControlName="offersCertification">Offers certification</mat-slide-toggle>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Certification criteria</mat-label>
+            <textarea matInput rows="2" formControlName="certificationCriteria"></textarea>
+          </mat-form-field>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Publish course</button>
+          </div>
+        </form>
+      </mat-card>
+
+      <mat-card class="detail-card" *ngIf="selectedCourse() as course">
+        <div class="card-header">
+          <div>
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.description }}</p>
+          </div>
+          <mat-chip-set>
+            <mat-chip color="primary">{{ course.skillLevel }}</mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <h4>Schedule</h4>
+            <p>{{ course.startDate | date }} - {{ course.endDate | date }}</p>
+          </div>
+          <div>
+            <h4>Instructor</h4>
+            <p>{{ course.instructor }}</p>
+          </div>
+          <div>
+            <h4>Capacity</h4>
+            <p>{{ course.capacity }}</p>
+          </div>
+          <div *ngIf="analytics() as stats">
+            <h4>Enrollments</h4>
+            <p>{{ stats.completedEnrollments }} completed / {{ stats.totalEnrollments }} total</p>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <section class="enrollment-section">
+          <h3>Enroll employee</h3>
+          <form [formGroup]="enrollmentForm" (ngSubmit)="enrollEmployee()" class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Employee ID</mat-label>
+              <input matInput formControlName="employeeId" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Enrolled on</mat-label>
+              <input matInput type="date" formControlName="enrolledOn" />
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit">Enroll</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="enrollment-section">
+          <h3>Update enrollment</h3>
+          <form [formGroup]="progressForm" (ngSubmit)="updateProgress()" class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Enrollment ID</mat-label>
+              <input matInput formControlName="enrollmentId" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="InProgress">In progress</mat-option>
+                <mat-option value="Completed">Completed</mat-option>
+                <mat-option value="Withdrawn">Withdrawn</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Completion %</mat-label>
+              <input matInput type="number" formControlName="completionPercentage" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Completed on</mat-label>
+              <input matInput type="date" formControlName="completedOn" />
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit">Save progress</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="enrollment-section">
+          <h3>Withdraw enrollment</h3>
+          <form [formGroup]="withdrawForm" (ngSubmit)="withdrawEnrollment()" class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Enrollment ID</mat-label>
+              <input matInput formControlName="enrollmentId" />
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-stroked-button color="warn" type="submit">Withdraw</button>
+            </div>
+          </form>
+        </section>
+
+        <table mat-table [dataSource]="enrollments()" class="courses-table">
+          <ng-container matColumnDef="employee">
+            <th mat-header-cell *matHeaderCellDef>Employee</th>
+            <td mat-cell *matCellDef="let item">{{ item.employeeId }}</td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let item">{{ item.status }} ({{ item.completionPercentage }}%)</td>
+          </ng-container>
+          <ng-container matColumnDef="enrolled">
+            <th mat-header-cell *matHeaderCellDef>Enrolled</th>
+            <td mat-cell *matCellDef="let item">{{ item.enrolledOn | date }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['employee', 'status', 'enrolled']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['employee', 'status', 'enrolled']"></tr>
+        </table>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Micro-learning">
+    <div class="lite-layout">
+      <mat-card>
+        <div class="card-header">
+          <div>
+            <h2>Lite courses</h2>
+            <p>Offer quick learning bursts tied to a specific organization.</p>
+          </div>
+          <button mat-stroked-button color="primary" type="button" (click)="loadLiteCourses()" [disabled]="loadingLite()">
+            Load courses
+          </button>
+        </div>
+        <form class="filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Organization ID</mat-label>
+            <input matInput [formControl]="liteOrgControl" />
+          </mat-form-field>
+        </form>
+        <mat-progress-bar *ngIf="loadingLite()" mode="indeterminate"></mat-progress-bar>
+        <table mat-table [dataSource]="liteCourses()" class="courses-table">
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Course</th>
+            <td mat-cell *matCellDef="let course">{{ course.title }}</td>
+          </ng-container>
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>Code</th>
+            <td mat-cell *matCellDef="let course">{{ course.code }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let course">
+              <button mat-button type="button" (click)="selectLiteCourse(course)" [disabled]="selectedLiteCourse()?.id === course.id">
+                View sessions
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['title', 'code', 'actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['title', 'code', 'actions']"></tr>
+        </table>
+      </mat-card>
+
+      <mat-card class="form-card">
+        <h2>Create lite course</h2>
+        <form [formGroup]="liteCourseForm" (ngSubmit)="createLiteCourse()" class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Organization ID</mat-label>
+            <input matInput formControlName="organizationId" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Code</mat-label>
+            <input matInput formControlName="code" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="2" formControlName="description"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Duration hours</mat-label>
+            <input matInput type="number" formControlName="durationHours" />
+          </mat-form-field>
+          <mat-slide-toggle formControlName="isMandatory">Mandatory</mat-slide-toggle>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Create lite course</button>
+          </div>
+        </form>
+      </mat-card>
+
+      <mat-card class="detail-card" *ngIf="selectedLiteCourse() as lite">
+        <h2>{{ lite.title }} sessions</h2>
+        <table mat-table [dataSource]="liteSessions()" class="courses-table">
+          <ng-container matColumnDef="start">
+            <th mat-header-cell *matHeaderCellDef>Start</th>
+            <td mat-cell *matCellDef="let session">{{ session.startUtc | date : 'medium' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="end">
+            <th mat-header-cell *matHeaderCellDef>End</th>
+            <td mat-cell *matCellDef="let session">{{ session.endUtc | date : 'medium' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef>Location</th>
+            <td mat-cell *matCellDef="let session">{{ session.location || 'Virtual' }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['start', 'end', 'location']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['start', 'end', 'location']"></tr>
+        </table>
+
+        <form [formGroup]="liteSessionForm" (ngSubmit)="createLiteSession()" class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Course ID</mat-label>
+            <input matInput formControlName="courseId" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Start</mat-label>
+            <input matInput type="datetime-local" formControlName="startUtc" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>End</mat-label>
+            <input matInput type="datetime-local" formControlName="endUtc" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Location</mat-label>
+            <input matInput formControlName="location" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Meeting URL</mat-label>
+            <input matInput formControlName="meetingUrl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Capacity</mat-label>
+            <input matInput type="number" formControlName="capacity" />
+          </mat-form-field>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">Schedule session</button>
+          </div>
+        </form>
+
+        <section class="enrollment-section">
+          <h3>Session attendance</h3>
+          <form [formGroup]="liteAttendanceForm" class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Session ID</mat-label>
+              <input matInput formControlName="sessionId" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Employee ID</mat-label>
+              <input matInput formControlName="employeeId" />
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-stroked-button color="primary" type="button" (click)="manageLiteAttendance('enroll')">Enroll</button>
+              <button mat-stroked-button color="accent" type="button" (click)="manageLiteAttendance('complete')">Complete</button>
+              <button mat-stroked-button color="warn" type="button" (click)="manageLiteAttendance('cancel')">Cancel</button>
+            </div>
+          </form>
+        </section>
+      </mat-card>
+    </div>
+  </mat-tab>
+</mat-tab-group>

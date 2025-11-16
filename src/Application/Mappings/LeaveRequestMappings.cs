@@ -15,50 +15,80 @@ public static class LeaveRequestMappings
         return new LeaveRequestDto(
             leave.Id,
             leave.EmployeeId,
+            leave.LeaveTypeId,
             leave.LeaveType,
             leave.StartDate,
             leave.EndDate,
+            leave.NumberOfDays,
             leave.Status,
             leave.ApproverId,
             leave.Reason,
-            leave.RequestedAtUtc,
-            leave.DecisionAtUtc);
+            leave.AttachmentPath,
+            leave.SubmittedAtUtc,
+            leave.ApprovedAtUtc,
+            leave.RejectedAtUtc,
+            leave.CancelledAtUtc);
     }
 
-    public static LeaveRequest ToEntity(this CreateLeaveRequest request)
+    public static LeaveRequest ToEntity(this CreateLeaveRequest request, LeaveType leaveType)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(leaveType);
 
+        var reason = request.Reason?.Trim() ?? string.Empty;
+        var attachment = string.IsNullOrWhiteSpace(request.AttachmentPath) ? null : request.AttachmentPath.Trim();
+        var numberOfDays = CalculateRequestedDays(request.StartDate, request.EndDate);
         return new LeaveRequest
         {
             Id = Guid.NewGuid(),
             EmployeeId = request.EmployeeId,
-            LeaveType = request.LeaveType.Trim(),
+            LeaveTypeId = leaveType.Id,
+            LeaveType = leaveType.Name,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Reason = request.Reason.Trim(),
-            Status = "Pending",
-            RequestedAtUtc = DateTime.UtcNow
+            NumberOfDays = numberOfDays,
+            Reason = reason,
+            Status = LeaveRequestStatus.PendingApproval,
+            AttachmentPath = attachment,
+            SubmittedAtUtc = DateTime.UtcNow
         };
     }
 
-    public static LeaveRequest ApplyUpdates(this UpdateLeaveRequest request, LeaveRequest existing)
+    public static LeaveRequest ApplyUpdates(this UpdateLeaveRequest request, LeaveRequest existing, LeaveType leaveType)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(existing);
+        ArgumentNullException.ThrowIfNull(leaveType);
+
+        var reason = request.Reason?.Trim() ?? string.Empty;
+        var attachment = string.IsNullOrWhiteSpace(request.AttachmentPath) ? null : request.AttachmentPath.Trim();
+        var numberOfDays = CalculateRequestedDays(request.StartDate, request.EndDate);
 
         return new LeaveRequest
         {
             Id = existing.Id,
             EmployeeId = existing.EmployeeId,
-            LeaveType = request.LeaveType.Trim(),
+            LeaveTypeId = leaveType.Id,
+            LeaveType = leaveType.Name,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Reason = request.Reason.Trim(),
-            Status = request.Status.Trim(),
+            NumberOfDays = numberOfDays,
+            Reason = reason,
+            Status = string.IsNullOrWhiteSpace(request.Status) ? existing.Status : request.Status.Trim(),
             ApproverId = request.ApproverId,
-            RequestedAtUtc = existing.RequestedAtUtc,
-            DecisionAtUtc = request.DecisionAtUtc
+            AttachmentPath = attachment,
+            SubmittedAtUtc = existing.SubmittedAtUtc,
+            ApprovedAtUtc = request.ApprovedAtUtc,
+            RejectedAtUtc = request.RejectedAtUtc,
+            CancelledAtUtc = request.CancelledAtUtc
         };
+    }
+
+    private static decimal CalculateRequestedDays(DateOnly start, DateOnly end)
+    {
+        if (end < start)
+            throw new ArgumentException("End date must be on or after the start date.");
+
+        return end.DayNumber - start.DayNumber + 1;
     }
 }

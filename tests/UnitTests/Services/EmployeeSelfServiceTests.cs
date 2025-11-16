@@ -4,6 +4,7 @@ using System.Linq;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
 using HR.Application.Services;
+using HR.Domain.Entities;
 using Moq;
 using Xunit;
 
@@ -44,8 +45,38 @@ public sealed class EmployeeSelfServiceTests
         var otherEmployeeId = Guid.NewGuid();
         var leaveRequests = new[]
         {
-            new LeaveRequestDto(Guid.NewGuid(), employeeId, "Annual", DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), "Pending", null, string.Empty, DateTime.UtcNow, null),
-            new LeaveRequestDto(Guid.NewGuid(), otherEmployeeId, "Sick", DateOnly.FromDateTime(DateTime.UtcNow), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), "Approved", Guid.NewGuid(), string.Empty, DateTime.UtcNow, DateTime.UtcNow)
+            new LeaveRequestDto(
+                Guid.NewGuid(),
+                employeeId,
+                Guid.NewGuid(),
+                "Annual",
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+                2m,
+                LeaveRequestStatus.PendingApproval,
+                null,
+                string.Empty,
+                null,
+                DateTime.UtcNow,
+                null,
+                null,
+                null),
+            new LeaveRequestDto(
+                Guid.NewGuid(),
+                otherEmployeeId,
+                Guid.NewGuid(),
+                "Sick",
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+                1m,
+                LeaveRequestStatus.Approved,
+                Guid.NewGuid(),
+                string.Empty,
+                null,
+                DateTime.UtcNow,
+                DateTime.UtcNow,
+                null,
+                null)
         };
 
         _leaveServiceMock
@@ -68,7 +99,7 @@ public sealed class EmployeeSelfServiceTests
         var request = new CreateLeaveRequest
         {
             EmployeeId = Guid.NewGuid(),
-            LeaveType = "Annual",
+            LeaveTypeId = Guid.NewGuid(),
             StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1))
         };
@@ -84,14 +115,12 @@ public sealed class EmployeeSelfServiceTests
         // Arrange
         var employeeId = Guid.NewGuid();
         var workDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        var openRecord = new AttendanceRecordDto(
+        var openRecord = CreateAttendanceRecordDto(
             Guid.NewGuid(),
             employeeId,
             workDate,
             "Morning",
-            0,
             "InProgress",
-            string.Empty,
             Array.Empty<AttendancePunchDto>());
 
         _attendanceServiceMock
@@ -118,14 +147,12 @@ public sealed class EmployeeSelfServiceTests
             .Setup(service => service.GetAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<AttendanceRecordDto>());
 
-        var created = new AttendanceRecordDto(
+        var created = CreateAttendanceRecordDto(
             Guid.NewGuid(),
             employeeId,
             DateOnly.FromDateTime(DateTime.UtcNow),
             "Default",
-            0,
             "InProgress",
-            string.Empty,
             Array.Empty<AttendancePunchDto>());
 
         _attendanceServiceMock
@@ -166,18 +193,16 @@ public sealed class EmployeeSelfServiceTests
         // Arrange
         var employeeId = Guid.NewGuid();
         var recordId = Guid.NewGuid();
-        var record = new AttendanceRecordDto(
+        var record = CreateAttendanceRecordDto(
             recordId,
             employeeId,
             DateOnly.FromDateTime(DateTime.UtcNow),
             "Morning",
-            0,
             "Completed",
-            string.Empty,
             new[]
             {
-                new AttendancePunchDto(Guid.NewGuid(), "ClockIn", DateTimeOffset.UtcNow.AddHours(-8), string.Empty),
-                new AttendancePunchDto(Guid.NewGuid(), "ClockOut", DateTimeOffset.UtcNow.AddHours(-1), string.Empty)
+                new AttendancePunchDto(Guid.NewGuid(), "ClockIn", DateTimeOffset.UtcNow.AddHours(-8), "SelfService", string.Empty, string.Empty, string.Empty),
+                new AttendancePunchDto(Guid.NewGuid(), "ClockOut", DateTimeOffset.UtcNow.AddHours(-1), "SelfService", string.Empty, string.Empty, string.Empty)
             });
 
         _attendanceServiceMock
@@ -304,5 +329,36 @@ public sealed class EmployeeSelfServiceTests
         // Assert
         Assert.Null(result);
         _selfServiceAccountServiceMock.Verify(service => service.UpdateAsync(It.IsAny<Guid>(), It.IsAny<UpdateSelfServiceAccountRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static AttendanceRecordDto CreateAttendanceRecordDto(
+        Guid id,
+        Guid employeeId,
+        DateOnly workDate,
+        string shiftName,
+        string status,
+        IReadOnlyCollection<AttendancePunchDto> punches)
+    {
+        return new AttendanceRecordDto(
+            id,
+            employeeId,
+            workDate,
+            shiftName,
+            null,
+            null,
+            null,
+            null,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            status,
+            "Manual",
+            string.Empty,
+            punches);
     }
 }
