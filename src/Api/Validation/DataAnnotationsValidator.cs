@@ -10,13 +10,12 @@ namespace HR.Api.Validation;
 /// </summary>
 /// <typeparam name="T">The request type that should be validated.</typeparam>
 public sealed class DataAnnotationsValidator<T> : AbstractValidator<T>
-    where T : class, IValidatableRequest
 {
     public DataAnnotationsValidator()
     {
         RuleFor(model => model).Custom((model, context) =>
         {
-            if (model is null)
+            if (model is null || model is not IValidatableRequest)
             {
                 return;
             }

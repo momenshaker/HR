@@ -9,7 +9,7 @@
               <p class="card-category">Log attendance and review records in one place.</p>
             </div>
             <div class="card-header__actions">
-              <button mat-stroked-button color="primary" (click)="refresh()" aria-label="Refresh attendance">
+              <button class="btn btn-primary"  (click)="refresh()" aria-label="Refresh attendance">
                 <mat-icon>refresh</mat-icon>
                 Refresh
               </button>
@@ -37,7 +37,7 @@
                   <mat-select formControlName="employeeId">
                     <mat-option value="">Choose employee</mat-option>
                     <mat-option *ngFor="let employee of employees" [value]="employee.id">
-                      {{ employee.fullName }}
+                      {{ employee.email }}
                     </mat-option>
                   </mat-select>
                   <mat-error *ngIf="attendanceForm.controls.employeeId.hasError('required')">Employee is required</mat-error>

@@ -129,7 +129,7 @@ export class NotificationsPageComponent {
     this.loading.set(true);
     this.service.list({ page: 1, pageSize: 20 }).subscribe({
       next: (response) => {
-        const sorted = [...response.data].sort(
+        const sorted = [...response.items].sort(
           (a, b) => new Date(b.launchDateUtc).getTime() - new Date(a.launchDateUtc).getTime()
         );
         this.items.set(sorted);

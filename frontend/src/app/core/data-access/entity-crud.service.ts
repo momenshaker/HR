@@ -3,18 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { AppConfig } from '../config/app-config.model';
 import { APP_CONFIG } from '../config/app-config.token';
-import { ProblemDetails } from '../errors/problem-details';
-
-export interface ApiResponse<T> {
-  data: T;
-  meta?: {
-    totalItems?: number;
-    totalPages?: number;
-    currentPage?: number;
-    pageSize?: number;
-  };
-  errors?: ProblemDetails;
-}
+import { PaginatedResponse } from './paginated-response.model';
 
 export interface QueryParams {
   page?: number;
@@ -32,27 +21,27 @@ class EntityCrudRequester<TCreate, TUpdate, TResponse> {
     private readonly resource: string
   ) {}
 
-  list(query: QueryParams = {}): Observable<ApiResponse<TResponse[]>> {
+  list(query: QueryParams = {}): Observable<PaginatedResponse<TResponse>> {
     const params = this.toHttpParams(query);
-    return this.http.get<ApiResponse<TResponse[]>>(`${this.config.apiBaseUrl}/${this.resource}`, { params });
+    return this.http.get<PaginatedResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}`, { params });
   }
 
   getById(id: string): Observable<TResponse> {
     return this.http
-      .get<ApiResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}/${id}`)
-      .pipe(map((response) => response.data));
+      .get<PaginatedResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}/${id}`)
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   create(payload: TCreate): Observable<TResponse> {
     return this.http
-      .post<ApiResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}`, payload)
-      .pipe(map((response) => response.data));
+      .post<PaginatedResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}`, payload)
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   update(id: string, payload: TUpdate): Observable<TResponse> {
     return this.http
-      .put<ApiResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}/${id}`, payload)
-      .pipe(map((response) => response.data));
+      .put<PaginatedResponse<TResponse>>(`${this.config.apiBaseUrl}/${this.resource}/${id}`, payload)
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   delete(id: string): Observable<void> {
@@ -84,6 +73,19 @@ class EntityCrudRequester<TCreate, TUpdate, TResponse> {
       }
     }
     return params;
+  }
+
+  private extractSingle<T>(response: PaginatedResponse<T>): T {
+    if (response.items.length === 0) {
+      throw new Error(`The response for ${this.resource} did not include an item.`);
+    }
+
+    const item = response.items[0];
+    if (item === undefined) {
+      throw new Error(`The response for ${this.resource} contained an undefined item.`);
+    }
+
+    return item;
   }
 }
 

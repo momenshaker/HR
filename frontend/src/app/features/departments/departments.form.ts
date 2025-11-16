@@ -6,7 +6,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormActionsComponent } from '@shared/components/form-actions/form-actions.component';
-import { EntityCrudFactory } from '@core/data-access';
 import { LookupStore } from '@core/lookups/lookup.store';
 
 export interface DepartmentFormValue {
@@ -25,11 +24,6 @@ export interface DepartmentFormValue {
   isActive: boolean;
 }
 
-interface OrganizationSummary {
-  id: string;
-  name: string;
-}
-
 @Component({
   selector: 'app-department-form',
   standalone: true,
@@ -45,6 +39,7 @@ interface OrganizationSummary {
   template: `
     <h2 mat-dialog-title>{{ data ? 'Edit department' : 'Create department' }}</h2>
     <form [formGroup]="form" (ngSubmit)="submit()" class="example-full-width">
+      <input type="hidden" formControlName="organizationId" />
       <mat-dialog-content>
         <div class="row">
           <div class="col-md-6 item-full-width">
@@ -64,15 +59,6 @@ interface OrganizationSummary {
         </div>
 
         <div class="row">
-          <div class="col-md-6">
-            <mat-form-field appearance="outline" class="example-full-width">
-              <mat-label>Organization</mat-label>
-              <mat-select formControlName="organizationId">
-                <mat-option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</mat-option>
-              </mat-select>
-              <mat-error *ngIf="form.controls.organizationId.hasError('required')">Organization is required</mat-error>
-            </mat-form-field>
-          </div>
           <div class="col-md-6">
             <mat-form-field appearance="outline" class="example-full-width">
               <mat-label>Parent department</mat-label>
@@ -158,11 +144,6 @@ export class DepartmentFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<DepartmentFormComponent>);
   private readonly lookupStore = inject(LookupStore);
-  private readonly organizationRequester = inject(EntityCrudFactory).create<never, never, OrganizationSummary>(
-    'organizations'
-  );
-
-  organizations: OrganizationSummary[] = [];
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -185,21 +166,9 @@ export class DepartmentFormComponent {
   readonly operatingHoursOptions = this.lookupStore.operatingHours;
 
   constructor(@Inject(MAT_DIALOG_DATA) readonly data: Partial<DepartmentFormValue> | null) {
-    this.loadOrganizations();
     if (data) {
       this.form.patchValue(data);
     }
-  }
-
-  private loadOrganizations(): void {
-    this.organizationRequester.list({ pageSize: 250 }).subscribe({
-      next: (response) => {
-        this.organizations.splice(0, this.organizations.length, ...(response.data ?? []));
-      },
-      error: () => {
-        // ignore lookup failures for UX
-      }
-    });
   }
 
   submit(): void {

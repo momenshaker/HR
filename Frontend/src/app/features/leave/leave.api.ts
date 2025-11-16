@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { AppConfig } from '@core/config/app-config.model';
 import { APP_CONFIG } from '@core/config/app-config.token';
+import { PaginatedResponse } from '@core/data-access/paginated-response.model';
 
 export interface LeaveType {
   readonly id: string;
@@ -47,13 +48,6 @@ export interface LeaveRequest {
   readonly cancelledAtUtc?: string | null;
 }
 
-export interface PagedLeaveRequests {
-  readonly page: number;
-  readonly pageSize: number;
-  readonly totalCount: number;
-  readonly items: readonly LeaveRequest[];
-}
-
 export interface LeaveRequestFilters {
   employeeId?: string | null;
   managerId?: string | null;
@@ -82,16 +76,20 @@ export class LeaveApiService {
   private readonly config = inject<AppConfig>(APP_CONFIG);
   private readonly baseUrl = `${this.config.apiBaseUrl}/leave`;
 
-  getTypes(): Observable<LeaveType[]> {
-    return this.http.get<LeaveType[]>(`${this.baseUrl}/types`);
+  getTypes(): Observable<readonly LeaveType[]> {
+    return this.http
+      .get<PaginatedResponse<LeaveType>>(`${this.baseUrl}/types`)
+      .pipe(map((response) => response.items));
   }
 
-  getBalances(employeeId: string, year: number): Observable<LeaveBalance[]> {
+  getBalances(employeeId: string, year: number): Observable<readonly LeaveBalance[]> {
     const params = new HttpParams().set('employeeId', employeeId).set('year', String(year));
-    return this.http.get<LeaveBalance[]>(`${this.baseUrl}/balances`, { params });
+    return this.http
+      .get<PaginatedResponse<LeaveBalance>>(`${this.baseUrl}/balances`, { params })
+      .pipe(map((response) => response.items));
   }
 
-  listRequests(filters: LeaveRequestFilters = {}): Observable<PagedLeaveRequests> {
+  listRequests(filters: LeaveRequestFilters = {}): Observable<PaginatedResponse<LeaveRequest>> {
     let params = new HttpParams();
     if (filters.employeeId) {
       params = params.set('employeeId', filters.employeeId);
@@ -108,34 +106,59 @@ export class LeaveApiService {
     if (filters.pageSize) {
       params = params.set('pageSize', String(filters.pageSize));
     }
-    return this.http.get<PagedLeaveRequests>(`${this.baseUrl}/requests`, { params });
+    return this.http.get<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests`, { params });
   }
 
   createRequest(payload: LeaveRequestPayload): Observable<LeaveRequest> {
-    return this.http.post<LeaveRequest>(`${this.baseUrl}/requests`, payload);
+    return this.http
+      .post<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests`, payload)
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   getRequestById(id: string): Observable<LeaveRequest> {
-    return this.http.get<LeaveRequest>(`${this.baseUrl}/requests/${id}`);
+    return this.http
+      .get<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests/${id}`)
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   submitRequest(id: string, employeeId: string): Observable<LeaveRequest> {
     const params = new HttpParams().set('employeeId', employeeId);
-    return this.http.post<LeaveRequest>(`${this.baseUrl}/requests/${id}:submit`, null, { params });
+    return this.http
+      .post<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests/${id}:submit`, null, { params })
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   approveRequest(id: string, managerId: string): Observable<LeaveRequest> {
     const params = new HttpParams().set('managerId', managerId);
-    return this.http.post<LeaveRequest>(`${this.baseUrl}/requests/${id}:approve`, null, { params });
+    return this.http
+      .post<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests/${id}:approve`, null, { params })
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   rejectRequest(id: string, managerId: string, payload: RejectPayload): Observable<LeaveRequest> {
     const params = new HttpParams().set('managerId', managerId);
-    return this.http.post<LeaveRequest>(`${this.baseUrl}/requests/${id}:reject`, payload.reason, { params });
+    return this.http
+      .post<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests/${id}:reject`, payload.reason, { params })
+      .pipe(map((response) => this.extractSingle(response)));
   }
 
   cancelRequest(id: string, employeeId: string): Observable<LeaveRequest> {
     const params = new HttpParams().set('employeeId', employeeId);
-    return this.http.post<LeaveRequest>(`${this.baseUrl}/requests/${id}:cancel`, null, { params });
+    return this.http
+      .post<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests/${id}:cancel`, null, { params })
+      .pipe(map((response) => this.extractSingle(response)));
+  }
+
+  private extractSingle<T>(response: PaginatedResponse<T>): T {
+    if (response.items.length === 0) {
+      throw new Error('Leave API returned an empty response.');
+    }
+
+    const item = response.items[0];
+    if (item === undefined) {
+      throw new Error('Leave API returned an empty response.');
+    }
+
+    return item;
   }
 }

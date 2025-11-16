@@ -114,6 +114,7 @@ type PunchControlGroup = FormGroup<{
 interface EmployeeSummary {
   id: string;
   fullName: string;
+  email: string;
 }
 
 @Component({
@@ -185,7 +186,7 @@ export class AttendancePageComponent implements OnInit {
   readonly selectedRecord = signal<AttendanceRecordDetail | null>(null);
   readonly isEditing = computed(() => this.editingRecordId() !== null);
 
-  employees: EmployeeSummary[] = [];
+  employees: ReadonlyArray<EmployeeSummary> = [];
   private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
   private readonly employeeNameMap = new Map<string, string>();
 
@@ -341,9 +342,9 @@ export class AttendancePageComponent implements OnInit {
       })
       .subscribe({
         next: (response) => {
-          const mapped = (response.data ?? []).map((record) => this.toListItem(record));
+          const mapped = response.items.map((record) => this.toListItem(record));
           this.records.set(mapped);
-          this.total.set(response.meta?.totalItems ?? mapped.length);
+          this.total.set(response.totalCount);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)
@@ -439,10 +440,11 @@ export class AttendancePageComponent implements OnInit {
   private loadEmployees(): void {
     this.employeeService.list({ page: 1, pageSize: 250 }).subscribe({
       next: (response) => {
-        const items = response.data ?? [];
+        debugger;
+        const items = response.items;
         this.employees = items;
         this.employeeNameMap.clear();
-        items.forEach((employee) => this.employeeNameMap.set(employee.id, employee.fullName));
+        items.forEach((employee) => this.employeeNameMap.set(employee.id, employee.email));
       },
       error: () => {
         this.snackbar.open('Failed to load employees', 'Dismiss', { duration: 3000 });

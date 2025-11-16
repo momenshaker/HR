@@ -312,7 +312,7 @@ export class LeaveRequestsPageComponent implements OnInit {
       .subscribe({
         next: (response) => {
           const map: Record<string, string> = {};
-          (response.data ?? []).forEach((employee) => {
+          response.items.forEach((employee) => {
             map[employee.id] = employee.fullName;
           });
           this.employeeNames.set(map);

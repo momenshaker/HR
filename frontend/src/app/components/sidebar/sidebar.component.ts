@@ -1,7 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostBinding, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -17,8 +16,6 @@ export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
   { path: '/dashboard', title: 'Dashboard', icon: 'dashboard', class: '' },
   { path: '/organizations', title: 'Organizations', icon: 'domain', class: '' },
   { path: '/lookups', title: 'Lookups', icon: 'list_alt', class: '' },
-  { path: '/departments', title: 'Departments', icon: 'account_tree', class: '' },
-  { path: '/employees', title: 'Employees', icon: 'people', class: '' },
   { path: '/attendance', title: 'Attendance', icon: 'schedule', class: '' },
   { path: '/leave', title: 'Leave', icon: 'beach_access', class: '' },
   { path: '/self-service', title: 'Self Service', icon: 'person', class: '' },
@@ -30,7 +27,7 @@ export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MatButtonModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
@@ -38,6 +35,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   menuItems: SidebarMenuItem[] = [];
   private expandedGroups = new Set<string>();
   private routerSubscription?: Subscription;
+  @HostBinding('class.collapsed') collapsed = false;
+
+  @Input()
+  set compact(value: boolean) {
+    this.collapsed = value;
+  }
 
   constructor(private router: Router) { }
 

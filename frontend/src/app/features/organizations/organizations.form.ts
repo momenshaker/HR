@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Inject, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormActionsComponent } from '@shared/components/form-actions/form-actions.component';
@@ -17,12 +18,13 @@ export interface OrganizationFormValue {
   timeZone: string;
   primaryContactEmail: string;
   websiteUrl: string;
+  isActive: boolean;
 }
 
 @Component({
   selector: 'app-organization-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatInputModule, MatSelectModule, FormActionsComponent],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatCheckboxModule, MatInputModule, MatSelectModule, FormActionsComponent],
   template: `
     <h2 mat-dialog-title>{{ data ? 'Edit organization' : 'Create organization' }}</h2>
      <form [formGroup]="form" (ngSubmit)="submit()" class="example-full-width">
@@ -101,6 +103,7 @@ export interface OrganizationFormValue {
           <textarea matInput formControlName="headquartersAddress"></textarea>
         </mat-form-field>
 </div></div>
+        <mat-checkbox formControlName="isActive">Active organization</mat-checkbox>
         <app-form-actions submitLabel="Save" [onCancel]="close"></app-form-actions>
     </mat-dialog-content>  </form>
    
@@ -132,7 +135,8 @@ export class OrganizationFormComponent {
     headquartersAddress: [''],
     timeZone: [''],
     primaryContactEmail: ['', Validators.email],
-    websiteUrl: ['']
+    websiteUrl: [''],
+    isActive: [true]
   });
 
   readonly industries = this.lookupStore.industries;

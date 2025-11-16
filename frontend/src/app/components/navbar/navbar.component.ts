@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SIDEBAR_ITEMS, SidebarMenuItem } from '../sidebar/sidebar.component';
 import { Location } from '@angular/common';
@@ -6,12 +6,12 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../core/auth/auth.service';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatMenuModule, MatDividerModule, RouterLink],
+  imports: [CommonModule, MatButtonModule, MatMenuModule, RouterLink,MatIcon],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
@@ -21,6 +21,7 @@ export class NavbarComponent implements OnInit {
   mobile_menu_visible = 0;
   private toggleButton?: HTMLElement;
   private sidebarVisible = false;
+  @Output() burgerMenu = new EventEmitter<void>();
 
   constructor(
     location: Location,

@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
   styles: [
     `
       .breadcrumbs {
+      padding: 23px;
         display: flex;
         align-items: center;
         gap: 0.25rem;
@@ -32,6 +33,8 @@ import { MatIconModule } from '@angular/material/icon';
       }
       .breadcrumbs__separator {
         font-size: 1rem;
+        align-content: space-evenly;
+        text-align: center;
       }
     `
   ]

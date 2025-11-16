@@ -1,43 +1,51 @@
-.nav {
-    margin-top: 20px;
-    display: block;
-    padding-left: 0;
-    margin-bottom: 0;
-    list-style: none;
+.search-form .input-group {
+  max-width: 280px;
 }
 
-.nav li a {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    margin: 10px 15px 0;
-    border-radius: 3px;
-    color: #3c4858;
-    text-transform: capitalize;
-    font-size: 13px;
-    padding: 10px 15px;
+.burger-menu {
+  padding-left: 25px;
+  vertical-align: middle;
+  color: #d09d79;
+  cursor: pointer;
 }
 
-.nav i {
-    font-size: 24px;
-    float: left;
-    margin-right: 15px;
-    line-height: 30px;
-    width: 30px;
-    text-align: center;
-    color: #a9afbb;
+.search-form .form-control {
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
 }
 
-.nav-link .material-icons {
-    color: #111111;
+.search-form .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.nav p {
-    margin: 0;
-    line-height: 30px;
-    font-size: 14px;
-    position: relative;
-    display: block;
-    height: auto;
-    white-space: nowrap;
+.search-form .btn-link {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.navbar-nav .nav-link {
+  color: #fff;
+  position: relative;
+  margin-left: 0.35rem;
+}
+
+.navbar-nav .badge {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  font-size: 0.65rem;
+}
+
+mat-menu .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1f2937;
+  padding: 0.4rem 0.25rem;
+}
+
+.burger-toggle {
+  color: #fff;
+  margin-right: 0.5rem;
 }

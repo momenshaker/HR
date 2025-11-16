@@ -44,7 +44,7 @@ export class LookupStore {
           if (response.status === 304) {
             return;
           }
-          const payload = response.body;
+          const payload = response.body?.items?.[0];
           if (!payload) {
             return;
           }

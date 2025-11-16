@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.pcoded-footer {
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  color: #5c6472;
+  font-size: 0.875rem;
+}

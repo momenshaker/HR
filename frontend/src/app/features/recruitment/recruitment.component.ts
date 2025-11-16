@@ -149,8 +149,8 @@ export class RecruitmentPageComponent {
       })
       .subscribe({
         next: (response) => {
-          this.jobs.set(response.data);
-          this.total.set(response.meta?.totalItems ?? response.data.length);
+          this.jobs.set(response.items);
+          this.total.set(response.totalCount);
           this.loading.set(false);
         },
         error: () => this.loading.set(false)

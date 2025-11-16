@@ -152,7 +152,7 @@ export class AnnouncementsPageComponent implements OnInit {
     this.loading.set(true);
     this.service.list({ page: 1, pageSize: 25 }).subscribe({
       next: (response) => {
-        const items = this.normalizeResponse(response);
+        const items = response.items ?? [];
         this.announcements.set(
           [...items].sort(
             (a, b) => new Date(b.publishedAtUtc).getTime() - new Date(a.publishedAtUtc).getTime()
@@ -168,18 +168,4 @@ export class AnnouncementsPageComponent implements OnInit {
     });
   }
 
-  private normalizeResponse(response: unknown): AnnouncementDto[] {
-    if (Array.isArray(response)) {
-      return response as AnnouncementDto[];
-    }
-
-    if (response && typeof response === 'object') {
-      const data = (response as { data?: AnnouncementDto[] }).data;
-      if (Array.isArray(data)) {
-        return data;
-      }
-    }
-
-    return [];
-  }
 }

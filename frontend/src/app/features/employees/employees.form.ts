@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { EntityCrudFactory } from '@core/data-access';
 import { FormActionsComponent } from '@shared/components/form-actions/form-actions.component';
 
 export interface EmployeeProfileDocumentInput {
@@ -26,16 +25,12 @@ export interface EmployeeFormValue {
   employmentType?: 'FullTime' | 'PartTime' | 'Contractor';
   employmentStartDate?: string;
   employmentEndDate?: string;
+  dateOfBirth?: string;
   departmentAssignment: {
     primaryDepartmentId: string;
     secondaryDepartmentIds: string[];
   };
   profileDocuments: EmployeeProfileDocumentInput[];
-}
-
-interface DepartmentSummary {
-  id: string;
-  name: string;
 }
 
 @Component({
@@ -46,9 +41,9 @@ interface DepartmentSummary {
     ReactiveFormsModule,
     MatDialogModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatSelectModule,
     FormActionsComponent
   ],
   template: `
@@ -94,14 +89,11 @@ interface DepartmentSummary {
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Primary department</mat-label>
-          <mat-select formControlName="departmentId">
-            <mat-option *ngFor="let department of departments" [value]="department.id">
-              {{ department.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="form.controls.departmentId.hasError('required')">Department is required</mat-error>
+          <mat-label>Date of birth</mat-label>
+          <input matInput type="date" formControlName="dateOfBirth" />
         </mat-form-field>
+
+        <input type="hidden" formControlName="departmentId" />
 
         <mat-form-field appearance="outline">
           <mat-label>Start date</mat-label>
@@ -183,9 +175,6 @@ interface DepartmentSummary {
 export class EmployeeFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<EmployeeFormComponent>);
-  private readonly departmentRequester = inject(EntityCrudFactory).create<never, never, DepartmentSummary>('departments');
-
-  departments: DepartmentSummary[] = [];
   readonly form = this.fb.nonNullable.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
@@ -196,11 +185,11 @@ export class EmployeeFormComponent {
     departmentId: ['', Validators.required],
     startDate: [''],
     endDate: [''],
+    dateOfBirth: [''],
     profileDocuments: this.fb.array<FormGroup>([])
   });
 
   constructor(@Inject(MAT_DIALOG_DATA) readonly data: Partial<EmployeeFormValue> | null) {
-    this.loadDepartments();
     if (data) {
       this.patchData(data);
     }
@@ -244,6 +233,7 @@ export class EmployeeFormComponent {
       employmentType: raw.employmentType,
       employmentStartDate: raw.startDate,
       employmentEndDate: raw.endDate,
+      dateOfBirth: raw.dateOfBirth,
       departmentAssignment: {
         primaryDepartmentId: raw.departmentId,
         secondaryDepartmentIds: []
@@ -254,17 +244,6 @@ export class EmployeeFormComponent {
 
   readonly close = () => this.dialogRef.close();
 
-  private loadDepartments(): void {
-    this.departmentRequester.list({ pageSize: 250 }).subscribe({
-      next: (response) => {
-        this.departments.splice(0, this.departments.length, ...(response.data ?? []));
-      },
-      error: () => {
-        // swallow errors; departments are optional for UX
-      }
-    });
-  }
-
   private patchData(data: Partial<EmployeeFormValue>): void {
     this.form.patchValue({
       firstName: data.firstName ?? '',
@@ -274,7 +253,8 @@ export class EmployeeFormComponent {
       jobTitle: data.jobTitle ?? '',
       employmentType: data.employmentType ?? 'FullTime',
       startDate: data.employmentStartDate ?? '',
-      endDate: data.employmentEndDate ?? ''
+      endDate: data.employmentEndDate ?? '',
+      dateOfBirth: data.dateOfBirth ?? ''
     });
 
     if (data.departmentAssignment?.primaryDepartmentId) {
