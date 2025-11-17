@@ -11,6 +11,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { EntityCrudFactory } from '@core/data-access';
+import { OrganizationSummary } from '../organizations/organizations.component';
 import { PayrollApiService, PayrollBreakdown, PayrollComponentAmount, PayrollItem, PayrollRun, PayrollStatus } from './payroll.api';
 
 @Component({
@@ -27,7 +31,9 @@ import { PayrollApiService, PayrollBreakdown, PayrollComponentAmount, PayrollIte
     MatSelectModule,
     MatProgressBarModule,
     MatChipsModule,
-    MatTableModule
+    MatTableModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './payroll.component.html',
   styleUrls: ['./payroll.component.scss'],
@@ -37,8 +43,12 @@ export class PayrollPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackbar = inject(MatSnackBar);
   private readonly payrollApi = inject(PayrollApiService);
+  private readonly organizationService = inject(EntityCrudFactory).create<unknown, unknown, OrganizationSummary>(
+    'organizations'
+  );
 
   readonly statuses: readonly PayrollStatus[] = ['Draft', 'Calculated', 'UnderReview', 'Approved', 'Locked', 'Paid'];
+  readonly organizations = signal<ReadonlyArray<OrganizationSummary>>([]);
 
   readonly creationForm = this.fb.nonNullable.group({
     organizationId: ['', Validators.required],
@@ -73,6 +83,7 @@ export class PayrollPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRuns();
+    this.loadOrganizations();
   }
 
   refresh(): void {
@@ -85,7 +96,20 @@ export class PayrollPageComponent implements OnInit {
       return;
     }
 
-    const payload = this.creationForm.getRawValue();
+    const formValue = this.creationForm.getRawValue();
+    const periodEndDate = this.toDate(formValue.periodEnd);
+    const payDate = this.toDate(formValue.payDate);
+    if (periodEndDate && payDate && payDate < periodEndDate) {
+      this.snackbar.open('Pay date must be on or after the payroll period end.', 'Dismiss', { duration: 3000 });
+      return;
+    }
+
+    const payload = {
+      ...formValue,
+      periodStart: this.formatDateValue(formValue.periodStart),
+      periodEnd: this.formatDateValue(formValue.periodEnd),
+      payDate: this.formatDateValue(formValue.payDate)
+    };
     this.runsLoading.set(true);
     this.payrollApi.createRun(payload).subscribe({
       next: (run) => {
@@ -202,11 +226,26 @@ export class PayrollPageComponent implements OnInit {
     }
   }
 
+  private formatDateValue(value: any): string {
+    if (!value) {
+      return '';
+    }
+
+    const dateValue = new Date(value);
+    if (Number.isNaN(dateValue.getTime())) {
+      return '';
+    }
+
+    const [datePart = ''] = dateValue.toISOString().split('T');
+    return datePart;
+  }
+
   private loadRuns(): void {
     this.runsLoading.set(true);
     const { organizationId, status } = this.filterForm.getRawValue();
+    const statusValue = status ? (status as PayrollStatus) : undefined;
     this.payrollApi
-      .listRuns({ organizationId: organizationId || undefined, status })
+      .listRuns({ organizationId: organizationId || undefined, status: statusValue })
       .subscribe({
         next: (runs) => {
           this.runs.set(runs);
@@ -234,6 +273,13 @@ export class PayrollPageComponent implements OnInit {
     });
   }
 
+  private loadOrganizations(): void {
+    this.organizationService.list({ page: 1, pageSize: 250 }).subscribe({
+      next: (response) => this.organizations.set(response.items),
+      error: () => this.snackbar.open('Failed to load organizations.', 'Dismiss', { duration: 3000 })
+    });
+  }
+
   private transitionRun(run: PayrollRun, observable: ReturnType<PayrollApiService['calculate']>, message: string): void {
     this.runsLoading.set(true);
     observable.subscribe({
@@ -257,5 +303,18 @@ export class PayrollPageComponent implements OnInit {
     const clone = [...currentRuns];
     clone.splice(index, 1, updated);
     this.runs.set(clone);
+  }
+
+  private toDate(value?: string | Date | null): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsed = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+
+    return parsed;
   }
 }

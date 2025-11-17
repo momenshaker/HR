@@ -20,7 +20,12 @@ export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
   { path: '/leave', title: 'Leave', icon: 'beach_access', class: '' },
   { path: '/self-service', title: 'Self Service', icon: 'person', class: '' },
   { path: '/payroll', title: 'Payroll', icon: 'paid', class: '' },
+  { path: '/subscriptions', title: 'Subscriptions', icon: 'subscriptions', class: '' },
+  { path: '/plans', title: 'Plans', icon: 'card_membership', class: '' },
+  { path: '/performance', title: 'Performance', icon: 'analytics', class: '' },
+  { path: '/training', title: 'Training', icon: 'co_present', class: '' },
   { path: '/recruitment', title: 'Recruitment', icon: 'work', class: '' },
+  { path: '/timesheets', title: 'Timesheets', icon: 'calendar_view_month', class: '' },
   { path: '/notifications', title: 'Notifications', icon: 'notifications', class: '' }
 ];
 

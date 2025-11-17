@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
@@ -56,6 +60,86 @@ public sealed class LeaveService(
         }
 
         return result;
+    }
+
+    public async Task<IReadOnlyCollection<LeaveBalanceDto>> SetBalancesAsync(SetLeaveBalancesRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        if (request.Balances is null || request.Balances.Count == 0)
+        {
+            throw new ArgumentException("Specify at least one balance to update.", nameof(request));
+        }
+
+        var leaveTypes = await _leaveTypes.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var typeMap = leaveTypes.ToDictionary(t => t.Id);
+
+        foreach (var entry in request.Balances)
+        {
+            if (entry.Remaining < 0)
+            {
+                throw new ArgumentException("Remaining balance cannot be negative.", nameof(entry));
+            }
+
+            if (!typeMap.TryGetValue(entry.LeaveTypeId, out var leaveType))
+            {
+                throw new InvalidOperationException("Leave type not found.");
+            }
+
+            await AdjustBalanceAsync(request.EmployeeId, request.Year, leaveType, entry.Remaining, cancellationToken).ConfigureAwait(false);
+        }
+
+        var updated = await GetBalancesAsync(request.EmployeeId, request.Year, cancellationToken).ConfigureAwait(false);
+        var requestedTypeIds = request.Balances.Select(b => b.LeaveTypeId).ToHashSet();
+        return updated.Where(b => requestedTypeIds.Contains(b.LeaveTypeId)).ToArray();
+    }
+
+    private async Task AdjustBalanceAsync(Guid employeeId, int year, LeaveType leaveType, decimal targetRemaining, CancellationToken cancellationToken)
+    {
+        var current = await _leaveBalances.GetAsync(employeeId, leaveType.Id, year, cancellationToken).ConfigureAwait(false);
+        var baseBalance = current ?? new LeaveBalance
+        {
+            EmployeeId = employeeId,
+            LeaveTypeId = leaveType.Id,
+            Year = year,
+            Opening = 0,
+            Accrued = leaveType.AnnualAllowanceDays,
+            Taken = 0,
+            CarriedOver = 0
+        };
+
+        var totalCredit = baseBalance.Opening + baseBalance.Accrued + baseBalance.CarriedOver;
+        var newOpening = baseBalance.Opening;
+        decimal newTaken;
+
+        if (targetRemaining <= totalCredit)
+        {
+            newTaken = totalCredit - targetRemaining;
+        }
+        else
+        {
+            var extra = targetRemaining - totalCredit;
+            newOpening += extra;
+            newTaken = 0;
+        }
+
+        if (newTaken < 0)
+        {
+            newTaken = 0;
+        }
+
+        var updated = new LeaveBalance
+        {
+            EmployeeId = baseBalance.EmployeeId,
+            LeaveTypeId = baseBalance.LeaveTypeId,
+            Year = baseBalance.Year,
+            Opening = newOpening,
+            Accrued = baseBalance.Accrued,
+            Taken = newTaken,
+            CarriedOver = baseBalance.CarriedOver,
+            RowVersion = baseBalance.RowVersion
+        };
+
+        await _leaveBalances.UpsertAsync(updated, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<LeavePreviewDto> PreviewAsync(Guid employeeId, Guid leaveTypeId, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default)
@@ -213,6 +297,7 @@ public sealed class LeaveService(
         {
             Id = request.Id,
             EmployeeId = request.EmployeeId,
+            LeaveTypeId = request.LeaveTypeId,
             LeaveType = request.LeaveType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
@@ -245,6 +330,7 @@ public sealed class LeaveService(
         {
             Id = request.Id,
             EmployeeId = request.EmployeeId,
+            LeaveTypeId = request.LeaveTypeId,
             LeaveType = request.LeaveType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
@@ -313,6 +399,7 @@ public sealed class LeaveService(
         {
             Id = request.Id,
             EmployeeId = request.EmployeeId,
+            LeaveTypeId = request.LeaveTypeId,
             LeaveType = request.LeaveType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,

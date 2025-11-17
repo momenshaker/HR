@@ -22,6 +22,8 @@ public static class SubscriptionMappings
             subscription.CreatedAtUtc.UtcDateTime,
             subscription.CancelledOn?.ToDateTime(TimeOnly.MinValue),
             subscription.RenewalDate?.ToDateTime(TimeOnly.MinValue),
+            subscription.CustomerId,
+            subscription.OrganizationIds,
             subscription.Metadata.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));
     }
 

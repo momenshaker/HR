@@ -39,6 +39,14 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
         return Ok(balances);
     }
 
+    [HttpPost("balances")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<LeaveBalanceDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SetBalances([FromBody] SetLeaveBalancesRequest request, CancellationToken cancellationToken)
+    {
+        var balances = await _leaveService.SetBalancesAsync(request, cancellationToken).ConfigureAwait(false);
+        return Ok(balances);
+    }
+
     public sealed class NewLeaveRequestInput : IValidatableRequest
     {
         public Guid EmployeeId { get; init; }

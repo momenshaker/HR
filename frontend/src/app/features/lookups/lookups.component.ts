@@ -79,14 +79,17 @@ export class LookupsPageComponent implements OnInit {
       },
       { allowSignalWrites: true }
     );
-    effect(() => {
-      const category = this.selectedCategory();
-      if (!category) {
-        this.clearValueSelection();
-        return;
-      }
-      this.loadCategoryValues(category);
-    });
+    effect(
+      () => {
+        const category = this.selectedCategory();
+        if (!category) {
+          this.clearValueSelection();
+          return;
+        }
+        this.loadCategoryValues(category);
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   ngOnInit(): void {

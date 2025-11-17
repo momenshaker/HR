@@ -1,4 +1,4 @@
-**Controller**
+﻿**Controller**
 - Name: `LeaveController`
 - Namespace: `HR.Api.Controllers`
 
@@ -12,6 +12,7 @@
 **Endpoints**
 - GET `/api/v1/leave/types` – List leave types
 - GET `/api/v1/leave/balances` – Get leave balances
+- POST `/api/v1/leave/balances` – Set remaining balances for the requested leave types
 - POST `/api/v1/leave/requests` – Create leave request
 - GET `/api/v1/leave/requests` – List leave requests
 - GET `/api/v1/leave/requests/{id}` – Get leave request by id
@@ -24,6 +25,8 @@
 - Responses: `IReadOnlyCollection<LeaveTypeDto>`, `IReadOnlyCollection<LeaveBalanceDto>`, `LeaveRequestDto`, `PagedLeaveRequestsDto`
 - `LeaveTypeDto` → `{ id, code, name, isPaid, requiresApproval, requiresAttachment, annualAllowanceDays, carryOverDays, maxConsecutiveDays, color }`
 - `LeaveBalanceDto` → `{ employeeId, leaveTypeId, year, openingBalance, accrued, taken, carriedForward, reserved, remaining }`
+- `SetLeaveBalancesRequest` → `{ employeeId, year, balances: [{ leaveTypeId, remaining }] }`
+- `LeaveBalanceAdjustmentDto` → `{ leaveTypeId, remaining }`
 - `LeaveRequestDto` → `{ id, employeeId, leaveTypeId, leaveType, startDate, endDate, numberOfDays, status (Draft|PendingApproval|Approved|Rejected|Cancelled), approverId, reason, attachmentPath, submittedAtUtc, approvedAtUtc, rejectedAtUtc, cancelledAtUtc }`
 
 **cURL Examples**

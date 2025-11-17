@@ -73,6 +73,27 @@
   align-items: end;
 }
 
+.attendance-balance__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.attendance-balance__summary {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.attendance-balance__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .attendance-detail {
   background: #fbfbfb;
   border-radius: 10px;

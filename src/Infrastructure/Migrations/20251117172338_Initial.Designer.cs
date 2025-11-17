@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HR.Infrastructure.Migrations
 {
     [DbContext(typeof(HrDbContext))]
-    [Migration("20251114102130_Initial")]
+    [Migration("20251117172338_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -169,6 +169,79 @@ namespace HR.Infrastructure.Migrations
                     b.HasIndex("AttendanceRecordId");
 
                     b.ToTable("AttendancePunches", (string)null);
+                });
+
+            modelBuilder.Entity("HR.Domain.Entities.AttendancePunchConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("PunchType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AttendancePunchConfigurations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a221292f-5ad8-4427-834a-5d9b6e4e9d2f"),
+                            Description = "Employee clock-in punch.",
+                            DisplayName = "Clock In",
+                            IsActive = true,
+                            PunchType = "ClockIn",
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("b5ad6f5e-7d26-414c-bdc4-0f69c1e7b6f6"),
+                            Description = "Employee clock-out punch.",
+                            DisplayName = "Clock Out",
+                            IsActive = true,
+                            PunchType = "ClockOut",
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("cde8f618-5a57-4c90-9a8d-3b6a3a2f9c1d"),
+                            Description = "Start of a break period.",
+                            DisplayName = "Break Start",
+                            IsActive = true,
+                            PunchType = "BreakStart",
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("d3f8e26d-0f4b-4b28-bcbb-7a8c6f2e1c58"),
+                            Description = "End of a break period.",
+                            DisplayName = "Break End",
+                            IsActive = true,
+                            PunchType = "BreakEnd",
+                            SortOrder = 4
+                        });
                 });
 
             modelBuilder.Entity("HR.Domain.Entities.AttendanceRecord", b =>
@@ -351,6 +424,14 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("CurrentCompany")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurrentTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -361,6 +442,13 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<bool>("IsInTalentPool")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkedInProfileUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("NextInterviewAtUtc")
                         .HasColumnType("datetime2");
 
@@ -368,6 +456,10 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResumeUrl")
                         .IsRequired()
@@ -383,6 +475,13 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("YearsOfExperience")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -799,6 +898,27 @@ namespace HR.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("BankAccountNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("BankName")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasDefaultValue("");
+
+                    b.Property<decimal>("BasicSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ContractType")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasDefaultValue("");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -817,7 +937,6 @@ namespace HR.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("EmploymentType")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
@@ -827,6 +946,12 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IBAN")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)")
+                        .HasDefaultValue("");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -841,8 +966,19 @@ namespace HR.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("PaySchedule")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasDefaultValue("Monthly");
+
+                    b.Property<string>("PaymentMethod")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("");
+
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)")
@@ -853,7 +989,6 @@ namespace HR.Infrastructure.Migrations
                             b1.IsRequired();
 
                             b1.Property<string>("CareerTrack")
-                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(150)
                                 .HasColumnType("nvarchar(150)")
@@ -861,7 +996,6 @@ namespace HR.Infrastructure.Migrations
                                 .HasColumnName("JobArchitectureCareerTrack");
 
                             b1.Property<string>("JobCode")
-                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
@@ -869,7 +1003,6 @@ namespace HR.Infrastructure.Migrations
                                 .HasColumnName("JobArchitectureJobCode");
 
                             b1.Property<string>("JobFamily")
-                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(150)
                                 .HasColumnType("nvarchar(150)")
@@ -877,7 +1010,6 @@ namespace HR.Infrastructure.Migrations
                                 .HasColumnName("JobArchitectureJobFamily");
 
                             b1.Property<string>("JobFunction")
-                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(150)
                                 .HasColumnType("nvarchar(150)")
@@ -885,7 +1017,6 @@ namespace HR.Infrastructure.Migrations
                                 .HasColumnName("JobArchitectureJobFunction");
 
                             b1.Property<string>("JobLevel")
-                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
@@ -904,46 +1035,62 @@ namespace HR.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"),
+                            BasicSalary = 0m,
+                            ContractType = "FullTime",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "alice.johnson@acme.test",
                             EmploymentStartDate = new DateOnly(2020, 1, 6),
+                            EmploymentType = "FullTime",
                             FirstName = "Alice",
                             IsActive = true,
                             JobTitle = "Director of Engineering",
-                            LastName = "Johnson"
+                            LastName = "Johnson",
+                            PaySchedule = "Monthly"
                         },
                         new
                         {
                             Id = new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"),
+                            BasicSalary = 0m,
+                            ContractType = "FullTime",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "bob.smith@acme.test",
                             EmploymentStartDate = new DateOnly(2020, 4, 6),
+                            EmploymentType = "FullTime",
                             FirstName = "Bob",
                             IsActive = true,
                             JobTitle = "Senior Platform Engineer",
-                            LastName = "Smith"
+                            LastName = "Smith",
+                            PaySchedule = "Monthly"
                         },
                         new
                         {
                             Id = new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"),
+                            BasicSalary = 0m,
+                            ContractType = "FullTime",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "carol.lee@acme.test",
                             EmploymentStartDate = new DateOnly(2020, 7, 6),
+                            EmploymentType = "FullTime",
                             FirstName = "Carol",
                             IsActive = true,
                             JobTitle = "Applications Lead",
-                            LastName = "Lee"
+                            LastName = "Lee",
+                            PaySchedule = "Monthly"
                         },
                         new
                         {
                             Id = new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"),
+                            BasicSalary = 0m,
+                            ContractType = "FullTime",
                             CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "david.patel@acme.test",
                             EmploymentStartDate = new DateOnly(2020, 3, 6),
+                            EmploymentType = "FullTime",
                             FirstName = "David",
                             IsActive = true,
                             JobTitle = "HR Business Partner",
-                            LastName = "Patel"
+                            LastName = "Patel",
+                            PaySchedule = "Monthly"
                         });
                 });
 
@@ -1260,6 +1407,9 @@ namespace HR.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("CandidateId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1289,9 +1439,15 @@ namespace HR.Infrastructure.Migrations
                     b.Property<DateTime>("ScheduledAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("ScheduledById")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Stage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("StageId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1859,6 +2015,39 @@ namespace HR.Infrastructure.Migrations
                             IsActive = true,
                             SortOrder = 4,
                             UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("5897d8d7-8eb8-4612-a123-3f8d7f5d24c8"),
+                            Category = "leaveType",
+                            Code = "VACATION",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Vacation",
+                            IsActive = true,
+                            SortOrder = 1,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("65a1f6c3-9e6a-4d5f-901f-3b4e7c1f0e3f"),
+                            Category = "leaveType",
+                            Code = "SICK",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Sick",
+                            IsActive = true,
+                            SortOrder = 2,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("b6b1c9e2-3d44-4c01-9f21-a9c9475c6f4f"),
+                            Category = "leaveType",
+                            Code = "PERSONAL",
+                            CreatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Personal",
+                            IsActive = true,
+                            SortOrder = 3,
+                            UpdatedAtUtc = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
 
@@ -2068,13 +2257,13 @@ namespace HR.Infrastructure.Migrations
                     b.Property<DateTime?>("PaidAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateOnly>("PayDate")
+                        .HasColumnType("date");
+
                     b.Property<DateOnly>("PeriodEnd")
                         .HasColumnType("date");
 
                     b.Property<DateOnly>("PeriodStart")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("PayDate")
                         .HasColumnType("date");
 
                     b.Property<byte[]>("RowVersion")
@@ -2878,14 +3067,13 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("ClosingAtUtc")
+                    b.Property<DateTime?>("ClosedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Department")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -2901,26 +3089,51 @@ namespace HR.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("NumberOfPositions")
+                        .HasColumnType("int");
+
                     b.Property<string>("PipelineStages")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("PostedAtUtc")
+                    b.Property<string>("PostingChannels")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PublishedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Requirements")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("RequisitionId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Responsibilities")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SalaryRangeText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SalaryVisible")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("WorkMode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

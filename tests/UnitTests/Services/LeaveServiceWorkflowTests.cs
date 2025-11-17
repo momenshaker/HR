@@ -1,3 +1,5 @@
+using System;
+
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
@@ -166,6 +168,24 @@ public sealed class LeaveServiceWorkflowTests
         var bal = Assert.Single(balances);
         Assert.Equal(20m, bal.Remaining);
         Assert.Equal(0m, bal.Reserved);
+    }
+
+    [Fact]
+    public async Task SetBalances_Adjusts_RemainingValue()
+    {
+        var year = DateTime.UtcNow.Year;
+        var request = new SetLeaveBalancesRequest(
+            _employee,
+            year,
+            new[]
+            {
+                new LeaveBalanceAdjustmentDto(_vacationType.Id, 12m)
+            });
+
+        var balances = await _sut.SetBalancesAsync(request);
+        var balance = Assert.Single(balances);
+        Assert.Equal(12m, balance.Remaining);
+        Assert.Equal(0m, balance.Reserved);
     }
 
     private static DateTime GetNext(DayOfWeek day)

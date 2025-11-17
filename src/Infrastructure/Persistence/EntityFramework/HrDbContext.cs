@@ -81,5 +81,6 @@ public sealed class HrDbContext : IdentityDbContext<ApplicationUser, IdentityRol
         PlanCatalogSeeder.Seed(modelBuilder);
         OrganizationStructureSeeder.Seed(modelBuilder);
         LookupValueSeeder.Seed(modelBuilder);
+        AttendancePunchConfigurationSeeder.Seed(modelBuilder);
     }
 }

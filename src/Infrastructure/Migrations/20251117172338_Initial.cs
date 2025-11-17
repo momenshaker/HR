@@ -63,6 +63,22 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AttendancePunchConfigurations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PunchType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    SortOrder = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttendancePunchConfigurations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AttendanceRecords",
                 columns: table => new
                 {
@@ -121,13 +137,20 @@ namespace HR.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CurrentCompany = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CurrentTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    YearsOfExperience = table.Column<int>(type: "int", nullable: true),
                     AppliedRole = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Stage = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Source = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LinkedInProfileUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AppliedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NextInterviewAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ResumeUrl = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false)
+                    Notes = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsInTalentPool = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -226,18 +249,25 @@ namespace HR.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     JobTitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: ""),
-                    EmploymentType = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false, defaultValue: ""),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true, defaultValue: ""),
+                    EmploymentType = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true, defaultValue: ""),
+                    ContractType = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true, defaultValue: ""),
                     EmploymentStartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EmploymentEndDate = table.Column<DateOnly>(type: "date", nullable: true),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    BasicSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaySchedule = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true, defaultValue: "Monthly"),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, defaultValue: ""),
+                    BankAccountNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, defaultValue: ""),
+                    IBAN = table.Column<string>(type: "nvarchar(34)", maxLength: 34, nullable: true, defaultValue: ""),
+                    BankName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true, defaultValue: ""),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    JobArchitectureCareerTrack = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, defaultValue: ""),
-                    JobArchitectureJobCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, defaultValue: ""),
-                    JobArchitectureJobFamily = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, defaultValue: ""),
-                    JobArchitectureJobFunction = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, defaultValue: ""),
-                    JobArchitectureJobLevel = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, defaultValue: "")
+                    JobArchitectureCareerTrack = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true, defaultValue: ""),
+                    JobArchitectureJobCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true, defaultValue: ""),
+                    JobArchitectureJobFamily = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true, defaultValue: ""),
+                    JobArchitectureJobFunction = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true, defaultValue: ""),
+                    JobArchitectureJobLevel = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true, defaultValue: "")
                 },
                 constraints: table =>
                 {
@@ -287,6 +317,9 @@ namespace HR.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CandidateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VacancyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    StageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ScheduledById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Stage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ScheduledAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Duration = table.Column<TimeSpan>(type: "time", nullable: false),
@@ -650,17 +683,24 @@ namespace HR.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RequisitionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PublicDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WorkMode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EmploymentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SalaryVisible = table.Column<bool>(type: "bit", nullable: false),
+                    SalaryRangeText = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NumberOfPositions = table.Column<int>(type: "int", nullable: false),
+                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Responsibilities = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Requirements = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostingChannels = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PipelineStages = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HiringTeam = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PostedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ClosingAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PublishedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClosedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ApplicationUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -1346,14 +1386,25 @@ namespace HR.Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Employees",
-                columns: new[] { "Id", "CreatedAtUtc", "DateOfBirth", "Email", "EmploymentEndDate", "EmploymentStartDate", "FirstName", "IsActive", "JobTitle", "LastName" },
+                table: "AttendancePunchConfigurations",
+                columns: new[] { "Id", "Description", "DisplayName", "IsActive", "PunchType", "SortOrder" },
                 values: new object[,]
                 {
-                    { new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "david.patel@acme.test", null, new DateOnly(2020, 3, 6), "David", true, "HR Business Partner", "Patel" },
-                    { new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "carol.lee@acme.test", null, new DateOnly(2020, 7, 6), "Carol", true, "Applications Lead", "Lee" },
-                    { new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "bob.smith@acme.test", null, new DateOnly(2020, 4, 6), "Bob", true, "Senior Platform Engineer", "Smith" },
-                    { new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "alice.johnson@acme.test", null, new DateOnly(2020, 1, 6), "Alice", true, "Director of Engineering", "Johnson" }
+                    { new Guid("a221292f-5ad8-4427-834a-5d9b6e4e9d2f"), "Employee clock-in punch.", "Clock In", true, "ClockIn", 1 },
+                    { new Guid("b5ad6f5e-7d26-414c-bdc4-0f69c1e7b6f6"), "Employee clock-out punch.", "Clock Out", true, "ClockOut", 2 },
+                    { new Guid("cde8f618-5a57-4c90-9a8d-3b6a3a2f9c1d"), "Start of a break period.", "Break Start", true, "BreakStart", 3 },
+                    { new Guid("d3f8e26d-0f4b-4b28-bcbb-7a8c6f2e1c58"), "End of a break period.", "Break End", true, "BreakEnd", 4 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "Id", "BasicSalary", "ContractType", "CreatedAtUtc", "DateOfBirth", "Email", "EmploymentEndDate", "EmploymentStartDate", "EmploymentType", "FirstName", "IsActive", "JobTitle", "LastName", "PaySchedule" },
+                values: new object[,]
+                {
+                    { new Guid("0b90b2f9-2378-4e8f-9b77-4d56e0dcd8ec"), 0m, "FullTime", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "david.patel@acme.test", null, new DateOnly(2020, 3, 6), "FullTime", "David", true, "HR Business Partner", "Patel", "Monthly" },
+                    { new Guid("c0d7683e-8e3d-4f6d-bf16-b0cb02f1455e"), 0m, "FullTime", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "carol.lee@acme.test", null, new DateOnly(2020, 7, 6), "FullTime", "Carol", true, "Applications Lead", "Lee", "Monthly" },
+                    { new Guid("dca9c1f7-5fbc-4c6c-8fd0-9be0384fe760"), 0m, "FullTime", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "bob.smith@acme.test", null, new DateOnly(2020, 4, 6), "FullTime", "Bob", true, "Senior Platform Engineer", "Smith", "Monthly" },
+                    { new Guid("df15d0d5-7b31-4a2c-924f-4da55b1fb677"), 0m, "FullTime", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "alice.johnson@acme.test", null, new DateOnly(2020, 1, 6), "FullTime", "Alice", true, "Director of Engineering", "Johnson", "Monthly" }
                 });
 
             migrationBuilder.InsertData(
@@ -1369,13 +1420,16 @@ namespace HR.Infrastructure.Migrations
                     { new Guid("383c0c64-3592-475f-8b31-cd5b5cfcc146"), "timeZone", "ASIA_SINGAPORE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Asia/Singapore", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("3c2aba9e-a562-4f72-a564-a85f25689272"), "timeZone", "UTC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "UTC", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("44c8cf0e-ea28-4f0f-ae7c-990f361776a5"), "region", "NORTH_AMERICA", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "North America", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("5897d8d7-8eb8-4612-a123-3f8d7f5d24c8"), "leaveType", "VACATION", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Vacation", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("5c1e0e99-540c-4dea-a361-b49d3e1c2ec5"), "industry", "HEALTHCARE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Healthcare", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("65a1f6c3-9e6a-4d5f-901f-3b4e7c1f0e3f"), "leaveType", "SICK", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Sick", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("719b7a47-109f-431d-9418-9d3cdb377c7a"), "branch", "REGIONAL_OFFICE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Regional Office", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("771cb91a-a6ae-453f-bdc9-f4baf22fc436"), "businessUnit", "CORPORATE", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Corporate", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("86694dbe-a50f-4330-a794-cf9625528ac3"), "operatingHours", "DAY", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Day", true, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("8e6db0b5-a580-46c8-9a00-c4a81b448f3a"), "businessUnit", "PRODUCT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Product", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("972e6450-17e9-48ee-ac9a-9041d6d8fb97"), "operatingHours", "NIGHT", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Night", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("a88beff5-2332-42f8-9a96-0550c1d2364a"), "region", "LATAM", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "LATAM", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { new Guid("b6b1c9e2-3d44-4c01-9f21-a9c9475c6f4f"), "leaveType", "PERSONAL", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "Personal", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("c785c01d-84a4-4923-a6e7-fa59b15f63b4"), "region", "APAC", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "APAC", true, 3, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("c8c741e5-fc1b-4895-bc98-6ae8607afdcf"), "timeZone", "AMERICA_NEW_YORK", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "America/New_York", true, 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { new Guid("dfce0848-757f-4ebd-990a-f6861a25b981"), "operatingHours", "24_7", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "24/7", true, 4, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
@@ -1854,6 +1908,9 @@ namespace HR.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "AttendancePunchConfigurations");
 
             migrationBuilder.DropTable(
                 name: "AttendancePunches");

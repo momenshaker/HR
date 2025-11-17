@@ -151,11 +151,12 @@ public sealed class RecruitmentServiceTests
         // Arrange
         var request = new CreateVacancyRequest
         {
-            Title = " Senior Engineer ",
+            RequisitionId = Guid.NewGuid(),
+            PublicTitle = " Senior Engineer ",
             Department = " Engineering ",
             Location = "Remote",
             EmploymentType = "Full-time",
-            Description = "Lead strategic initiatives",
+            PublicDescription = "Lead strategic initiatives",
             Responsibilities = new[] { " Build systems ", "build systems" },
             Requirements = new[] { "C#", ".NET" },
             PipelineStages = new List<string> { "Applied", "Interview" },
@@ -174,8 +175,8 @@ public sealed class RecruitmentServiceTests
 
         // Assert
         Assert.NotNull(persistedVacancy);
-        Assert.Equal("Senior Engineer", persistedVacancy!.Title);
-        Assert.Equal("Open", persistedVacancy.Status);
+        Assert.Equal("Senior Engineer", persistedVacancy!.PublicTitle);
+        Assert.Equal("Published", persistedVacancy.Status);
         Assert.Single(persistedVacancy.Responsibilities);
         Assert.Equal(result.Id, persistedVacancy.Id);
     }
@@ -193,39 +194,39 @@ public sealed class RecruitmentServiceTests
             .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Vacancy>
             {
-                new()
-                {
-                    Id = vacancyId,
-                    Title = "Engineer",
-                    Department = "Engineering",
-                    Location = "Remote",
-                    EmploymentType = "Full-time",
-                    Description = "Build",
-                    Responsibilities = new List<string> { "Code" },
-                    Requirements = new List<string> { "C#" },
-                    PipelineStages = new List<string> { "Applied", "Interview" },
-                    HiringTeam = new List<string> { "Alice" },
-                    PostedAtUtc = DateTime.UtcNow.AddDays(-10),
-                    Status = "Open",
-                    ApplicationUrl = "https://example.com"
-                },
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Designer",
-                    Department = "Design",
-                    Location = "Hybrid",
-                    EmploymentType = "Contract",
-                    Description = "Design",
-                    Responsibilities = new List<string>(),
-                    Requirements = new List<string>(),
-                    PipelineStages = new List<string> { "Applied" },
-                    HiringTeam = new List<string> { "Bob" },
-                    PostedAtUtc = DateTime.UtcNow.AddDays(-20),
-                    ClosingAtUtc = DateTime.UtcNow.AddDays(-1),
-                    Status = "Closed",
-                    ApplicationUrl = string.Empty
-                }
+            new()
+            {
+                Id = vacancyId,
+                PublicTitle = "Engineer",
+                Department = "Engineering",
+                Location = "Remote",
+                EmploymentType = "Full-time",
+                PublicDescription = "Build",
+                Responsibilities = new List<string> { "Code" },
+                Requirements = new List<string> { "C#" },
+                PipelineStages = new List<string> { "Applied", "Interview" },
+                HiringTeam = new List<string> { "Alice" },
+                PublishedAtUtc = DateTime.UtcNow.AddDays(-10),
+                Status = "Published",
+                ApplicationUrl = "https://example.com"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                PublicTitle = "Designer",
+                Department = "Design",
+                Location = "Hybrid",
+                EmploymentType = "Contract",
+                PublicDescription = "Design",
+                Responsibilities = new List<string>(),
+                Requirements = new List<string>(),
+                PipelineStages = new List<string> { "Applied" },
+                HiringTeam = new List<string>(),
+                PublishedAtUtc = DateTime.UtcNow.AddDays(-20),
+                ClosedAtUtc = DateTime.UtcNow.AddDays(-1),
+                Status = "Closed",
+                ApplicationUrl = string.Empty
+            }
             });
 
         _candidateRepositoryMock

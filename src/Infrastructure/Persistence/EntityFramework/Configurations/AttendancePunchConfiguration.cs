@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HR.Infrastructure.Persistence.EntityFramework.Configurations;
 
-internal sealed class AttendancePunchConfiguration : IEntityTypeConfiguration<AttendancePunch>
+internal sealed class AttendancePunchEntityConfiguration : IEntityTypeConfiguration<AttendancePunch>
 {
     public void Configure(EntityTypeBuilder<AttendancePunch> builder)
     {

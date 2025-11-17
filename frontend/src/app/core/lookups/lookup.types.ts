@@ -67,5 +67,10 @@ export const DEFAULT_LOOKUP_SEED: LookupDictionary = {
     { id: 'c8c741e5-fc1b-4895-bc98-6ae8607afdcf', category: 'timeZone', code: 'AMERICA_NEW_YORK', displayName: 'America/New_York', description: null, sortOrder: 2, isActive: true, updatedAtUtc: seedTimestamp },
     { id: 'fd228009-14bb-46e0-ade8-aabeb82f8abd', category: 'timeZone', code: 'EUROPE_LONDON', displayName: 'Europe/London', description: null, sortOrder: 3, isActive: true, updatedAtUtc: seedTimestamp },
     { id: '383c0c64-3592-475f-8b31-cd5b5cfcc146', category: 'timeZone', code: 'ASIA_SINGAPORE', displayName: 'Asia/Singapore', description: null, sortOrder: 4, isActive: true, updatedAtUtc: seedTimestamp }
+  ],
+  leaveType: [
+    { id: '5897d8d7-8eb8-4612-a123-3f8d7f5d24c8', category: 'leaveType', code: 'VACATION', displayName: 'Vacation', description: null, sortOrder: 1, isActive: true, updatedAtUtc: seedTimestamp },
+    { id: '65a1f6c3-9e6a-4d5f-901f-3b4e7c1f0e3f', category: 'leaveType', code: 'SICK', displayName: 'Sick', description: null, sortOrder: 2, isActive: true, updatedAtUtc: seedTimestamp },
+    { id: 'b6b1c9e2-3d44-4c01-9f21-a9c9475c6f4f', category: 'leaveType', code: 'PERSONAL', displayName: 'Personal', description: null, sortOrder: 3, isActive: true, updatedAtUtc: seedTimestamp }
   ]
 };

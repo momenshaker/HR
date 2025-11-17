@@ -25,26 +25,37 @@
 
               <form [formGroup]="creationForm" (ngSubmit)="createRun()" class="form-grid">
                 <mat-form-field appearance="outline">
-                  <mat-label>Organization ID</mat-label>
-                  <input matInput placeholder="UUID" formControlName="organizationId" />
+                  <mat-label>Organization</mat-label>
+                  <mat-select formControlName="organizationId">
+                    <mat-option value="" disabled>Select organization</mat-option>
+                    <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
+                      {{ organization.name }} ({{ organization.code }})
+                    </mat-option>
+                  </mat-select>
                   <mat-error *ngIf="creationForm.controls.organizationId.hasError('required')">Organization is required</mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Period start</mat-label>
-                  <input matInput type="date" formControlName="periodStart" />
+                  <input matInput [matDatepicker]="periodStartPicker" formControlName="periodStart" />
+                  <mat-datepicker-toggle matSuffix [for]="periodStartPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #periodStartPicker></mat-datepicker>
                   <mat-error *ngIf="creationForm.controls.periodStart.hasError('required')">Start date required</mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Period end</mat-label>
-                  <input matInput type="date" formControlName="periodEnd" />
+                  <input matInput [matDatepicker]="periodEndPicker" formControlName="periodEnd" />
+                  <mat-datepicker-toggle matSuffix [for]="periodEndPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #periodEndPicker></mat-datepicker>
                   <mat-error *ngIf="creationForm.controls.periodEnd.hasError('required')">End date required</mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Pay date</mat-label>
-                  <input matInput type="date" formControlName="payDate" />
+                  <input matInput [matDatepicker]="payDatePicker" formControlName="payDate" />
+                  <mat-datepicker-toggle matSuffix [for]="payDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #payDatePicker></mat-datepicker>
                   <mat-error *ngIf="creationForm.controls.payDate.hasError('required')">Pay date required</mat-error>
                 </mat-form-field>
 
@@ -67,8 +78,13 @@
 
               <form [formGroup]="filterForm" class="filter-grid" (ngSubmit)="applyFilters()">
                 <mat-form-field appearance="outline">
-                  <mat-label>Organization ID</mat-label>
-                  <input matInput placeholder="UUID" formControlName="organizationId" />
+                  <mat-label>Organization</mat-label>
+                  <mat-select formControlName="organizationId">
+                    <mat-option value="">All organizations</mat-option>
+                    <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
+                      {{ organization.name }} ({{ organization.code }})
+                    </mat-option>
+                  </mat-select>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">

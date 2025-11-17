@@ -276,8 +276,9 @@ export class RecruitmentPageComponent implements OnInit {
     }
 
     return [...rows].sort((a, b) => {
-      const aValue = (a as Record<string, unknown>)[sortField];
-      const bValue = (b as Record<string, unknown>)[sortField];
+      const sortKey = sortField as keyof VacancyTableRow;
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
 
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;

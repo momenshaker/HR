@@ -11,4 +11,6 @@ public sealed record SubscriptionDto(
     DateTime CreatedAt,
     DateTime? CanceledAt,
     DateTime? RenewsAt,
+    Guid CustomerId,
+    IReadOnlyCollection<Guid> OrganizationIds,
     IReadOnlyDictionary<string, string> Metadata);

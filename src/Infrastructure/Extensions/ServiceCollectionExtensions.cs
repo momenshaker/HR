@@ -70,6 +70,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReportingRelationshipService, ReportingRelationshipService>();
         services.AddScoped<IDelegatedAuthorityService, DelegatedAuthorityService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<IAttendancePunchConfigurationService, AttendancePunchConfigurationService>();
         services.AddScoped<IWorkScheduleService, WorkScheduleService>();
         services.AddScoped<IEmployeeScheduleService, EmployeeScheduleService>();
         services.AddScoped<IHolidayService, HolidayService>();
@@ -94,6 +95,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILookupService, LookupService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IInvoiceService, InvoiceService>();
+        services.AddSingleton<IPlanService, PlanService>();
         services.AddSingleton<IUsageService, UsageService>();
 
         services.AddSingleton<IEmailSender, HR.Infrastructure.Services.ConsoleEmailSender>();
@@ -165,6 +167,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReportingRelationshipRepository, EntityFrameworkReportingRelationshipRepository>();
         services.AddScoped<IDelegatedAuthorityRepository, EntityFrameworkDelegatedAuthorityRepository>();
         services.AddScoped<IAttendanceRecordRepository, EntityFrameworkAttendanceRecordRepository>();
+        services.AddScoped<IAttendancePunchConfigurationRepository, EntityFrameworkAttendancePunchConfigurationRepository>();
         services.AddScoped<IWorkScheduleRepository, EntityFrameworkWorkScheduleRepository>();
         services.AddScoped<IEmployeeScheduleRepository, EntityFrameworkEmployeeScheduleRepository>();
         services.AddScoped<IHolidayRepository, EntityFrameworkHolidayRepository>();
@@ -211,6 +214,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReportingRelationshipRepository, InMemoryReportingRelationshipRepository>();
         services.AddSingleton<IDelegatedAuthorityRepository, InMemoryDelegatedAuthorityRepository>();
         services.AddSingleton<IAttendanceRecordRepository, InMemoryAttendanceRecordRepository>();
+        services.AddSingleton<IAttendancePunchConfigurationRepository, InMemoryAttendancePunchConfigurationRepository>();
         services.AddSingleton<IWorkScheduleRepository, InMemoryWorkScheduleRepository>();
         services.AddSingleton<IEmployeeScheduleRepository, InMemoryEmployeeScheduleRepository>();
         services.AddSingleton<IHolidayRepository, InMemoryHolidayRepository>();

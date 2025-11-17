@@ -10,7 +10,7 @@ import { LookupCollection, LookupValue, LookupValuePayload } from './lookup.type
 export class LookupApiService {
   private readonly http = inject(HttpClient);
   private readonly config = inject<AppConfig>(APP_CONFIG);
-  private readonly resourceUrl = `${this.config.apiBaseUrl}/api/v1/lookups`;
+  private readonly resourceUrl = `${this.config.apiBaseUrl}/lookups`;
 
   list(etag?: string | null): Observable<HttpResponse<PaginatedResponse<LookupCollection>>> {
     let headers = new HttpHeaders();

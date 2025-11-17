@@ -1,0 +1,127 @@
+.subscriptions-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.subscriptions-panel {
+  background: #fff;
+  border-radius: 0.3rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.panel-subtitle {
+  margin: 0.25rem 0 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.panel-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-form__full {
+  grid-column: 1 / -1;
+}
+
+.plan-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #5a636e;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-tools {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.panel-tools__select {
+  min-width: 180px;
+}
+
+.subscriptions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.subscriptions-table th,
+.subscriptions-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.organization-select {
+  min-width: 180px;
+}
+
+.subscriptions-table__row--selected {
+  background: #f8fbff;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.subscriptions-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6c757d;
+}
+
+.invoice-panel {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+}
+
+.invoice-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-panel__status {
+  color: #3f51b5;
+  font-weight: 600;
+}
+
+.invoice-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.invoice-panel__grid span {
+  display: block;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.invoice-panel__links {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}

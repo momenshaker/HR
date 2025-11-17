@@ -1,0 +1,45 @@
+.plans-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.plans-panel {
+  background: #fff;
+  border-radius: 0.35rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.plans-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.entitlements-field {
+  grid-column: 1 / -1;
+}
+
+.plans-panel--list {
+  overflow-x: auto;
+}
+
+.plans-table-wrapper {
+  margin-top: 1rem;
+}
+
+.plans-table {
+  width: 100%;
+}
+
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6c757d;
+}

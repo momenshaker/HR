@@ -9,6 +9,7 @@ namespace HR.Domain.Entities;
 public sealed class Subscription
 {
     private readonly ConcurrentDictionary<string, string> _metadata;
+    private readonly HashSet<Guid> _organizationIds = new();
     private IReadOnlyCollection<string> _entitledFeatures;
 
     // EF Core parameterless constructor
@@ -107,6 +108,8 @@ public sealed class Subscription
 
     public IReadOnlyDictionary<string, string> Metadata => _metadata;
 
+    public IReadOnlyCollection<Guid> OrganizationIds => _organizationIds.ToArray();
+
     public IReadOnlyCollection<string> EntitledFeatures => _entitledFeatures;
 
     // ---------------------------
@@ -181,6 +184,18 @@ public sealed class Subscription
     public void LinkCustomer(Guid customerId)
     {
         CustomerId = customerId;
+        Touch();
+    }
+
+    public void SetOrganizations(IEnumerable<Guid> organizationIds)
+    {
+        ArgumentNullException.ThrowIfNull(organizationIds);
+        _organizationIds.Clear();
+        foreach (var id in organizationIds)
+        {
+            _organizationIds.Add(id);
+        }
+
         Touch();
     }
 

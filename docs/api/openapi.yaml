@@ -79,6 +79,24 @@ paths:
           description: Leave balances per leave type for the employee and year.
           content:
             application/json:
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveBalanceDto'
+    post:
+      tags: [Leave]
+      summary: Set leave balances for the selected types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetLeaveBalancesRequest'
+      responses:
+        '200':
+          description: Updated balance snapshots for the employee
+          content:
+            application/json:
               schema:
                 type: array
                 items:
@@ -1620,6 +1638,30 @@ components:
         reserved:
           type: number
           format: double
+        remaining:
+          type: number
+          format: double
+    SetLeaveBalancesRequest:
+      type: object
+      required: [employeeId, year, balances]
+      properties:
+        employeeId:
+          type: string
+          format: uuid
+        year:
+          type: integer
+          format: int32
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveBalanceAdjustmentDto'
+    LeaveBalanceAdjustmentDto:
+      type: object
+      required: [leaveTypeId, remaining]
+      properties:
+        leaveTypeId:
+          type: string
+          format: uuid
         remaining:
           type: number
           format: double

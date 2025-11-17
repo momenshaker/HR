@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { APP_CONFIG } from '@core/config/app-config.token';
 import { AppConfig } from '@core/config/app-config.model';
+import { PaginatedResponse } from '@core/data-access/paginated-response.model';
 
 export type PayrollStatus = 'Draft' | 'Calculated' | 'UnderReview' | 'Approved' | 'Locked' | 'Paid';
 
@@ -74,7 +75,7 @@ export interface CreatePayrollRunPayload {
 export class PayrollApiService {
   private readonly http = inject(HttpClient);
   private readonly config = inject<AppConfig>(APP_CONFIG);
-  private readonly baseUrl = `${this.config.apiBaseUrl}/payroll/runs`;
+  private readonly baseUrl = `${this.config.apiBaseUrl}/PayrollRuns`;
 
   listRuns(filters: { organizationId?: string; status?: PayrollStatus | '' } = {}): Observable<readonly PayrollRun[]> {
     let params = new HttpParams();
@@ -84,7 +85,9 @@ export class PayrollApiService {
     if (filters.status) {
       params = params.set('status', filters.status);
     }
-    return this.http.get<readonly PayrollRun[]>(this.baseUrl, { params });
+    return this.http
+      .get<PaginatedResponse<PayrollRun>>(this.baseUrl, { params })
+      .pipe(map((response) => response.items));
   }
 
   createRun(payload: CreatePayrollRunPayload): Observable<PayrollRun> {

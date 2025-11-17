@@ -454,6 +454,15 @@ public sealed class EmployeeServiceTests
         _repositoryMock.Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(employees);
 
+        var departments = new List<Department>
+        {
+            new() { Id = departmentId, Name = "Human Resources", OrganizationId = Guid.NewGuid() }
+        };
+
+        _departmentRepositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(departments);
+
         var request = new EmployeeSearchRequest
         {
             Query = "HR",

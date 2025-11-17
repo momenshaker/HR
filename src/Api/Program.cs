@@ -14,6 +14,7 @@ using HR.Api.Validation;
 using HR.Infrastructure.Extensions;
 using HR.Infrastructure.Options;
 using HR.Infrastructure.Persistence.EntityFramework;
+using HR.Infrastructure.Persistence.EntityFramework.Seeders;
 using HR.Infrastructure.Security.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -222,6 +223,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     if (dbContext is not null)
     {
         await dbContext.Database.MigrateAsync();
+        await LeaveTypeSeeder.EnsureSeededAsync(dbContext, CancellationToken.None);
     }
 
     await IdentitySeeder.SeedAsync(scope.ServiceProvider, CancellationToken.None);

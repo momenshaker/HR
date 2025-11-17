@@ -9,7 +9,7 @@
               <p class="card-category">Log attendance and review records in one place.</p>
             </div>
             <div class="card-header__actions">
-              <button class="btn btn-primary"  (click)="refresh()" aria-label="Refresh attendance">
+              <button class="btn"  (click)="refresh()" aria-label="Refresh attendance">
                 <mat-icon>refresh</mat-icon>
                 Refresh
               </button>
@@ -122,8 +122,13 @@
                   >
                     <div class="attendance-form__punch-fields">
                       <mat-form-field appearance="outline">
-                        <mat-label>Type</mat-label>
-                        <input matInput formControlName="type" />
+                        <mat-label>Punch type</mat-label>
+                        <mat-select formControlName="type">
+                          <mat-option *ngIf="punchOptions().length === 0" value="ClockIn">Clock In</mat-option>
+                          <mat-option *ngFor="let option of punchOptions()" [value]="option.punchType">
+                            {{ option.displayName }}
+                          </mat-option>
+                        </mat-select>
                       </mat-form-field>
                       <mat-form-field appearance="outline">
                         <mat-label>Timestamp</mat-label>
@@ -157,13 +162,13 @@
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
-                  <button mat-stroked-button type="button" (click)="addPunch()">
+                  <button class="btn" type="button" (click)="addPunch()">
                     <mat-icon>add</mat-icon>
                     Add punch
                   </button>
                 </div>
                 <div class="attendance-form__actions">
-                  <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+                  <button class="btn btn-primary" type="submit" [disabled]="saving()">
                     <mat-icon *ngIf="saving()">autorenew</mat-icon>
                     {{ isEditing() ? 'Save changes' : 'Submit attendance' }}
                   </button>
@@ -195,6 +200,56 @@
                   </mat-select>
                 </mat-form-field>
               </div>
+            </section>
+
+            <section class="feature-section attendance-balance">
+              <div class="section-header">
+                <div>
+                  <h5>Leave balances</h5>
+                  <p>Set the sick and vacation day totals for an employee in the selected year.</p>
+                </div>
+              </div>
+              <form [formGroup]="leaveBalanceForm" class="attendance-balance__grid" (ngSubmit)="submitLeaveBalances()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Employee</mat-label>
+                  <mat-select formControlName="employeeId">
+                    <mat-option value="">Choose employee</mat-option>
+                    <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                      {{ employee.email }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="leaveBalanceForm.controls.employeeId.hasError('required')">Employee is required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Year</mat-label>
+                  <input matInput type="number" min="2000" formControlName="year" />
+                  <mat-error *ngIf="leaveBalanceForm.controls.year.hasError('required')">Year is required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Vacation balance (days)</mat-label>
+                  <input matInput type="number" formControlName="leaveBalance" />
+                  <mat-error *ngIf="leaveBalanceForm.controls.leaveBalance.hasError('min')">Value must be zero or greater</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Sick balance (days)</mat-label>
+                  <input matInput type="number" formControlName="sickBalance" />
+                  <mat-error *ngIf="leaveBalanceForm.controls.sickBalance.hasError('min')">Value must be zero or greater</mat-error>
+                </mat-form-field>
+                <div class="attendance-balance__summary" *ngIf="leaveBalanceForm.controls.employeeId.value">
+                  <span>Sick remaining: {{ leaveBalanceSummary().sick ?? '—' }}</span>
+                  <span>Vacation remaining: {{ leaveBalanceSummary().vacation ?? '—' }}</span>
+                </div>
+                <div class="attendance-balance__actions">
+                  <button
+                  class="btn btn-primary"
+                    type="submit"
+                    [disabled]="leaveBalanceSaving() || leaveBalanceLoading()"
+                  >
+                    <mat-icon *ngIf="leaveBalanceSaving()">autorenew</mat-icon>
+                    Save leave balances
+                  </button>
+                </div>
+              </form>
             </section>
 
             <section class="feature-section attendance-detail" *ngIf="selectedRecord() as record">

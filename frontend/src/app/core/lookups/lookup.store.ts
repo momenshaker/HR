@@ -29,6 +29,7 @@ export class LookupStore {
   readonly industries = computed(() => this.toLabels('industry'));
   readonly regions = computed(() => this.toLabels('region'));
   readonly timeZones = computed(() => this.toLabels('timeZone'));
+  readonly leaveTypes = computed(() => this.toLabels('leaveType'));
 
   load(force = false): Observable<void> {
     if (this.loadingSignal()) {
@@ -142,9 +143,14 @@ export class LookupStore {
   private insertValue(value: LookupValue): void {
     const category = value.category;
     this.state.update((current) => {
-      const existing = current[category] ?? [];
-      const filtered = existing.filter((item) => item.id !== value.id);
-      return { ...current, [category]: [...filtered, value].sort(this.sortValues) };
+      const next: LookupDictionary = {};
+      for (const [key, values] of Object.entries(current)) {
+        next[key] = values.filter((item) => item.id !== value.id);
+      }
+
+      const targetValues = next[category] ?? [];
+      next[category] = [...targetValues, value].sort(this.sortValues);
+      return next;
     });
   }
 

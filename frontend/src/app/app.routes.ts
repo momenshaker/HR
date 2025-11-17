@@ -49,6 +49,16 @@ export const APP_ROUTES: Routes = [
     loadChildren: () => import('./features/leave/leave.routes').then((m) => m.LEAVE_ROUTES)
   },
   {
+    path: 'subscriptions',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    loadChildren: () => import('./features/subscriptions/subscriptions.routes').then((m) => m.SUBSCRIPTIONS_ROUTES)
+  },
+  {
+    path: 'plans',
+    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    loadChildren: () => import('./features/plans/plans.routes').then((m) => m.PLANS_ROUTES)
+  },
+  {
     path: 'payroll',
     canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
     loadChildren: () => import('./features/payroll/payroll.routes').then((m) => m.PAYROLL_ROUTES)

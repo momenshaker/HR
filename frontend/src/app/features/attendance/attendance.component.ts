@@ -12,6 +12,14 @@ import { MatInputModule } from '@angular/material/input';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { DateRangePickerComponent } from '@shared/components/date-range-picker/date-range-picker.component';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { AttendancePunchConfigurationService, PunchTypeOption } from './attendance-punch-configuration.service';
+import {
+  LeaveApiService,
+  LeaveBalance,
+  LeaveBalanceAdjustmentPayload,
+  LeaveType,
+  SetLeaveBalancesPayload
+} from '../leave/leave.api';
 import { EntityCrudFactory } from '@core/data-access';
 
 interface AttendancePunchDetail {
@@ -147,6 +155,7 @@ export class AttendancePageComponent implements OnInit {
   private readonly employeeService = inject(EntityCrudFactory).create<never, never, EmployeeSummary>('employees');
 
   readonly statusOptions = ['InProgress', 'Completed', 'Absent'] as const;
+  readonly punchOptions = signal<readonly PunchTypeOption[]>([]);
 
   readonly filterForm = this.fb.nonNullable.group({
     start: [''],
@@ -177,6 +186,13 @@ export class AttendancePageComponent implements OnInit {
     punches: this.fb.array<PunchControlGroup>([])
   });
 
+  readonly leaveBalanceForm = this.fb.nonNullable.group({
+    employeeId: ['', Validators.required],
+    year: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
+    sickBalance: [0, Validators.min(0)],
+    leaveBalance: [0, Validators.min(0)]
+  });
+
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly detailLoading = signal(false);
@@ -186,7 +202,14 @@ export class AttendancePageComponent implements OnInit {
   readonly selectedRecord = signal<AttendanceRecordDetail | null>(null);
   readonly isEditing = computed(() => this.editingRecordId() !== null);
 
+  readonly leaveTypes = signal<ReadonlyArray<LeaveType>>([]);
+  readonly leaveBalanceLoading = signal(false);
+  readonly leaveBalanceSaving = signal(false);
+  readonly leaveBalanceSummary = signal<{ sick: number | null; vacation: number | null }>({ sick: null, vacation: null });
+
   employees: ReadonlyArray<EmployeeSummary> = [];
+  private readonly attendancePunchConfigurationService = inject(AttendancePunchConfigurationService);
+  private readonly leaveApi = inject(LeaveApiService);
   private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
   private readonly employeeNameMap = new Map<string, string>();
 
@@ -206,6 +229,10 @@ export class AttendancePageComponent implements OnInit {
     this.loadRecords(this.querySignal());
     this.filterForm.valueChanges.subscribe(() => this.onFiltersChanged());
     this.loadEmployees();
+    this.loadPunchTypes();
+    this.leaveBalanceForm.controls.employeeId.valueChanges.subscribe(() => this.reloadLeaveBalances());
+    this.leaveBalanceForm.controls.year.valueChanges.subscribe(() => this.reloadLeaveBalances());
+    this.loadLeaveTypes();
   }
 
   get punchControls(): FormArray<PunchControlGroup> {
@@ -231,7 +258,7 @@ export class AttendancePageComponent implements OnInit {
     this.punchControls.push(
       this.fb.group({
         id: [punch?.id ?? null],
-        type: [punch?.type ?? 'ClockIn', Validators.required],
+        type: [punch?.type ?? this.getDefaultPunchType(), Validators.required],
         timestamp: [punch?.timestamp ?? '', Validators.required],
         source: [punch?.source ?? ''],
         deviceId: [punch?.deviceId ?? ''],
@@ -277,6 +304,50 @@ export class AttendancePageComponent implements OnInit {
         this.loadRecords(this.querySignal());
       },
       error: () => this.saving.set(false)
+    });
+  }
+
+  submitLeaveBalances(): void {
+    debugger;
+    if (this.leaveBalanceForm.invalid) {
+      this.leaveBalanceForm.markAllAsTouched();
+      return;
+    }
+
+    const { employeeId, year, sickBalance, leaveBalance } = this.leaveBalanceForm.getRawValue();
+    const tracked = this.getTrackedTypeIds();
+    const adjustments: LeaveBalanceAdjustmentPayload[] = [];
+
+    if (tracked.sick) {
+      adjustments.push({ leaveTypeId: tracked.sick, remaining: sickBalance });
+    }
+
+    if (tracked.vacation) {
+      adjustments.push({ leaveTypeId: tracked.vacation, remaining: leaveBalance });
+    }
+
+    if (!adjustments.length) {
+      this.snackbar.open('Unable to find configured leave types.', 'Dismiss', { duration: 3000 });
+      return;
+    }
+    const payload: SetLeaveBalancesPayload = {
+      employeeId,
+      year,
+      balances: adjustments
+    };
+
+    this.leaveBalanceSaving.set(true);
+    this.leaveApi.setBalances(payload).subscribe({
+
+      next: (balances) => {
+        debugger; this.leaveBalanceSummary.set(this.extractLeaveSummary(balances, tracked));
+        this.leaveBalanceSaving.set(false);
+        this.snackbar.open('Leave balances saved', 'Dismiss', { duration: 3000 });
+      },
+      error: () => {
+        this.leaveBalanceSaving.set(false);
+        this.snackbar.open('Failed to save leave balances.', 'Dismiss', { duration: 3000 });
+      }
     });
   }
 
@@ -450,6 +521,92 @@ export class AttendancePageComponent implements OnInit {
         this.snackbar.open('Failed to load employees', 'Dismiss', { duration: 3000 });
       }
     });
+  }
+
+  private loadPunchTypes(): void {
+    this.attendancePunchConfigurationService.getPunchTypes().subscribe({
+      next: (options) => this.punchOptions.set(options ?? []),
+      error: () =>
+        this.snackbar.open('Failed to load punch configuration. Falling back to default types.', 'Dismiss', {
+          duration: 4000
+        })
+    });
+  }
+
+  private loadLeaveTypes(): void {
+    this.leaveApi.getTypes().subscribe({
+      next: (types) => {
+        this.leaveTypes.set(types ?? []);
+        this.reloadLeaveBalances();
+      },
+      error: () => this.snackbar.open('Failed to load leave types.', 'Dismiss', { duration: 3000 })
+    });
+  }
+
+  private reloadLeaveBalances(): void {
+    const { employeeId, year } = this.leaveBalanceForm.getRawValue();
+    if (!employeeId) {
+      this.leaveBalanceSummary.set({ sick: null, vacation: null });
+      return;
+    }
+
+    const tracked = this.getTrackedTypeIds();
+    if (!tracked.sick && !tracked.vacation) {
+      this.leaveBalanceSummary.set({ sick: null, vacation: null });
+      return;
+    }
+
+    this.leaveBalanceLoading.set(true);
+    this.leaveApi.getBalances(employeeId, year).subscribe({
+      next: (balances) => {
+        const summary = this.extractLeaveSummary(balances, tracked);
+        this.leaveBalanceForm.patchValue(
+          {
+            sickBalance: summary.sick ?? 0,
+            leaveBalance: summary.vacation ?? 0
+          },
+          { emitEvent: false }
+        );
+        this.leaveBalanceSummary.set(summary);
+        this.leaveBalanceLoading.set(false);
+      },
+      error: () => {
+        this.leaveBalanceLoading.set(false);
+        this.snackbar.open('Failed to load leave balances.', 'Dismiss', { duration: 3000 });
+      }
+    });
+  }
+
+  private getTrackedTypeIds(): { sick: string | null; vacation: string | null } {
+    return {
+      sick: this.getLeaveTypeId('SICK'),
+      vacation: this.getLeaveTypeId('VACATION')
+    };
+  }
+
+  private getLeaveTypeId(code: string): string | null {
+    debugger;
+    return this.leaveTypes().find((type) => type.code === code)?.id ?? null;
+  }
+
+  private extractLeaveSummary(
+    balances: ReadonlyArray<LeaveBalance>,
+    tracked: { sick: string | null; vacation: string | null }
+  ): { sick: number | null; vacation: number | null } {
+    const summary: { sick: number | null; vacation: number | null } = { sick: null, vacation: null };
+    for (const balance of balances) {
+      if (tracked.sick && balance.leaveTypeId === tracked.sick) {
+        summary.sick = balance.remaining;
+      }
+      if (tracked.vacation && balance.leaveTypeId === tracked.vacation) {
+        summary.vacation = balance.remaining;
+      }
+    }
+    return summary;
+  }
+
+  private getDefaultPunchType(): string {
+    return this.punchOptions()[0]?.punchType ?? 'ClockIn';
   }
 
   private toListItem(record: AttendanceRecordDetail): AttendanceRecordListItem {

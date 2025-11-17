@@ -1,0 +1,54 @@
+<mat-card class="attendance-punch-configuration-page">
+  <mat-card-title>Attendance punch configuration</mat-card-title>
+
+  <mat-card-content *ngIf="!loading(); else loadingTemplate">
+    <form [formGroup]="configForm">
+      <div formArrayName="configs" class="punch-config-grid">
+        <div *ngFor="let group of configControls().controls; let i = index" [formGroupName]="i" class="punch-config-card">
+          <mat-form-field appearance="outline">
+            <mat-label>Punch type</mat-label>
+            <input matInput formControlName="punchType" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Display name</mat-label>
+            <input matInput formControlName="displayName" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Sort order</mat-label>
+            <input matInput type="number" formControlName="sortOrder" />
+          </mat-form-field>
+          <mat-slide-toggle formControlName="isActive">Active</mat-slide-toggle>
+          <div class="punch-config-actions">
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              (click)="saveConfiguration(i)"
+              [disabled]="savingIndex() === i"
+            >
+              <mat-icon *ngIf="savingIndex() === i">autorenew</mat-icon>
+              Save
+            </button>
+            <button mat-icon-button color="warn" type="button" (click)="deleteConfiguration(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="punch-config-actions">
+      <button mat-stroked-button color="primary" type="button" (click)="addConfiguration()">
+        <mat-icon>add</mat-icon>
+        Add configuration
+      </button>
+    </div>
+  </mat-card-content>
+
+  <ng-template #loadingTemplate>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+</mat-card>

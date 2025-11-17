@@ -108,8 +108,11 @@ public sealed class LookupService : ILookupService
         var normalizedCategory = NormalizeCategory(request.Category);
         var normalizedCode = NormalizeCode(request.Code);
 
-        var categoryChanged = !string.Equals(existing.Category, normalizedCategory, StringComparison.Ordinal);
-        var codeChanged = !string.Equals(existing.Code, normalizedCode, StringComparison.Ordinal);
+        var normalizedExistingCategory = NormalizeCategory(existing.Category);
+        var normalizedExistingCode = NormalizeCode(existing.Code);
+
+        var categoryChanged = !string.Equals(normalizedExistingCategory, normalizedCategory, StringComparison.Ordinal);
+        var codeChanged = !string.Equals(normalizedExistingCode, normalizedCode, StringComparison.Ordinal);
         if (categoryChanged || codeChanged)
         {
             await EnsureUniqueAsync(normalizedCategory, normalizedCode, id, cancellationToken).ConfigureAwait(false);
@@ -117,7 +120,7 @@ public sealed class LookupService : ILookupService
 
         var sortOrder = await ResolveSortOrderAsync(
                 normalizedCategory,
-                request.SortOrder ?? existing.SortOrder,
+                request.SortOrder,
                 cancellationToken)
             .ConfigureAwait(false);
 

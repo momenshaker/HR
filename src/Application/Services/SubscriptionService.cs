@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
@@ -13,6 +14,11 @@ namespace HR.Application.Services;
 public sealed class SubscriptionService : ISubscriptionService
 {
     private readonly ConcurrentDictionary<Guid, Subscription> _subscriptions = new();
+
+    public SubscriptionService()
+    {
+        SeedDefaultSubscription(_subscriptions);
+    }
 
     public Task<IReadOnlyCollection<SubscriptionDto>> GetAsync(CancellationToken cancellationToken = default)
     {
@@ -153,5 +159,54 @@ public sealed class SubscriptionService : ISubscriptionService
         var featureKeys = features.Select(feature => feature.ToString());
         subscription.SetEntitledFeatures(featureKeys);
         return Task.FromResult(true);
+    }
+
+    public Task<bool> SetOrganizationsAsync(Guid subscriptionId, IEnumerable<Guid> organizationIds, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(organizationIds);
+        if (!_subscriptions.TryGetValue(subscriptionId, out var subscription))
+        {
+            return Task.FromResult(false);
+        }
+
+        subscription.SetOrganizations(organizationIds);
+        return Task.FromResult(true);
+    }
+
+    private static void SeedDefaultSubscription(ConcurrentDictionary<Guid, Subscription> store)
+    {
+        if (store.Count > 0)
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var startDate = DateOnly.FromDateTime(now.UtcDateTime);
+        var renewalDate = startDate.AddMonths(1);
+        var entitlementKeys = Enum.GetValues<HrFeature>()
+            .Where(feature => feature != HrFeature.PlatformServices)
+            .Select(feature => feature.ToString())
+            .ToArray();
+
+        var subscription = new Subscription(
+            id: Guid.NewGuid(),
+            customerId: Guid.Empty,
+            planId: Guid.Empty,
+            planCode: "starter",
+            status: SubscriptionStatus.Active,
+            billingInterval: SubscriptionInterval.Monthly,
+            autoRenew: true,
+            seats: 100,
+            startDate: startDate,
+            endDate: null,
+            renewalDate: renewalDate,
+            cancelledOn: null,
+            price: 0m,
+            currency: "USD",
+            createdAtUtc: now,
+            metadata: Array.Empty<KeyValuePair<string, string>>(),
+            entitledFeatures: entitlementKeys);
+
+        store.TryAdd(subscription.Id, subscription);
     }
 }

@@ -15,12 +15,17 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthStore } from '@core/auth/auth.store';
 import { finalize } from 'rxjs';
+import { LookupStore } from '@core/lookups/lookup.store';
+import {
+  LEAVE_TYPE_LOOKUP_CATEGORY,
+  LeaveTypeLookupOption,
+  normalizeLeaveTypeOptions
+} from '@core/lookups/lookup.utils';
 import { SelfServiceApiService } from './self-service.api';
 import {
   DelegatedAuthority,
   EmployeeOrganizationSnapshot,
   LeaveRequest,
-  LeaveType,
   SalarySlip,
   SelfServiceAccount,
   TrainingCourse
@@ -57,6 +62,7 @@ export class SelfServicePageComponent implements OnInit {
   private readonly api = inject(SelfServiceApiService);
   private readonly fb = inject(FormBuilder);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly lookupStore = inject(LookupStore);
 
   readonly user = computed(() => this.authStore.user());
   readonly employeeId = computed(() => this.user()?.employeeId ?? null);
@@ -98,7 +104,9 @@ export class SelfServicePageComponent implements OnInit {
     featureAccess: ['']
   });
 
-  readonly leaveTypes = signal<LeaveType[]>([]);
+  readonly leaveTypes = computed<LeaveTypeLookupOption[]>(() =>
+    normalizeLeaveTypeOptions(this.lookupStore.getValues(LEAVE_TYPE_LOOKUP_CATEGORY))
+  );
 
   ngOnInit(): void {
     this.loadAdminConfig();
@@ -273,8 +281,7 @@ export class SelfServicePageComponent implements OnInit {
   }
 
   private loadLeaveTypes(): void {
-    this.api.getLeaveTypes().subscribe({
-      next: (types) => this.leaveTypes.set(types),
+    this.lookupStore.loadCategory(LEAVE_TYPE_LOOKUP_CATEGORY).subscribe({
       error: () => this.snackbar.open('Failed to load leave types.', 'Dismiss', { duration: 3000 })
     });
   }

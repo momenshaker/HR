@@ -32,11 +32,43 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.Property(employee => employee.PhoneNumber)
             .HasMaxLength(20)
-            .HasDefaultValue(string.Empty);
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
 
         builder.Property(employee => employee.EmploymentType)
             .HasMaxLength(40)
-            .HasDefaultValue(string.Empty);
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
+
+        builder.Property(employee => employee.PaySchedule)
+            .HasMaxLength(40)
+            .HasDefaultValue("Monthly")
+            .IsRequired(false);
+
+        builder.Property(employee => employee.ContractType)
+            .HasMaxLength(40)
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
+
+        builder.Property(employee => employee.PaymentMethod)
+            .HasMaxLength(50)
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
+
+        builder.Property(employee => employee.IBAN)
+            .HasMaxLength(34)
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
+
+        builder.Property(employee => employee.BankName)
+            .HasMaxLength(150)
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
+
+        builder.Property(employee => employee.BankAccountNumber)
+            .HasMaxLength(50)
+            .HasDefaultValue(string.Empty)
+            .IsRequired(false);
 
         builder.Property(employee => employee.EmploymentStartDate)
             .HasColumnType("date");
@@ -55,27 +87,32 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             architecture.Property(job => job.JobFamily)
                 .HasColumnName("JobArchitectureJobFamily")
                 .HasMaxLength(150)
-                .HasDefaultValue("");
+                .HasDefaultValue("")
+                .IsRequired(false);
 
             architecture.Property(job => job.JobFunction)
                 .HasColumnName("JobArchitectureJobFunction")
                 .HasMaxLength(150)
-                .HasDefaultValue("");
+                .HasDefaultValue("")
+                .IsRequired(false);
 
             architecture.Property(job => job.JobLevel)
                 .HasColumnName("JobArchitectureJobLevel")
                 .HasMaxLength(100)
-                .HasDefaultValue("");
+                .HasDefaultValue("")
+                .IsRequired(false);
 
             architecture.Property(job => job.JobCode)
                 .HasColumnName("JobArchitectureJobCode")
                 .HasMaxLength(100)
-                .HasDefaultValue("");
+                .HasDefaultValue("")
+                .IsRequired(false);
 
             architecture.Property(job => job.CareerTrack)
                 .HasColumnName("JobArchitectureCareerTrack")
                 .HasMaxLength(150)
-                .HasDefaultValue("");
+                .HasDefaultValue("")
+                .IsRequired(false);
         });
 
         builder.HasMany(employee => employee.Departments)
@@ -95,5 +132,6 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Ignore(employee => employee.FullName);
         builder.Ignore(employee => employee.DepartmentIds);
         builder.Ignore(employee => employee.PrimaryDepartmentId);
+        builder.Ignore(employee => employee.SalaryStructure);
     }
 }

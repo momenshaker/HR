@@ -70,6 +70,17 @@ export interface RejectPayload {
   readonly reason: string;
 }
 
+export interface LeaveBalanceAdjustmentPayload {
+  readonly leaveTypeId: string;
+  readonly remaining: number;
+}
+
+export interface SetLeaveBalancesPayload {
+  readonly employeeId: string;
+  readonly year: number;
+  readonly balances: readonly LeaveBalanceAdjustmentPayload[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class LeaveApiService {
   private readonly http = inject(HttpClient);
@@ -147,6 +158,12 @@ export class LeaveApiService {
     return this.http
       .post<PaginatedResponse<LeaveRequest>>(`${this.baseUrl}/requests/${id}:cancel`, null, { params })
       .pipe(map((response) => this.extractSingle(response)));
+  }
+
+  setBalances(payload: SetLeaveBalancesPayload): Observable<readonly LeaveBalance[]> {
+    return this.http
+      .post<PaginatedResponse<LeaveBalance>>(`${this.baseUrl}/balances`, payload)
+      .pipe(map((response) => response.items));
   }
 
   private extractSingle<T>(response: PaginatedResponse<T>): T {

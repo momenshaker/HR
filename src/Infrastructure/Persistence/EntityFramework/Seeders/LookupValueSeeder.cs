@@ -37,7 +37,10 @@ public static class LookupValueSeeder
             Create("3c2aba9e-a562-4f72-a564-a85f25689272", "timeZone", "UTC", "UTC", 1),
             Create("c8c741e5-fc1b-4895-bc98-6ae8607afdcf", "timeZone", "AMERICA_NEW_YORK", "America/New_York", 2),
             Create("fd228009-14bb-46e0-ade8-aabeb82f8abd", "timeZone", "EUROPE_LONDON", "Europe/London", 3),
-            Create("383c0c64-3592-475f-8b31-cd5b5cfcc146", "timeZone", "ASIA_SINGAPORE", "Asia/Singapore", 4)
+            Create("383c0c64-3592-475f-8b31-cd5b5cfcc146", "timeZone", "ASIA_SINGAPORE", "Asia/Singapore", 4),
+            Create("5897d8d7-8eb8-4612-a123-3f8d7f5d24c8", "leaveType", "VACATION", "Vacation", 1),
+            Create("65a1f6c3-9e6a-4d5f-901f-3b4e7c1f0e3f", "leaveType", "SICK", "Sick", 2),
+            Create("b6b1c9e2-3d44-4c01-9f21-a9c9475c6f4f", "leaveType", "PERSONAL", "Personal", 3)
         );
     }
 

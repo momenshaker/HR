@@ -1,0 +1,158 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header card-header-primary">
+        <h4 class="card-title">Subscriptions</h4>
+        <p class="card-category">Manage customer subscriptions, seats, and invoices from here.</p>
+      </div>
+      <div class="card-body">
+        <div class="subscriptions-grid">
+          <section class="subscriptions-panel">
+            <header>
+              <h5>Create subscription</h5>
+              <p class="panel-subtitle">Provision a new subscription entry for the tenant.</p>
+            </header>
+            <form [formGroup]="creationForm" (ngSubmit)="create()" class="panel-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Plan</mat-label>
+                <mat-select formControlName="planId">
+                  <mat-option value="" disabled>Select a plan</mat-option>
+                  <mat-option *ngFor="let plan of plans()" [value]="plan.id">
+                    {{ formatPlanLabel(plan) }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="creationForm.controls.planId.hasError('required')">Plan is required</mat-error>
+              </mat-form-field>
+              <p *ngIf="selectedPlan()" class="plan-description">{{ selectedPlan()?.description }}</p>
+              <mat-form-field appearance="outline">
+                <mat-label>Seats</mat-label>
+                <input matInput type="number" min="1" formControlName="seats" />
+                <mat-error *ngIf="creationForm.controls.seats.hasError('min')">Value must be ≥ 1</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Trial period (days)</mat-label>
+                <input matInput type="number" min="0" max="30" formControlName="trialPeriodDays" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="panel-form__full">
+                <mat-label>Metadata (JSON)</mat-label>
+                <textarea matInput rows="3" formControlName="metadata"></textarea>
+              </mat-form-field>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Create subscription</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="subscriptions-panel">
+            <header class="panel-header">
+              <div>
+                <h5>Active subscriptions</h5>
+                <p class="panel-subtitle">Filter by status and inspect metadata or invoices.</p>
+              </div>
+              <div class="panel-tools">
+                <mat-form-field appearance="outline" class="panel-tools__select">
+                  <mat-label>Status</mat-label>
+                  <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value)">
+                    <mat-option value="">All statuses</mat-option>
+                    <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button class="btn btn-primary" type="button" (click)="applyFilters()"><mat-icon>filter</mat-icon>Filter</button>
+                <button class="btn" type="button" (click)="refresh()">
+                  <mat-icon>refresh</mat-icon>
+                  Refresh
+                </button>
+              </div>
+            </header>
+            <mat-progress-bar *ngIf="loading()" mode="indeterminate"></mat-progress-bar>
+            <div *ngIf="!loading() && filteredSubscriptions().length === 0" class="subscriptions-empty">
+              <p>No subscriptions exist yet. Use the form above to create the first entry.</p>
+            </div>
+            <table *ngIf="filteredSubscriptions().length > 0" class="subscriptions-table">
+              <thead>
+                <tr>
+                  <th>Plan</th>
+                  <th>Status</th>
+                  <th>Seats</th>
+                  <th>Created</th>
+                  <th>Renews</th>
+                  <th>Organization</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let subscription of filteredSubscriptions(); trackBy: trackBySubscription"
+                  [class.subscriptions-table__row--selected]="subscription.id === selectedSubscriptionId()"
+                >
+                  <td>{{ subscription.planId }}</td>
+                  <td>{{ subscription.status }}</td>
+                  <td>{{ subscription.seats }}</td>
+                  <td>{{ formatDate(subscription.createdAt) }}</td>
+                  <td>{{ formatDate(subscription.renewsAt) }}</td>
+                  <td>
+                    <mat-form-field appearance="fill" class="organization-select">
+                      <mat-select
+                        [value]="subscription.organizationIds"
+                        multiple
+                        (selectionChange)="updateOrganizations(subscription, $event.value)"
+                      >
+                        <mat-option value="">Unassigned</mat-option>
+                        <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
+                          {{ organization.name }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                  <td class="actions-cell">
+                    <button mat-icon-button color="primary" type="button" aria-label="View latest invoice" (click)="loadInvoice(subscription)">
+                      <mat-icon>receipt_long</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      type="button"
+                      aria-label="Cancel subscription"
+                      (click)="cancel(subscription)"
+                      [disabled]="subscription.status === 'Canceled'"
+                    >
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="latestInvoice()" class="invoice-panel">
+              <div class="invoice-panel__header">
+                <strong>Latest invoice</strong>
+                <span class="invoice-panel__status">{{ latestInvoice()?.status }}</span>
+              </div>
+              <div class="invoice-panel__grid">
+                <div>
+                  <span>Amount</span>
+                  <strong>{{ latestInvoice()?.amountDue | currency: latestInvoice()?.currency }}</strong>
+                </div>
+                <div>
+                  <span>Due</span>
+                  <strong>{{ formatDate(latestInvoice()?.dueDate) }}</strong>
+                </div>
+                <div>
+                  <span>Created</span>
+                  <strong>{{ formatDate(latestInvoice()?.createdAt) }}</strong>
+                </div>
+                <div>
+                  <span>Paid</span>
+                  <strong>{{ formatDate(latestInvoice()?.paidAt) }}</strong>
+                </div>
+              </div>
+              <div class="invoice-panel__links">
+                <a *ngIf="latestInvoice()?.hostedInvoiceUrl" [href]="latestInvoice()?.hostedInvoiceUrl" target="_blank" rel="noreferrer">View hosted invoice</a>
+                <a *ngIf="latestInvoice()?.pdfUrl" [href]="latestInvoice()?.pdfUrl" target="_blank" rel="noreferrer">Download PDF</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

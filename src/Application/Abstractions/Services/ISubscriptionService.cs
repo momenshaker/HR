@@ -23,4 +23,6 @@ public interface ISubscriptionService
     Task<bool> HasEntitlementAsync(HrFeature feature, CancellationToken cancellationToken = default);
 
     Task<bool> SetEntitlementsAsync(Guid subscriptionId, IEnumerable<HrFeature> features, CancellationToken cancellationToken = default);
+
+    Task<bool> SetOrganizationsAsync(Guid subscriptionId, IEnumerable<Guid> organizationIds, CancellationToken cancellationToken = default);
 }

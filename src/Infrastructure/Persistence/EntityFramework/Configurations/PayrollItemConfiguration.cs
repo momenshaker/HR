@@ -20,9 +20,11 @@ internal sealed class PayrollItemConfiguration : IEntityTypeConfiguration<Payrol
         builder.Property(i => i.Currency).IsRequired().HasMaxLength(3);
 
         // Store breakdown as JSON text in NVARCHAR(MAX)
-        builder.Property(i => i.Breakdown).HasColumnType("nvarchar(max)");
+        builder.Property(i => i.Breakdown);
+
+        // The breakdown value object is persisted as JSON and should not be treated as an entity.
+        builder.Ignore(i => i.BreakdownDetails);
 
         builder.Property(i => i.RowVersion).IsRowVersion();
     }
 }
-

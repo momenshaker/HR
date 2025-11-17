@@ -33,7 +33,7 @@ public sealed class JwtOptions
     /// <summary>
     ///     Access token lifetime in minutes.
     /// </summary>
-    public int AccessTokenMinutes { get; set; } = 15;
+    public int AccessTokenMinutes { get; set; } = 60;
 
     /// <summary>
     ///     Refresh token lifetime in days.
