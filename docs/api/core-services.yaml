@@ -3350,15 +3350,29 @@ components:
         id:
           type: string
           format: uuid
+        organizationId:
+          type: string
+          format: uuid
         periodStart:
           type: string
           format: date
         periodEnd:
           type: string
           format: date
-        processedAtUtc:
+        payDate:
+          type: string
+          format: date
+        createdAtUtc:
           type: string
           format: date-time
+        approvedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        paidAtUtc:
+          type: string
+          format: date-time
+          nullable: true
         status:
           type: string
         totalGrossPay:
@@ -3369,7 +3383,7 @@ components:
           format: decimal
         notes:
           type: string
-      required: [id, periodStart, periodEnd, processedAtUtc, status, totalGrossPay, totalNetPay]
+      required: [id, organizationId, periodStart, periodEnd, payDate, createdAtUtc, status, totalGrossPay, totalNetPay]
     SalarySlipDto:
       type: object
       properties:
@@ -3402,12 +3416,25 @@ components:
     CreatePayrollRunRequest:
       type: object
       properties:
+        organizationId:
+          type: string
+          format: uuid
         periodStart:
           type: string
           format: date
         periodEnd:
           type: string
           format: date
+        payDate:
+          type: string
+          format: date
+        notes:
+          type: string
+      required: [organizationId, periodStart, periodEnd, payDate]
+    UpdatePayrollRunRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayrollRunRequest'
+      properties:
         status:
           type: string
         totalGrossPay:
@@ -3416,17 +3443,10 @@ components:
         totalNetPay:
           type: number
           format: decimal
-        notes:
-          type: string
-      required: [periodStart, periodEnd]
-    UpdatePayrollRunRequest:
-      allOf:
-        - $ref: '#/components/schemas/CreatePayrollRunRequest'
-      properties:
         processedAtUtc:
           type: string
           format: date-time
-      required: [periodStart, periodEnd, processedAtUtc]
+      required: [periodStart, periodEnd, payDate, status, totalGrossPay, totalNetPay, processedAtUtc]
     PerformanceReviewDto:
       type: object
       properties:

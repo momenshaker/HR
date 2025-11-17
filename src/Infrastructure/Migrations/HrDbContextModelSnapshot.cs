@@ -2071,6 +2071,9 @@ namespace HR.Infrastructure.Migrations
                     b.Property<DateOnly>("PeriodStart")
                         .HasColumnType("date");
 
+                    b.Property<DateOnly>("PayDate")
+                        .HasColumnType("date");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()

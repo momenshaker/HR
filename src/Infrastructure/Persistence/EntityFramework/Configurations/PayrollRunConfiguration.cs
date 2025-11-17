@@ -22,6 +22,9 @@ internal sealed class PayrollRunConfiguration : IEntityTypeConfiguration<Payroll
         builder.Property(run => run.PeriodEnd)
             .HasColumnType("date");
 
+        builder.Property(run => run.PayDate)
+            .HasColumnType("date");
+
         builder.Property(run => run.CreatedAtUtc)
             .HasColumnType("datetime2");
 

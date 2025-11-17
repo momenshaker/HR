@@ -12,10 +12,28 @@ public sealed class PayrollWorkflowTests
     private readonly Mock<IPayrollItemRepository> _items = new();
     private readonly Mock<IPayslipRepository> _payslips = new();
     private readonly Mock<IEmployeeRepository> _employees = new();
+    private readonly Mock<IAttendanceRecordRepository> _attendance = new();
+    private readonly Mock<ILeaveRequestRepository> _leaveRequests = new();
+    private readonly Mock<ILeaveTypeRepository> _leaveTypes = new();
+
+    public PayrollWorkflowTests()
+    {
+        _attendance.Setup(a => a.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<AttendanceRecord>());
+        _leaveRequests.Setup(l => l.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<LeaveRequest>());
+        _leaveTypes.Setup(l => l.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<LeaveType>());
+    }
 
     private PayrollService CreateSut()
     {
-        return new PayrollService(_runs.Object, _items.Object, _payslips.Object, _employees.Object, new DefaultPayrollCalculator());
+        return new PayrollService(
+            _runs.Object,
+            _items.Object,
+            _payslips.Object,
+            _employees.Object,
+            _attendance.Object,
+            _leaveRequests.Object,
+            _leaveTypes.Object,
+            new DefaultPayrollCalculator());
     }
 
     [Fact]
@@ -36,7 +54,7 @@ public sealed class PayrollWorkflowTests
 
         var sut = CreateSut();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CreateRun(orgId, new DateOnly(2025, 1, 15), new DateOnly(2025, 2, 15)));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CreateRun(orgId, new DateOnly(2025, 1, 15), new DateOnly(2025, 2, 15), new DateOnly(2025, 2, 28)));
     }
 
     [Fact]
@@ -56,10 +74,11 @@ public sealed class PayrollWorkflowTests
         _runs.Setup(r => r.UpdateAsync(It.IsAny<PayrollRun>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PayrollRun pr, CancellationToken _) => pr);
         _items.Setup(i => i.GetByRunAsync(run.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<PayrollItem>());
+        _items.Setup(i => i.RemoveByRunAsync(run.Id, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _items.Setup(i => i.AddRangeAsync(It.IsAny<IEnumerable<PayrollItem>>(), It.IsAny<CancellationToken>()))
             .Callback<IEnumerable<PayrollItem>, CancellationToken>((col, _) => _items.Setup(ii => ii.GetByRunAsync(run.Id, It.IsAny<CancellationToken>())).ReturnsAsync(col.ToArray()))
             .Returns(Task.CompletedTask);
-        _employees.Setup(e => e.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new[] { new Employee { Id = Guid.NewGuid() } });
+        _employees.Setup(e => e.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new[] { new Employee { Id = Guid.NewGuid(), BasicSalary = 1000m } });
 
         var sut = CreateSut();
 
@@ -68,7 +87,7 @@ public sealed class PayrollWorkflowTests
 
         Assert.Equal("Calculated", first.Status);
         Assert.Equal(first.TotalGrossPay, second.TotalGrossPay);
-        _items.Verify(i => i.AddRangeAsync(It.IsAny<IEnumerable<PayrollItem>>(), It.IsAny<CancellationToken>()), Times.Once);
+        _items.Verify(i => i.AddRangeAsync(It.IsAny<IEnumerable<PayrollItem>>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -90,8 +109,14 @@ public sealed class PayrollWorkflowTests
 
         var sut = CreateSut();
 
+        var underReview = await sut.MoveToReview(run.Id);
+        Assert.Equal("UnderReview", underReview.Status);
+
         var approved = await sut.Approve(run.Id);
         Assert.Equal("Approved", approved.Status);
+
+        var locked = await sut.LockAsync(run.Id);
+        Assert.Equal("Locked", locked.Status);
 
         var paid = await sut.MarkPaid(run.Id);
         Assert.Equal("Paid", paid.Status);

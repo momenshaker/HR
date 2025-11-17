@@ -8,6 +8,7 @@ public sealed record PayrollRunDto(
     Guid OrganizationId,
     DateOnly PeriodStart,
     DateOnly PeriodEnd,
+    DateOnly PayDate,
     string Status,
     DateTime CreatedAtUtc,
     DateTime? ApprovedAtUtc,

@@ -17,6 +17,7 @@ public static class PayrollRunMappings
             payrollRun.OrganizationId,
             payrollRun.PeriodStart,
             payrollRun.PeriodEnd,
+            payrollRun.PayDate,
             payrollRun.Status,
             payrollRun.CreatedAtUtc,
             payrollRun.ApprovedAtUtc,
@@ -36,6 +37,7 @@ public static class PayrollRunMappings
             OrganizationId = request.OrganizationId,
             PeriodStart = request.PeriodStart,
             PeriodEnd = request.PeriodEnd,
+            PayDate = request.PayDate,
             CreatedAtUtc = DateTime.UtcNow,
             Status = "Draft",
             Notes = request.Notes.Trim(),
@@ -54,6 +56,8 @@ public static class PayrollRunMappings
             item.Deductions,
             item.Net,
             item.Currency,
+            item.BreakdownDetails.Earnings.Select(e => e.ToDto()).ToArray(),
+            item.BreakdownDetails.Deductions.Select(d => d.ToDto()).ToArray(),
             item.Breakdown);
     }
 
@@ -65,5 +69,18 @@ public static class PayrollRunMappings
             slip.EmployeeId,
             slip.PublicUrl,
             slip.GeneratedAtUtc);
+    }
+
+    public static PayrollComponentAmountDto ToDto(this PayrollComponentAmount component)
+    {
+        return new PayrollComponentAmountDto(
+            component.ComponentId,
+            component.Name,
+            component.Type,
+            component.CalculationType,
+            component.Amount,
+            component.IsTaxable,
+            component.IsRecurring,
+            component.Formula);
     }
 }

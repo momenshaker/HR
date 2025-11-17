@@ -13,6 +13,8 @@ public sealed class PayrollRun
 
     public DateOnly PeriodEnd { get; init; }
 
+    public DateOnly PayDate { get; init; }
+
     public DateTime CreatedAtUtc { get; init; }
 
     public DateTime? ApprovedAtUtc { get; set; }
@@ -20,7 +22,7 @@ public sealed class PayrollRun
     public DateTime? PaidAtUtc { get; set; }
 
     /// <summary>
-    ///     Run status: Draft|Calculated|Approved|Paid.
+    ///     Run status: Draft|Calculated|UnderReview|Approved|Locked|Paid.
     /// </summary>
     public string Status { get; set; } = "Draft";
 

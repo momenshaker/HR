@@ -8,11 +8,15 @@ namespace HR.Application.Abstractions.Services;
 public interface IPayrollService
 {
     // New API per spec
-    Task<PayrollRunDto> CreateRun(Guid organizationId, DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken = default);
+    Task<PayrollRunDto> CreateRun(Guid organizationId, DateOnly periodStart, DateOnly periodEnd, DateOnly payDate, CancellationToken cancellationToken = default);
 
     Task<PayrollRunDto> Calculate(Guid runId, CancellationToken cancellationToken = default);
 
+    Task<PayrollRunDto> MoveToReview(Guid runId, CancellationToken cancellationToken = default);
+
     Task<PayrollRunDto> Approve(Guid runId, CancellationToken cancellationToken = default);
+
+    Task<PayrollRunDto> LockAsync(Guid runId, CancellationToken cancellationToken = default);
 
     Task<PayrollRunDto> MarkPaid(Guid runId, CancellationToken cancellationToken = default);
 

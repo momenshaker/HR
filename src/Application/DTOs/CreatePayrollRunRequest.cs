@@ -17,6 +17,9 @@ public sealed class CreatePayrollRunRequest : IValidatableRequest
     [Required]
     public DateOnly PeriodEnd { get; init; }
 
+    [Required]
+    public DateOnly PayDate { get; init; }
+
     [MaxLength(500)]
     public string Notes { get; init; } = string.Empty;
 }
