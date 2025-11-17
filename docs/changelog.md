@@ -35,6 +35,8 @@
   and error responses.
 - Scoped the DepartmentEmployees API under organizations to enforce the organization → department → employee hierarchy and
   return 404 responses for cross-organization lookups.
+- Refreshed the recruitment workspace UI to capture requisition-linked job postings with salary visibility, work mode, posting
+  channels, and enriched pipeline details aligned to the ATS data model.
 
 ### Fixed
 - Added an Entity Framework Core migration to provision ASP.NET Core Identity tables so seeded admin accounts can be created without runtime SQL errors.

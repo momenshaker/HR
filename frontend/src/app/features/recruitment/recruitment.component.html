@@ -6,7 +6,7 @@
           <div class="card-header card-header-danger">
             <div>
               <h4 class="card-title">Recruitment</h4>
-              <p class="card-category">Create job posts and oversee candidate pipelines.</p>
+              <p class="card-category">Publish job postings mapped to requisitions and align hiring pipelines.</p>
             </div>
             <div class="card-header__actions">
               <button mat-stroked-button color="primary" type="button" (click)="refresh()">
@@ -18,13 +18,20 @@
           <div class="card-body">
             <section class="feature-section">
               <div class="section-header">
-                <h5>Publish vacancy</h5>
+                <h5>Publish job posting</h5>
               </div>
               <form [formGroup]="form" (ngSubmit)="publish()" class="form-grid">
                 <mat-form-field appearance="outline">
-                  <mat-label>Job title</mat-label>
-                  <input matInput formControlName="title" />
-                  <mat-error *ngIf="form.controls.title.hasError('required')">Title is required</mat-error>
+                  <mat-label>Requisition ID</mat-label>
+                  <input matInput formControlName="requisitionId" />
+                  <mat-error *ngIf="form.controls.requisitionId.hasError('required')"
+                    >A requisition reference is required</mat-error
+                  >
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Public title</mat-label>
+                  <input matInput formControlName="publicTitle" />
+                  <mat-error *ngIf="form.controls.publicTitle.hasError('required')">Title is required</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Department</mat-label>
@@ -37,15 +44,40 @@
                   <mat-error *ngIf="form.controls.location.hasError('required')">Location is required</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
+                  <mat-label>Work mode</mat-label>
+                  <mat-select formControlName="workMode">
+                    <mat-option *ngFor="let mode of workModes" [value]="mode">{{ mode }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Employment type</mat-label>
                   <mat-select formControlName="employmentType">
                     <mat-option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</mat-option>
                   </mat-select>
                 </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Number of positions</mat-label>
+                  <input matInput type="number" min="1" formControlName="numberOfPositions" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Salary range text</mat-label>
+                  <input matInput formControlName="salaryRangeText" />
+                  <mat-hint>Visible when salary visibility is enabled.</mat-hint>
+                </mat-form-field>
+                <div class="form-grid__checkbox">
+                  <mat-checkbox color="primary" formControlName="salaryVisible">Show salary range</mat-checkbox>
+                </div>
+                <mat-form-field appearance="outline">
+                  <mat-label>Application link</mat-label>
+                  <input matInput formControlName="applicationUrl" />
+                  <mat-hint>Public apply URL</mat-hint>
+                </mat-form-field>
                 <mat-form-field appearance="outline" class="form-grid__full">
-                  <mat-label>Job description</mat-label>
-                  <textarea matInput formControlName="description" rows="4"></textarea>
-                  <mat-error *ngIf="form.controls.description.hasError('required')">Description required</mat-error>
+                  <mat-label>Public description</mat-label>
+                  <textarea matInput formControlName="publicDescription" rows="4"></textarea>
+                  <mat-error *ngIf="form.controls.publicDescription.hasError('required')"
+                    >Description required</mat-error
+                  >
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="form-grid__full">
                   <mat-label>Responsibilities (one per line)</mat-label>
@@ -56,20 +88,19 @@
                   <textarea matInput formControlName="requirements" rows="3"></textarea>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="form-grid__full">
+                  <mat-label>Posting channels</mat-label>
+                  <textarea matInput formControlName="postingChannels" rows="2"></textarea>
+                  <mat-hint>e.g., Careers site, LinkedIn, Indeed</mat-hint>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-grid__full">
                   <mat-label>Pipeline stages</mat-label>
                   <textarea matInput formControlName="pipelineStages" rows="2"></textarea>
+                  <mat-hint>Stages candidates will move through for this posting.</mat-hint>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="form-grid__full">
                   <mat-label>Hiring team (comma or new line separated)</mat-label>
                   <textarea matInput formControlName="hiringTeam" rows="2"></textarea>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Application link</mat-label>
-                  <input matInput formControlName="applicationUrl" />
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Closing date</mat-label>
-                  <input matInput type="date" formControlName="closingAtUtc" />
+                  <mat-hint>Members collaborating on this requisition.</mat-hint>
                 </mat-form-field>
                 <div class="form-actions">
                   <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Publish</button>
@@ -85,7 +116,7 @@
               <app-data-table
                 [columns]="columns"
                 [displayedColumns]="displayedColumns"
-                [data]="jobs()"
+                [data]="vacancies()"
                 [total]="total()"
                 [loading]="loading()"
                 (queryChange)="onQueryChange($event)"

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace HR.Application.DTOs;
@@ -12,6 +13,12 @@ public sealed class ScheduleInterviewRequest
 
     [Required]
     public Guid VacancyId { get; init; }
+
+    public Guid? ApplicationId { get; init; }
+
+    public Guid? StageId { get; init; }
+
+    public Guid? ScheduledById { get; init; }
 
     [Required]
     [MaxLength(100)]

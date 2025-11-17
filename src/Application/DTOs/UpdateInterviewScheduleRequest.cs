@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using HR.Application.Validation;
 
@@ -8,6 +9,12 @@ namespace HR.Application.DTOs;
 /// </summary>
 public sealed class UpdateInterviewScheduleRequest : IValidatableRequest
 {
+    public Guid? ApplicationId { get; init; }
+
+    public Guid? StageId { get; init; }
+
+    public Guid? ScheduledById { get; init; }
+
     [Required]
     [MaxLength(100)]
     public string Stage { get; init; } = string.Empty;

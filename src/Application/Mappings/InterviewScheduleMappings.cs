@@ -1,7 +1,8 @@
-using HR.Application.DTOs;
-using HR.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using HR.Application.DTOs;
+using HR.Domain.Entities;
 
 namespace HR.Application.Mappings;
 
@@ -18,7 +19,10 @@ public static class InterviewScheduleMappings
             schedule.Id,
             schedule.CandidateId,
             schedule.VacancyId,
+            schedule.ApplicationId,
+            schedule.StageId,
             schedule.Stage,
+            schedule.ScheduledById,
             schedule.ScheduledAtUtc,
             (int)Math.Round(schedule.Duration.TotalMinutes),
             schedule.Mode,
@@ -38,6 +42,9 @@ public static class InterviewScheduleMappings
             Id = Guid.NewGuid(),
             CandidateId = request.CandidateId,
             VacancyId = request.VacancyId,
+            ApplicationId = request.ApplicationId,
+            StageId = request.StageId,
+            ScheduledById = request.ScheduledById,
             Stage = request.Stage.Trim(),
             ScheduledAtUtc = request.ScheduledAtUtc,
             Duration = TimeSpan.FromMinutes(request.DurationMinutes),
@@ -62,6 +69,9 @@ public static class InterviewScheduleMappings
             Id = existing.Id,
             CandidateId = existing.CandidateId,
             VacancyId = existing.VacancyId,
+            ApplicationId = request.ApplicationId ?? existing.ApplicationId,
+            StageId = request.StageId ?? existing.StageId,
+            ScheduledById = request.ScheduledById ?? existing.ScheduledById,
             Stage = request.Stage.Trim(),
             ScheduledAtUtc = request.ScheduledAtUtc,
             Duration = TimeSpan.FromMinutes(request.DurationMinutes),

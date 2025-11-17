@@ -14,6 +14,12 @@ public sealed class InterviewSchedule
 
     public Guid VacancyId { get; init; }
 
+    public Guid? ApplicationId { get; init; }
+
+    public Guid? StageId { get; init; }
+
+    public Guid? ScheduledById { get; init; }
+
     public string Stage { get; init; } = string.Empty;
 
     public DateTime ScheduledAtUtc { get; init; }
