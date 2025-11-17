@@ -5,8 +5,8 @@
         <div class="card">
           <div class="card-header card-header-danger">
             <div>
-              <h4 class="card-title">Payroll runs</h4>
-              <p class="card-category">Generate payroll cycles and keep track of their processing state.</p>
+              <h4 class="card-title">Payroll</h4>
+              <p class="card-category">Generate payroll periods, calculate pay, and advance runs to payment.</p>
             </div>
             <div class="card-header__actions">
               <button class="btn btn-primary" type="button" (click)="refresh()">
@@ -15,45 +15,276 @@
               </button>
             </div>
           </div>
-          <div class="card-body">
+
+          <div class="card-body payroll-grid">
             <section class="feature-section">
               <div class="section-header">
-                <h5>Generate payroll</h5>
+                <h5>Create payroll period</h5>
+                <p>Define the coverage window and pay date before calculating earnings and deductions.</p>
               </div>
-              <form [formGroup]="form" (ngSubmit)="generate()" class="form-grid">
+
+              <form [formGroup]="creationForm" (ngSubmit)="createRun()" class="form-grid">
                 <mat-form-field appearance="outline">
-                  <mat-label>Period</mat-label>
-                  <input matInput placeholder="YYYY-MM" formControlName="period" />
-                  <mat-error *ngIf="form.controls.period.hasError('required')">Period is required</mat-error>
+                  <mat-label>Organization ID</mat-label>
+                  <input matInput placeholder="UUID" formControlName="organizationId" />
+                  <mat-error *ngIf="creationForm.controls.organizationId.hasError('required')">Organization is required</mat-error>
                 </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Period start</mat-label>
+                  <input matInput type="date" formControlName="periodStart" />
+                  <mat-error *ngIf="creationForm.controls.periodStart.hasError('required')">Start date required</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Period end</mat-label>
+                  <input matInput type="date" formControlName="periodEnd" />
+                  <mat-error *ngIf="creationForm.controls.periodEnd.hasError('required')">End date required</mat-error>
+                </mat-form-field>
+
                 <mat-form-field appearance="outline">
                   <mat-label>Pay date</mat-label>
                   <input matInput type="date" formControlName="payDate" />
-                  <mat-error *ngIf="form.controls.payDate.hasError('required')">Pay date required</mat-error>
+                  <mat-error *ngIf="creationForm.controls.payDate.hasError('required')">Pay date required</mat-error>
                 </mat-form-field>
+
                 <mat-form-field appearance="outline" class="form-grid__full">
-                  <mat-label>Bank file reference</mat-label>
-                  <input matInput formControlName="bankFile" />
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput rows="2" placeholder="Notes or export references" formControlName="notes"></textarea>
                 </mat-form-field>
+
                 <div class="form-actions">
-                  <button class="btn btn-primary" type="submit" [disabled]="loading()">Run payroll</button>
+                  <button class="btn btn-primary" type="submit" [disabled]="runsLoading()">Create payroll period</button>
                 </div>
               </form>
             </section>
 
             <section class="feature-section">
               <div class="section-header">
-                <h5>Payroll history</h5>
-                <p>Review previously generated runs and their statuses.</p>
+                <h5>Payroll runs</h5>
+                <p>Filter by organization and status, then progress runs through calculation, review, approval, locking, and payment.</p>
               </div>
-              <app-data-table
-                [columns]="columns"
-                [displayedColumns]="displayedColumns"
-                [data]="runs()"
-                [total]="total()"
-                [loading]="loading()"
-                (queryChange)="onQueryChange($event)"
-              ></app-data-table>
+
+              <form [formGroup]="filterForm" class="filter-grid" (ngSubmit)="applyFilters()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Organization ID</mat-label>
+                  <input matInput placeholder="UUID" formControlName="organizationId" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Status</mat-label>
+                  <mat-select formControlName="status">
+                    <mat-option value="">All statuses</mat-option>
+                    <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-stroked-button color="primary" type="submit" [disabled]="runsLoading()">
+                    <mat-icon>filter_alt</mat-icon>
+                    Apply filters
+                  </button>
+                </div>
+              </form>
+
+              <mat-progress-bar *ngIf="runsLoading()" mode="indeterminate"></mat-progress-bar>
+
+              <div class="table-wrapper">
+                <table mat-table [dataSource]="runs()" class="mat-elevation-z1 full-width-table">
+                  <ng-container matColumnDef="period">
+                    <th mat-header-cell *matHeaderCellDef>Period</th>
+                    <td mat-cell *matCellDef="let run">
+                      <div class="period-cell">
+                        <div class="period-dates">{{ run.periodStart }} → {{ run.periodEnd }}</div>
+                        <div class="period-org">Org: {{ run.organizationId }}</div>
+                        <div class="period-notes" *ngIf="run.notes">{{ run.notes }}</div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="payDate">
+                    <th mat-header-cell *matHeaderCellDef>Pay date</th>
+                    <td mat-cell *matCellDef="let run">
+                      <div class="stacked-value">
+                        <span>{{ run.payDate }}</span>
+                        <small>Created: {{ run.createdAtUtc | date: 'medium' }}</small>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let run">
+                      <mat-chip color="primary" selected>{{ run.status }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="totals">
+                    <th mat-header-cell *matHeaderCellDef>Totals</th>
+                    <td mat-cell *matCellDef="let run">
+                      <div class="totals-cell">
+                        <div>
+                          <div class="label">Gross</div>
+                          <div class="value">{{ run.totalGrossPay | number: '1.2-2' }}</div>
+                        </div>
+                        <div>
+                          <div class="label">Net</div>
+                          <div class="value">{{ run.totalNetPay | number: '1.2-2' }}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let run">
+                      <div class="actions-cell">
+                        <button mat-stroked-button color="primary" type="button" (click)="selectRun(run)" [disabled]="runsLoading()">
+                          <mat-icon>visibility</mat-icon>
+                          Inspect
+                        </button>
+                        <button mat-stroked-button color="primary" type="button" (click)="calculate(run)" [disabled]="runsLoading() || !canCalculate(run)" *ngIf="canCalculate(run)">
+                          <mat-icon>functions</mat-icon>
+                          Calculate
+                        </button>
+                        <button mat-stroked-button color="primary" type="button" (click)="moveToReview(run)" [disabled]="runsLoading() || !canMoveToReview(run)" *ngIf="canMoveToReview(run)">
+                          <mat-icon>rule</mat-icon>
+                          Move to review
+                        </button>
+                        <button mat-stroked-button color="primary" type="button" (click)="approve(run)" [disabled]="runsLoading() || !canApprove(run)" *ngIf="canApprove(run)">
+                          <mat-icon>verified</mat-icon>
+                          Approve
+                        </button>
+                        <button mat-stroked-button color="primary" type="button" (click)="lock(run)" [disabled]="runsLoading() || !canLock(run)" *ngIf="canLock(run)">
+                          <mat-icon>lock</mat-icon>
+                          Lock
+                        </button>
+                        <button mat-stroked-button color="primary" type="button" (click)="markPaid(run)" [disabled]="runsLoading() || !canMarkPaid(run)" *ngIf="canMarkPaid(run)">
+                          <mat-icon>payments</mat-icon>
+                          Mark paid
+                        </button>
+                        <button mat-stroked-button color="accent" type="button" (click)="generatePayslips(run)" [disabled]="runsLoading() || !canGeneratePayslips(run)" *ngIf="canGeneratePayslips(run)">
+                          <mat-icon>picture_as_pdf</mat-icon>
+                          Generate payslips
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="runColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: runColumns"></tr>
+                </table>
+              </div>
+            </section>
+
+            <section class="feature-section" *ngIf="selectedRun() as run">
+              <div class="section-header">
+                <h5>Run details</h5>
+                <p>Gross/net totals and per-employee breakdown for the selected payroll run.</p>
+              </div>
+
+              <div class="run-summary">
+                <div class="summary-card">
+                  <div class="label">Status</div>
+                  <mat-chip color="primary" selected>{{ run.status }}</mat-chip>
+                </div>
+                <div class="summary-card">
+                  <div class="label">Pay date</div>
+                  <div class="value">{{ run.payDate }}</div>
+                </div>
+                <div class="summary-card">
+                  <div class="label">Gross</div>
+                  <div class="value">{{ run.totalGrossPay | number: '1.2-2' }}</div>
+                </div>
+                <div class="summary-card">
+                  <div class="label">Net</div>
+                  <div class="value">{{ run.totalNetPay | number: '1.2-2' }}</div>
+                </div>
+                <div class="summary-card" *ngIf="run.notes">
+                  <div class="label">Notes</div>
+                  <div class="value">{{ run.notes }}</div>
+                </div>
+              </div>
+
+              <mat-progress-bar *ngIf="itemsLoading()" mode="indeterminate"></mat-progress-bar>
+
+              <div class="table-wrapper">
+                <table mat-table [dataSource]="items()" class="mat-elevation-z1 full-width-table">
+                  <ng-container matColumnDef="employee">
+                    <th mat-header-cell *matHeaderCellDef>Employee</th>
+                    <td mat-cell *matCellDef="let item">{{ item.employeeId }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="gross">
+                    <th mat-header-cell *matHeaderCellDef>Gross</th>
+                    <td mat-cell *matCellDef="let item">{{ item.gross | number: '1.2-2' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="deductions">
+                    <th mat-header-cell *matHeaderCellDef>Deductions</th>
+                    <td mat-cell *matCellDef="let item">{{ item.deductions | number: '1.2-2' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="net">
+                    <th mat-header-cell *matHeaderCellDef>Net</th>
+                    <td mat-cell *matCellDef="let item">{{ item.net | number: '1.2-2' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="currency">
+                    <th mat-header-cell *matHeaderCellDef>Currency</th>
+                    <td mat-cell *matCellDef="let item">{{ item.currency }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="breakdown">
+                    <th mat-header-cell *matHeaderCellDef>Breakdown</th>
+                    <td mat-cell *matCellDef="let item">
+                      <div class="actions-cell">
+                        <span class="component-counts">
+                          {{ getEarnings(item).length }} earnings / {{ getDeductions(item).length }} deductions
+                        </span>
+                        <button mat-stroked-button color="primary" type="button" (click)="selectItem(item)">
+                          <mat-icon>receipt_long</mat-icon>
+                          Inspect line
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: itemColumns"></tr>
+                </table>
+              </div>
+
+              <div class="breakdown-panel" *ngIf="selectedItem() as item">
+                <div class="section-header breakdown-header">
+                  <h6>Payslip breakdown</h6>
+                  <p>Calculated components for employee {{ item.employeeId }}</p>
+                </div>
+                <div class="breakdown-grid">
+                  <div>
+                    <h6>Earnings</h6>
+                    <div class="empty" *ngIf="getEarnings(item).length === 0">No earnings components</div>
+                    <div class="component-row" *ngFor="let component of getEarnings(item)">
+                      <div>
+                        <div class="component-name">{{ component.name }}</div>
+                        <div class="component-meta">{{ component.calculationType }} • {{ component.isRecurring ? 'Recurring' : 'One-time' }}</div>
+                      </div>
+                      <div class="component-amount">+{{ component.amount | number: '1.2-2' }}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h6>Deductions</h6>
+                    <div class="empty" *ngIf="getDeductions(item).length === 0">No deduction components</div>
+                    <div class="component-row" *ngFor="let component of getDeductions(item)">
+                      <div>
+                        <div class="component-name">{{ component.name }}</div>
+                        <div class="component-meta">{{ component.calculationType }} • {{ component.isRecurring ? 'Recurring' : 'One-time' }}</div>
+                      </div>
+                      <div class="component-amount negative">-{{ component.amount | number: '1.2-2' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
           </div>
         </div>

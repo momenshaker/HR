@@ -8,13 +8,20 @@
   gap: 1.5rem;
 }
 
+.payroll-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
 .feature-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.section-header h5 {
+.section-header h5,
+.section-header h6 {
   margin: 0;
   font-size: 1.1rem;
 }
@@ -28,7 +35,7 @@
 .form-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .form-grid__full {
@@ -36,7 +43,137 @@
 }
 
 .form-actions {
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: end;
+}
+
+.table-wrapper {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.period-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.period-dates {
+  font-weight: 600;
+}
+
+.period-org,
+.period-notes,
+.stacked-value small,
+.component-meta {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.totals-cell {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.value {
+  font-weight: 700;
+}
+
+.actions-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.component-counts {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.run-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.summary-card {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: #fafafa;
+}
+
+.breakdown-panel {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #fdfdfd;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.breakdown-header h6 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.component-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px dashed #e0e0e0;
+}
+
+.component-row:last-child {
+  border-bottom: none;
+}
+
+.component-name {
+  font-weight: 600;
+}
+
+.component-amount {
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.component-amount.negative {
+  color: #c62828;
+}
+
+.empty {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
+  padding: 0.4rem 0;
 }
