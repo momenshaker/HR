@@ -3,8 +3,8 @@
 - Namespace: `HR.Api.Controllers`
 
 **Overview**
-- Base Route: `api/payroll/runs`
-- Version: unversioned route
+- Base Route: `api/v{version}/PayrollRuns`
+- Version: API versioned route
 - Auth: `[Authorize(Roles = "Admin,HR")]`
 - Feature: `PayrollManagement`
 - Audit: `AuditResource("PayrollRun")`
@@ -13,9 +13,11 @@
 - GET `/api/payroll/runs` – List payroll runs
 - GET `/api/payroll/runs/{id}` – Get payroll run by id
 - GET `/api/payroll/runs/{id}/items` – Get payroll run items
-- POST `/api/payroll/runs` – Create payroll run
+- POST `/api/payroll/runs` – Create payroll period/run (includes pay date)
 - POST `/api/payroll/runs/{id}:calculate` – Calculate payroll run
+- POST `/api/payroll/runs/{id}:review` – Move run to under-review
 - POST `/api/payroll/runs/{id}:approve` – Approve payroll run
+- POST `/api/payroll/runs/{id}:lock` – Lock payroll run before payment/export
 - POST `/api/payroll/runs/{id}:paid` – Mark payroll run as paid
 - POST `/api/payroll/runs/{id}:payslips` – Generate payslips (optional)
 - GET `/api/payroll/payslips` – List payslips
@@ -40,6 +42,7 @@
   "organizationId": "<uuid>",
   "periodStart": "2025-01-01",
   "periodEnd": "2025-01-31",
+  "payDate": "2025-01-31",
   "notes": "January payroll"
 }
 JSON

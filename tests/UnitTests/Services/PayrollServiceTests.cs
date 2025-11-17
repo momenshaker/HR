@@ -15,20 +15,35 @@ public sealed class PayrollServiceTests
         var items = new Mock<IPayrollItemRepository>();
         var payslips = new Mock<IPayslipRepository>();
         var employees = new Mock<IEmployeeRepository>();
+        var attendance = new Mock<IAttendanceRecordRepository>();
+        var leaveRequests = new Mock<ILeaveRequestRepository>();
+        var leaveTypes = new Mock<ILeaveTypeRepository>();
 
         runs.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<PayrollRun>());
+        attendance.Setup(a => a.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<AttendanceRecord>());
+        leaveRequests.Setup(l => l.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<LeaveRequest>());
+        leaveTypes.Setup(l => l.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<LeaveType>());
         PayrollRun? persisted = null;
         runs.Setup(r => r.AddAsync(It.IsAny<PayrollRun>(), It.IsAny<CancellationToken>()))
             .Callback<PayrollRun, CancellationToken>((pr, _) => persisted = pr)
             .ReturnsAsync(() => persisted!);
 
-        var sut = new PayrollService(runs.Object, items.Object, payslips.Object, employees.Object, new DefaultPayrollCalculator());
+        var sut = new PayrollService(
+            runs.Object,
+            items.Object,
+            payslips.Object,
+            employees.Object,
+            attendance.Object,
+            leaveRequests.Object,
+            leaveTypes.Object,
+            new DefaultPayrollCalculator());
 
-        var created = await sut.CreateRun(Guid.NewGuid(), new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 31));
+        var created = await sut.CreateRun(Guid.NewGuid(), new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 31), new DateOnly(2025, 2, 1));
 
         Assert.NotNull(persisted);
         Assert.Equal("Draft", persisted!.Status);
         Assert.True(persisted!.CreatedAtUtc <= DateTime.UtcNow);
         Assert.Equal(created.Id, persisted!.Id);
+        Assert.Equal(new DateOnly(2025, 2, 1), persisted!.PayDate);
     }
 }

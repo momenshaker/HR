@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,16 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
-import { EntityCrudFactory } from '@core/data-access';
-
-interface PayrollRun {
-  id: string;
-  period: string;
-  status: string;
-  processedOn: string;
-  totalEmployees: number;
-}
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTableModule } from '@angular/material/table';
+import { PayrollApiService, PayrollBreakdown, PayrollComponentAmount, PayrollItem, PayrollRun, PayrollStatus } from './payroll.api';
 
 @Component({
   selector: 'app-payroll-page',
@@ -31,79 +25,237 @@ interface PayrollRun {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    DataTableComponent
+    MatProgressBarModule,
+    MatChipsModule,
+    MatTableModule
   ],
   templateUrl: './payroll.component.html',
   styleUrls: ['./payroll.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PayrollPageComponent {
+export class PayrollPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackbar = inject(MatSnackBar);
-  private readonly service = inject(EntityCrudFactory).create<any, any, PayrollRun>('payroll/runs');
+  private readonly payrollApi = inject(PayrollApiService);
 
-  readonly form = this.fb.nonNullable.group({
-    period: ['', Validators.required],
+  readonly statuses: readonly PayrollStatus[] = ['Draft', 'Calculated', 'UnderReview', 'Approved', 'Locked', 'Paid'];
+
+  readonly creationForm = this.fb.nonNullable.group({
+    organizationId: ['', Validators.required],
+    periodStart: ['', Validators.required],
+    periodEnd: ['', Validators.required],
     payDate: ['', Validators.required],
-    bankFile: ['']
+    notes: ['']
   });
 
-  readonly loading = signal(false);
-  readonly runs = signal<ReadonlyArray<PayrollRun>>([]);
-  readonly total = signal(0);
-  private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
+  readonly filterForm = this.fb.nonNullable.group({
+    organizationId: [''],
+    status: ['']
+  });
 
-  readonly columns = {
-    period: 'Period',
-    status: 'Status',
-    processedOn: 'Processed on',
-    totalEmployees: 'Employees'
-  } as const;
-  readonly displayedColumns = Object.keys(this.columns);
+  readonly runs = signal<readonly PayrollRun[]>([]);
+  readonly runsLoading = signal(false);
+  readonly items = signal<readonly PayrollItem[]>([]);
+  readonly itemsLoading = signal(false);
+  readonly selectedRunId = signal<string | null>(null);
+  readonly selectedItem = signal<PayrollItem | null>(null);
 
-  generate(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+  readonly selectedRun = computed(() => {
+    const runId = this.selectedRunId();
+    if (!runId) {
+      return null;
     }
+    return this.runs().find((run) => run.id === runId) ?? null;
+  });
 
-    this.loading.set(true);
-    this.service.create(this.form.getRawValue()).subscribe({
-      next: () => {
-        this.snackbar.open('Payroll run created', 'Dismiss', { duration: 3000 });
-        this.form.reset({ period: '', payDate: '', bankFile: '' });
-        this.load(this.querySignal());
-      },
-      error: () => this.loading.set(false)
-    });
-  }
+  readonly runColumns = ['period', 'payDate', 'status', 'totals', 'actions'] as const;
+  readonly itemColumns = ['employee', 'gross', 'deductions', 'net', 'currency', 'breakdown'] as const;
 
-  onQueryChange(query: DataTableQuery): void {
-    this.querySignal.set(query);
-    this.load(query);
+  ngOnInit(): void {
+    this.loadRuns();
   }
 
   refresh(): void {
-    this.load(this.querySignal());
+    this.loadRuns();
   }
 
-  private load(query: DataTableQuery): void {
-    this.loading.set(true);
-    this.service
-      .list({
-        page: query.pageIndex + 1,
-        pageSize: query.pageSize,
-        search: query.search,
-        sort: query.sortField,
-        direction: query.sortDirection
-      })
+  createRun(): void {
+    if (this.creationForm.invalid) {
+      this.creationForm.markAllAsTouched();
+      return;
+    }
+
+    const payload = this.creationForm.getRawValue();
+    this.runsLoading.set(true);
+    this.payrollApi.createRun(payload).subscribe({
+      next: (run) => {
+        this.snackbar.open('Payroll period created.', 'Dismiss', { duration: 2500 });
+        this.creationForm.reset({
+          organizationId: '',
+          periodStart: '',
+          periodEnd: '',
+          payDate: '',
+          notes: ''
+        });
+        this.selectedRunId.set(run.id);
+        this.loadRuns();
+        this.loadItems(run.id);
+      },
+      error: () => this.runsLoading.set(false)
+    });
+  }
+
+  applyFilters(): void {
+    this.loadRuns();
+  }
+
+  selectRun(run: PayrollRun): void {
+    this.selectedRunId.set(run.id);
+    this.selectedItem.set(null);
+    this.loadItems(run.id);
+  }
+
+  calculate(run: PayrollRun): void {
+    this.transitionRun(run, this.payrollApi.calculate(run.id), 'Payroll calculated.');
+  }
+
+  moveToReview(run: PayrollRun): void {
+    this.transitionRun(run, this.payrollApi.moveToReview(run.id), 'Moved to under review.');
+  }
+
+  approve(run: PayrollRun): void {
+    this.transitionRun(run, this.payrollApi.approve(run.id), 'Payroll approved.');
+  }
+
+  lock(run: PayrollRun): void {
+    this.transitionRun(run, this.payrollApi.lock(run.id), 'Payroll locked for payment.');
+  }
+
+  markPaid(run: PayrollRun): void {
+    this.transitionRun(run, this.payrollApi.markPaid(run.id), 'Marked as paid.');
+  }
+
+  generatePayslips(run: PayrollRun): void {
+    this.runsLoading.set(true);
+    this.payrollApi.generatePayslips(run.id).subscribe({
+      next: () => {
+        this.snackbar.open('Payslips generated.', 'Dismiss', { duration: 2500 });
+        this.runsLoading.set(false);
+      },
+      error: () => this.runsLoading.set(false)
+    });
+  }
+
+  selectItem(item: PayrollItem): void {
+    this.selectedItem.set(item);
+  }
+
+  canCalculate(run: PayrollRun): boolean {
+    return run.status === 'Draft';
+  }
+
+  canMoveToReview(run: PayrollRun): boolean {
+    return run.status === 'Calculated';
+  }
+
+  canApprove(run: PayrollRun): boolean {
+    return run.status === 'UnderReview';
+  }
+
+  canLock(run: PayrollRun): boolean {
+    return run.status === 'Approved';
+  }
+
+  canMarkPaid(run: PayrollRun): boolean {
+    return run.status === 'Locked';
+  }
+
+  canGeneratePayslips(run: PayrollRun): boolean {
+    return run.status === 'Locked' || run.status === 'Paid';
+  }
+
+  getEarnings(item: PayrollItem): readonly PayrollComponentAmount[] {
+    if (item.earnings && item.earnings.length > 0) {
+      return item.earnings;
+    }
+    const breakdown = this.parseBreakdown(item);
+    return breakdown?.earnings ?? [];
+  }
+
+  getDeductions(item: PayrollItem): readonly PayrollComponentAmount[] {
+    if (item.deductionComponents && item.deductionComponents.length > 0) {
+      return item.deductionComponents;
+    }
+    const breakdown = this.parseBreakdown(item);
+    return breakdown?.deductions ?? [];
+  }
+
+  private parseBreakdown(item: PayrollItem): PayrollBreakdown | null {
+    if (!item.breakdownJson) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(item.breakdownJson) as PayrollBreakdown;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  private loadRuns(): void {
+    this.runsLoading.set(true);
+    const { organizationId, status } = this.filterForm.getRawValue();
+    this.payrollApi
+      .listRuns({ organizationId: organizationId || undefined, status })
       .subscribe({
-        next: (response) => {
-          this.runs.set(response.items);
-          this.total.set(response.totalCount);
-          this.loading.set(false);
+        next: (runs) => {
+          this.runs.set(runs);
+          this.runsLoading.set(false);
+          const selectedId = this.selectedRunId();
+          if (selectedId && !runs.some((run) => run.id === selectedId)) {
+            this.selectedRunId.set(null);
+            this.items.set([]);
+            this.selectedItem.set(null);
+          }
         },
-        error: () => this.loading.set(false)
+        error: () => this.runsLoading.set(false)
       });
+  }
+
+  private loadItems(runId: string): void {
+    this.itemsLoading.set(true);
+    this.payrollApi.listItems(runId).subscribe({
+      next: (items) => {
+        this.items.set(items);
+        this.selectedItem.set(items[0] ?? null);
+        this.itemsLoading.set(false);
+      },
+      error: () => this.itemsLoading.set(false)
+    });
+  }
+
+  private transitionRun(run: PayrollRun, observable: ReturnType<PayrollApiService['calculate']>, message: string): void {
+    this.runsLoading.set(true);
+    observable.subscribe({
+      next: (updated) => {
+        this.updateRunList(updated);
+        this.selectedRunId.set(updated.id);
+        this.runsLoading.set(false);
+        this.snackbar.open(message, 'Dismiss', { duration: 2500 });
+      },
+      error: () => this.runsLoading.set(false)
+    });
+  }
+
+  private updateRunList(updated: PayrollRun): void {
+    const currentRuns = this.runs();
+    const index = currentRuns.findIndex((r) => r.id === updated.id);
+    if (index === -1) {
+      this.runs.set([updated, ...currentRuns]);
+      return;
+    }
+    const clone = [...currentRuns];
+    clone.splice(index, 1, updated);
+    this.runs.set(clone);
   }
 }

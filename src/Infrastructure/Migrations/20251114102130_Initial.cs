@@ -470,6 +470,7 @@ namespace HR.Infrastructure.Migrations
                     OrganizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PeriodStart = table.Column<DateOnly>(type: "date", nullable: false),
                     PeriodEnd = table.Column<DateOnly>(type: "date", nullable: false),
+                    PayDate = table.Column<DateOnly>(type: "date", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ApprovedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     PaidAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),

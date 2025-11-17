@@ -53,7 +53,7 @@ public sealed class PayrollRunsController(IPayrollService payrollService) : Cont
     {
         try
         {
-            var createdRun = await _payrollService.CreateRun(request.OrganizationId, request.PeriodStart, request.PeriodEnd, cancellationToken).ConfigureAwait(false);
+            var createdRun = await _payrollService.CreateRun(request.OrganizationId, request.PeriodStart, request.PeriodEnd, request.PayDate, cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetByIdAsync), new { id = createdRun.Id }, createdRun);
         }
         catch (InvalidOperationException ex)
@@ -70,6 +70,22 @@ public sealed class PayrollRunsController(IPayrollService payrollService) : Cont
         return Ok(run);
     }
 
+    [HttpPost("{id:guid}:review")]
+    [ProducesResponseType(typeof(PayrollRunDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> MoveToReviewAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var run = await _payrollService.MoveToReview(id, cancellationToken).ConfigureAwait(false);
+            return Ok(run);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("{id:guid}:approve")]
     [ProducesResponseType(typeof(PayrollRunDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -78,6 +94,22 @@ public sealed class PayrollRunsController(IPayrollService payrollService) : Cont
         try
         {
             var run = await _payrollService.Approve(id, cancellationToken).ConfigureAwait(false);
+            return Ok(run);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("{id:guid}:lock")]
+    [ProducesResponseType(typeof(PayrollRunDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> LockAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var run = await _payrollService.LockAsync(id, cancellationToken).ConfigureAwait(false);
             return Ok(run);
         }
         catch (InvalidOperationException ex)

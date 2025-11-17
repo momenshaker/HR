@@ -14,6 +14,9 @@ public sealed class UpdatePayrollRunRequest : IValidatableRequest
     [Required]
     public DateOnly PeriodEnd { get; init; }
 
+    [Required]
+    public DateOnly PayDate { get; init; }
+
     [MaxLength(50)]
     public string Status { get; init; } = string.Empty;
 

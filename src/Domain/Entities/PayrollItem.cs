@@ -24,6 +24,12 @@ public sealed class PayrollItem
     /// </summary>
     public string? Breakdown { get; set; }
 
+    public PayrollBreakdown BreakdownDetails
+    {
+        get => PayrollBreakdown.FromJson(Breakdown);
+        set => Breakdown = value.ToJson();
+    }
+
     public byte[]? RowVersion { get; init; }
 
     public PayrollRun? Run { get; init; }

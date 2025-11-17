@@ -8,5 +8,7 @@ public sealed record PayrollItemDto(
     decimal Deductions,
     decimal Net,
     string Currency,
-    string? Breakdown);
+    IReadOnlyCollection<PayrollComponentAmountDto> Earnings,
+    IReadOnlyCollection<PayrollComponentAmountDto> DeductionComponents,
+    string? BreakdownJson);
 
