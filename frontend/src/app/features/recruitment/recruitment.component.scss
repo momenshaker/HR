@@ -31,6 +31,12 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.form-grid__checkbox {
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+}
+
 .form-grid__full {
   grid-column: 1 / -1;
 }

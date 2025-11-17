@@ -1,7 +1,8 @@
-using HR.Application.DTOs;
-using HR.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using HR.Application.DTOs;
+using HR.Domain.Entities;
 
 namespace HR.Application.Mappings;
 
@@ -16,17 +17,24 @@ public static class VacancyMappings
 
         return new VacancyDto(
             vacancy.Id,
-            vacancy.Title,
-            vacancy.Department,
+            vacancy.RequisitionId,
+            vacancy.PublicTitle,
+            vacancy.PublicDescription,
             vacancy.Location,
+            vacancy.WorkMode,
             vacancy.EmploymentType,
-            vacancy.Description,
+            vacancy.SalaryVisible,
+            vacancy.SalaryRangeText,
+            vacancy.NumberOfPositions,
+            vacancy.Department,
             vacancy.Responsibilities,
             vacancy.Requirements,
+            vacancy.PostingChannels,
             vacancy.PipelineStages,
             vacancy.HiringTeam,
-            vacancy.PostedAtUtc,
-            vacancy.ClosingAtUtc,
+            vacancy.CreatedAtUtc,
+            vacancy.PublishedAtUtc,
+            vacancy.ClosedAtUtc,
             vacancy.Status,
             vacancy.ApplicationUrl);
     }
@@ -38,18 +46,24 @@ public static class VacancyMappings
         return new Vacancy
         {
             Id = Guid.NewGuid(),
-            Title = request.Title.Trim(),
+            RequisitionId = request.RequisitionId,
+            PublicTitle = request.PublicTitle.Trim(),
             Department = request.Department.Trim(),
             Location = request.Location.Trim(),
             EmploymentType = request.EmploymentType.Trim(),
-            Description = request.Description.Trim(),
+            WorkMode = request.WorkMode.Trim(),
+            SalaryVisible = request.SalaryVisible,
+            SalaryRangeText = request.SalaryRangeText.Trim(),
+            NumberOfPositions = request.NumberOfPositions,
+            PublicDescription = request.PublicDescription.Trim(),
             Responsibilities = Normalize(request.Responsibilities),
             Requirements = Normalize(request.Requirements),
+            PostingChannels = Normalize(request.PostingChannels),
             PipelineStages = Normalize(request.PipelineStages),
             HiringTeam = Normalize(request.HiringTeam),
-            PostedAtUtc = DateTime.UtcNow,
-            ClosingAtUtc = request.ClosingAtUtc,
-            Status = "Open",
+            CreatedAtUtc = DateTime.UtcNow,
+            PublishedAtUtc = DateTime.UtcNow,
+            Status = "Published",
             ApplicationUrl = request.ApplicationUrl.Trim()
         };
     }
@@ -60,22 +74,30 @@ public static class VacancyMappings
         ArgumentNullException.ThrowIfNull(existing);
 
         var status = string.IsNullOrWhiteSpace(request.Status) ? existing.Status : request.Status.Trim();
-        var closingAt = request.ClosingAtUtc ?? existing.ClosingAtUtc;
+        var closedAt = request.ClosedAtUtc ?? existing.ClosedAtUtc;
+        var publishedAt = request.PublishedAtUtc ?? existing.PublishedAtUtc ?? existing.CreatedAtUtc;
 
         return new Vacancy
         {
             Id = existing.Id,
-            Title = request.Title.Trim(),
+            RequisitionId = request.RequisitionId,
+            PublicTitle = request.PublicTitle.Trim(),
             Department = request.Department.Trim(),
             Location = request.Location.Trim(),
             EmploymentType = request.EmploymentType.Trim(),
-            Description = request.Description.Trim(),
+            WorkMode = request.WorkMode.Trim(),
+            SalaryVisible = request.SalaryVisible,
+            SalaryRangeText = request.SalaryRangeText.Trim(),
+            NumberOfPositions = request.NumberOfPositions,
+            PublicDescription = request.PublicDescription.Trim(),
             Responsibilities = Normalize(request.Responsibilities),
             Requirements = Normalize(request.Requirements),
+            PostingChannels = Normalize(request.PostingChannels),
             PipelineStages = Normalize(request.PipelineStages),
             HiringTeam = Normalize(request.HiringTeam),
-            PostedAtUtc = existing.PostedAtUtc,
-            ClosingAtUtc = closingAt,
+            CreatedAtUtc = existing.CreatedAtUtc,
+            PublishedAtUtc = publishedAt,
+            ClosedAtUtc = closedAt,
             Status = status,
             ApplicationUrl = request.ApplicationUrl.Trim()
         };

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 
@@ -14,7 +15,7 @@ public sealed class InMemoryVacancyRepository : IVacancyRepository
     public Task<IReadOnlyCollection<Vacancy>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyCollection<Vacancy> snapshot = _vacancies.Values
-            .OrderByDescending(vacancy => vacancy.PostedAtUtc)
+            .OrderByDescending(vacancy => vacancy.PublishedAtUtc ?? vacancy.CreatedAtUtc)
             .ToArray();
         return Task.FromResult(snapshot);
     }

@@ -94,13 +94,20 @@ public sealed class RecruitmentService : IRecruitmentService
             Id = candidate.Id,
             FullName = candidate.FullName,
             Email = candidate.Email,
+            Phone = candidate.Phone,
+            CurrentCompany = candidate.CurrentCompany,
+            CurrentTitle = candidate.CurrentTitle,
+            YearsOfExperience = candidate.YearsOfExperience,
             AppliedRole = candidate.AppliedRole,
             Stage = targetStage,
             Source = candidate.Source,
+            LinkedInProfileUrl = candidate.LinkedInProfileUrl,
             AppliedAtUtc = candidate.AppliedAtUtc,
             NextInterviewAtUtc = nextFollowUp,
             ResumeUrl = candidate.ResumeUrl,
-            Notes = mergedNotes
+            Notes = mergedNotes,
+            Tags = candidate.Tags,
+            IsInTalentPool = candidate.IsInTalentPool
         };
 
         var persisted = await _candidateRepository.UpdateAsync(updatedCandidate, cancellationToken).ConfigureAwait(false);
@@ -172,22 +179,31 @@ public sealed class RecruitmentService : IRecruitmentService
             return false;
         }
 
-        var closingTimestamp = existing.ClosingAtUtc ?? DateTime.UtcNow;
+        var closingTimestamp = existing.ClosedAtUtc ?? DateTime.UtcNow;
         var closedVacancy = new Vacancy
         {
             Id = existing.Id,
-            Title = existing.Title,
+            RequisitionId = existing.RequisitionId,
+            PublicTitle = existing.PublicTitle,
             Department = existing.Department,
             Location = existing.Location,
             EmploymentType = existing.EmploymentType,
-            Description = existing.Description,
+            WorkMode = existing.WorkMode,
+            SalaryVisible = existing.SalaryVisible,
+            SalaryRangeText = existing.SalaryRangeText,
+            NumberOfPositions = existing.NumberOfPositions,
+            PublicDescription = existing.PublicDescription,
             Responsibilities = existing.Responsibilities,
             Requirements = existing.Requirements,
+            PostingChannels = existing.PostingChannels,
             PipelineStages = existing.PipelineStages,
             HiringTeam = existing.HiringTeam,
-            PostedAtUtc = existing.PostedAtUtc,
-            ClosingAtUtc = closingTimestamp,
-            Status = string.Equals(existing.Status, "Closed", StringComparison.OrdinalIgnoreCase) ? existing.Status : "Closed",
+            CreatedAtUtc = existing.CreatedAtUtc,
+            PublishedAtUtc = existing.PublishedAtUtc,
+            ClosedAtUtc = closingTimestamp,
+            Status = string.Equals(existing.Status, "Archived", StringComparison.OrdinalIgnoreCase)
+                ? existing.Status
+                : "Archived",
             ApplicationUrl = existing.ApplicationUrl
         };
 
@@ -331,7 +347,8 @@ public sealed class RecruitmentService : IRecruitmentService
             .ThenBy(contributor => contributor.Name, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        var openVacancies = vacancies.Count(vacancy => string.Equals(vacancy.Status, "Open", StringComparison.OrdinalIgnoreCase));
+        var openVacancies = vacancies.Count(vacancy =>
+            string.Equals(vacancy.Status, "Published", StringComparison.OrdinalIgnoreCase));
 
         return new RecruitmentInsightsDto(
             vacancies.Count,
@@ -371,6 +388,9 @@ public sealed class RecruitmentService : IRecruitmentService
         {
             CandidateId = request.CandidateId == Guid.Empty ? candidateId : request.CandidateId,
             VacancyId = request.VacancyId,
+            ApplicationId = request.ApplicationId,
+            StageId = request.StageId,
+            ScheduledById = request.ScheduledById,
             Stage = string.IsNullOrWhiteSpace(request.Stage) ? stage : request.Stage,
             ScheduledAtUtc = request.ScheduledAtUtc,
             DurationMinutes = request.DurationMinutes,

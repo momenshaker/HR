@@ -1,3 +1,4 @@
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Domain.Entities;
 
@@ -14,7 +15,7 @@ internal sealed class EntityFrameworkVacancyRepository : EntityFrameworkReposito
     {
         var vacancies = await GetAllInternalAsync(cancellationToken).ConfigureAwait(false);
         return vacancies
-            .OrderByDescending(vacancy => vacancy.PostedAtUtc)
+            .OrderByDescending(vacancy => vacancy.PublishedAtUtc ?? vacancy.CreatedAtUtc)
             .ToArray();
     }
 

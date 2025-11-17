@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using HR.Application.DTOs;
 using HR.Domain.Entities;
 
@@ -16,13 +19,20 @@ public static class CandidateMappings
             candidate.Id,
             candidate.FullName,
             candidate.Email,
+            candidate.Phone,
+            candidate.CurrentCompany,
+            candidate.CurrentTitle,
+            candidate.YearsOfExperience,
             candidate.AppliedRole,
             candidate.Stage,
             candidate.Source,
+            candidate.LinkedInProfileUrl,
             candidate.AppliedAtUtc,
             candidate.NextInterviewAtUtc,
             candidate.ResumeUrl,
-            candidate.Notes);
+            candidate.Notes,
+            candidate.Tags,
+            candidate.IsInTalentPool);
     }
 
     public static Candidate ToEntity(this CreateCandidateRequest request)
@@ -34,13 +44,20 @@ public static class CandidateMappings
             Id = Guid.NewGuid(),
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
+            Phone = request.Phone.Trim(),
+            CurrentCompany = request.CurrentCompany.Trim(),
+            CurrentTitle = request.CurrentTitle.Trim(),
+            YearsOfExperience = request.YearsOfExperience,
             AppliedRole = request.AppliedRole.Trim(),
             Stage = request.Stage.Trim(),
             Source = request.Source.Trim(),
+            LinkedInProfileUrl = request.LinkedInProfileUrl.Trim(),
             AppliedAtUtc = DateTime.UtcNow,
             NextInterviewAtUtc = request.NextInterviewAtUtc,
             ResumeUrl = request.ResumeUrl.Trim(),
-            Notes = request.Notes.Trim()
+            Notes = request.Notes.Trim(),
+            Tags = Normalize(request.Tags),
+            IsInTalentPool = request.IsInTalentPool
         };
     }
 
@@ -54,13 +71,34 @@ public static class CandidateMappings
             Id = existing.Id,
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
+            Phone = request.Phone.Trim(),
+            CurrentCompany = request.CurrentCompany.Trim(),
+            CurrentTitle = request.CurrentTitle.Trim(),
+            YearsOfExperience = request.YearsOfExperience,
             AppliedRole = request.AppliedRole.Trim(),
             Stage = request.Stage.Trim(),
             Source = request.Source.Trim(),
+            LinkedInProfileUrl = request.LinkedInProfileUrl.Trim(),
             AppliedAtUtc = existing.AppliedAtUtc,
             NextInterviewAtUtc = request.NextInterviewAtUtc,
             ResumeUrl = request.ResumeUrl.Trim(),
-            Notes = request.Notes.Trim()
+            Notes = request.Notes.Trim(),
+            Tags = Normalize(request.Tags),
+            IsInTalentPool = request.IsInTalentPool
         };
+    }
+
+    private static List<string> Normalize(IReadOnlyCollection<string>? values)
+    {
+        if (values is null || values.Count == 0)
+        {
+            return new List<string>();
+        }
+
+        return values
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }
