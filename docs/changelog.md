@@ -23,6 +23,7 @@
 - Rolled out internal communications APIs spanning announcements, engagement campaigns, pulse surveys, and recognition programme governance with supporting services and repositories.
 - Expanded organization design with multi-level units, position management, reporting hierarchies, delegated authority modelling, and OAuth-enabled self-service account management across services, repositories, APIs, and documentation.
 ### Changed
+- Rebuilt performance management around cycles, templates, and structured evaluation workflows (self/manager submissions, activation/closure) with aligned API surfaces and refreshed Angular workspace for cycle orchestration.
 - Synced the public OpenAPI specification with the new leave types, balances, and request lifecycle endpoints exposed by the v1
   LeaveController.
 - Updated README and API documentation to clarify that all default lookups are now dynamic, ETag-enabled resources managed via `/lookups` in the frontend.
