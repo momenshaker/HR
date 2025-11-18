@@ -27,144 +27,171 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { APP_CONFIG } from '@core/config/app-config.token';
 import { AppConfig } from '@core/config/app-config.model';
 
-interface PerformanceGoalDto {
-  id?: string;
-  title: string;
-  description?: string;
-  weight?: number;
-  alignment?: string;
-  status?: string;
-}
-
-interface PerformanceKpiDto {
-  id?: string;
+interface RatingScaleDto {
+  id: string;
   name: string;
-  targetValue: number;
-  actualValue: number;
-  unitOfMeasure?: string;
-  status?: string;
+  minScore: number;
+  maxScore: number;
+  allowHalfPoints: boolean;
+  levels: RatingScaleLevelDto[];
 }
 
-interface PerformanceFeedbackDto {
-  id?: string;
-  feedbackType: string;
-  comments: string;
-  submittedBy: string;
-  submittedAtUtc: string;
+interface RatingScaleLevelDto {
+  id: string;
+  ratingScaleId: string;
+  score: number;
+  label: string;
+  description: string;
 }
 
-interface CompensationReviewDto {
-  effectiveDate: string;
-  currentBaseSalary: number;
-  proposedBaseSalary: number;
-  bonusRecommendation: number;
-  currency: string;
-  notes?: string;
+interface TemplateItemDefinitionDto {
+  id: string;
+  sectionDefinitionId: string;
+  name: string;
+  description: string;
+  defaultWeight: number;
 }
 
-interface PerformanceReviewDto {
+interface TemplateSectionDefinitionDto {
+  id: string;
+  templateId: string;
+  name: string;
+  weight: number;
+  items: TemplateItemDefinitionDto[];
+}
+
+interface EvaluationTemplateDto {
+  id: string;
+  name: string;
+  description: string;
+  targetRole: string;
+  ratingScaleId: string;
+  isDefault: boolean;
+  isActive: boolean;
+  sections: TemplateSectionDefinitionDto[];
+}
+
+interface PerformanceCycleAssignmentDto {
+  employeeId: string;
+  managerId?: string | null;
+  department: string;
+}
+
+type PerformanceCycleStatus = 'Draft' | 'Active' | 'Closed' | 'Archived';
+
+interface PerformanceCycleDto {
+  id: string;
+  name: string;
+  description: string;
+  periodStart: string;
+  periodEnd: string;
+  selfEvaluationStart: string;
+  selfEvaluationEnd: string;
+  managerEvaluationStart: string;
+  managerEvaluationEnd: string;
+  status: PerformanceCycleStatus;
+  templateId: string;
+  ratingScaleId: string;
+  includedEmployees: PerformanceCycleAssignmentDto[];
+  createdAt: string;
+  createdBy: string;
+  evaluationCount: number;
+}
+
+interface EvaluationSummaryDto {
   id: string;
   employeeId: string;
-  cycleName: string;
-  periodStart: string;
-  periodEnd: string;
+  managerId?: string;
+  cycleId: string;
+  status: string;
   overallScore: number;
-  managerComments: string;
-  goalsSummary: string;
-  goals: PerformanceGoalDto[];
-  keyPerformanceIndicators: PerformanceKpiDto[];
-  feedbackCycles: PerformanceFeedbackDto[];
-  compensationReview?: CompensationReviewDto | null;
-  submittedAtUtc: string;
-}
-
-interface CreatePerformanceReviewRequest {
-  employeeId: string;
   cycleName: string;
-  periodStart: string;
-  periodEnd: string;
-  overallScore: number;
-  managerComments: string;
-  goalsSummary: string;
-  goals: PerformanceGoalRequest[];
-  keyPerformanceIndicators: PerformanceKpiRequest[];
-  feedbackCycles: PerformanceFeedbackRequest[];
-  compensationReview?: CompensationReviewRequest | null;
+  templateName: string;
 }
 
-interface PerformanceGoalRequest {
-  id?: string | null;
-  title: string;
-  description?: string;
-  weight?: number;
-  alignment?: string;
-  status?: string;
-  parentGoalId?: string | null;
-}
-
-interface PerformanceKpiRequest {
-  id?: string | null;
+interface EvaluationItemDto {
+  id: string;
+  templateItemDefinitionId: string;
   name: string;
-  targetValue: number;
-  actualValue: number;
-  unitOfMeasure?: string;
-  status?: string;
+  weight: number;
+  selfScore?: number;
+  selfComment: string;
+  managerScore?: number;
+  managerComment: string;
+  finalScore?: number;
 }
 
-interface PerformanceFeedbackRequest {
-  id?: string | null;
-  feedbackType: string;
+interface EvaluationSectionDto {
+  id: string;
+  name: string;
+  weight: number;
+  score: number;
   comments: string;
-  submittedBy: string;
-  submittedAtUtc: string;
+  items: EvaluationItemDto[];
 }
 
-interface CompensationReviewRequest {
-  effectiveDate: string;
-  currentBaseSalary: number;
-  proposedBaseSalary: number;
-  bonusRecommendation: number;
-  currency: string;
-  notes?: string;
+interface EvaluationDto {
+  id: string;
+  employeeId: string;
+  managerId?: string;
+  cycleId: string;
+  templateId: string;
+  overallScore: number;
+  status: string;
+  finalCommentsEmployee: string;
+  finalCommentsManager: string;
+  sections: EvaluationSectionDto[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-type GoalFormGroup = FormGroup<{
-  id: FormControl<string | null>;
-  title: FormControl<string>;
-  description: FormControl<string>;
-  weight: FormControl<number | null>;
-  alignment: FormControl<string>;
-  status: FormControl<string>;
-  parentGoalId: FormControl<string | null>;
-}>;
-
-type KpiFormGroup = FormGroup<{
-  id: FormControl<string | null>;
+type TemplateSectionFormGroup = FormGroup<{
   name: FormControl<string>;
-  targetValue: FormControl<number | null>;
-  actualValue: FormControl<number | null>;
-  unitOfMeasure: FormControl<string>;
-  status: FormControl<string>;
+  weight: FormControl<number | null>;
+  items: FormArray<TemplateItemFormGroup>;
 }>;
 
-type FeedbackFormGroup = FormGroup<{
-  id: FormControl<string | null>;
-  feedbackType: FormControl<string>;
+type TemplateItemFormGroup = FormGroup<{
+  name: FormControl<string>;
+  description: FormControl<string>;
+  defaultWeight: FormControl<number | null>;
+}>;
+
+type CycleForm = FormGroup<{
+  name: FormControl<string>;
+  description: FormControl<string>;
+  periodStart: FormControl<string>;
+  periodEnd: FormControl<string>;
+  selfEvaluationStart: FormControl<string>;
+  selfEvaluationEnd: FormControl<string>;
+  managerEvaluationStart: FormControl<string>;
+  managerEvaluationEnd: FormControl<string>;
+  templateId: FormControl<string>;
+  ratingScaleId: FormControl<string>;
+  includedEmployees: FormControl<string>;
+  createdBy: FormControl<string>;
+}>;
+
+type EvaluationItemFormGroup = FormGroup<{
+  itemId: FormControl<string>;
+  selfScore: FormControl<number | null>;
+  selfComment: FormControl<string>;
+  managerScore: FormControl<number | null>;
+  managerComment: FormControl<string>;
+}>;
+
+type EvaluationSectionFormGroup = FormGroup<{
+  sectionId: FormControl<string>;
+  items: FormArray<EvaluationItemFormGroup>;
+}>;
+
+type EvaluationForm = FormGroup<{
   comments: FormControl<string>;
-  submittedBy: FormControl<string>;
-  submittedAtUtc: FormControl<string>;
-}>;
-
-type CompensationFormGroup = FormGroup<{
-  effectiveDate: FormControl<string>;
-  currentBaseSalary: FormControl<number | null>;
-  proposedBaseSalary: FormControl<number | null>;
-  bonusRecommendation: FormControl<number | null>;
-  currency: FormControl<string>;
-  notes: FormControl<string>;
+  sections: FormArray<EvaluationSectionFormGroup>;
 }>;
 
 @Component({
@@ -182,7 +209,8 @@ type CompensationFormGroup = FormGroup<{
     MatIconModule,
     MatChipsModule,
     MatDividerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatTabsModule
   ],
   templateUrl: './performance.component.html',
   styleUrls: ['./performance.component.scss'],
@@ -194,203 +222,293 @@ export class PerformancePageComponent implements OnInit {
   private readonly config = inject<AppConfig>(APP_CONFIG);
   private readonly snackbar = inject(MatSnackBar);
 
-  private readonly resourceUrl = `${this.config.apiBaseUrl}/PerformanceReviews`;
+  private readonly baseUrl = `${this.config.apiBaseUrl}/performance`;
 
-  readonly scoreOptions = [0, 1, 2, 3, 4, 5];
-  readonly goalStatuses = ['NotStarted', 'InProgress', 'Completed', 'OnHold'];
-  readonly kpiStatuses = ['OnTrack', 'AtRisk', 'Behind'];
-  readonly feedbackTypes = ['Manager', 'Peer', 'Self', 'Report'];
-  readonly displayedColumns = ['cycle', 'employee', 'period', 'score', 'submitted', 'actions'] as const;
+  readonly loading = signal(false);
+  readonly templates = signal<readonly EvaluationTemplateDto[]>([]);
+  readonly ratingScales = signal<readonly RatingScaleDto[]>([]);
+  readonly cycles = signal<readonly PerformanceCycleDto[]>([]);
+  readonly evaluations = signal<readonly EvaluationSummaryDto[]>([]);
+  readonly selectedCycle = signal<PerformanceCycleDto | null>(null);
+  readonly selectedEvaluation = signal<EvaluationDto | null>(null);
+
+  readonly cycleColumns = ['name', 'period', 'status', 'count', 'actions'] as const;
+  readonly evaluationColumns = ['employee', 'status', 'score', 'actions'] as const;
+
+  readonly templateForm = this.fb.group({
+    name: ['', Validators.required],
+    description: ['', Validators.maxLength(200)],
+    targetRole: ['Staff', Validators.required],
+    ratingScaleId: ['', Validators.required],
+    sections: this.fb.array<TemplateSectionFormGroup>([])
+  });
+
+  readonly cycleForm: CycleForm = this.fb.group({
+    name: ['', Validators.required],
+    description: ['', Validators.maxLength(200)],
+    periodStart: ['', Validators.required],
+    periodEnd: ['', Validators.required],
+    selfEvaluationStart: ['', Validators.required],
+    selfEvaluationEnd: ['', Validators.required],
+    managerEvaluationStart: ['', Validators.required],
+    managerEvaluationEnd: ['', Validators.required],
+    templateId: ['', Validators.required],
+    ratingScaleId: ['', Validators.required],
+    includedEmployees: ['', Validators.required],
+    createdBy: ['00000000-0000-0000-0000-000000000000', Validators.required]
+  });
+
+  readonly selfForm: EvaluationForm = this.fb.group({
+    comments: [''],
+    sections: this.fb.array<EvaluationSectionFormGroup>([])
+  });
+
+  readonly managerForm: EvaluationForm = this.fb.group({
+    comments: [''],
+    sections: this.fb.array<EvaluationSectionFormGroup>([])
+  });
 
   readonly searchControl = new FormControl('', { nonNullable: true });
 
-  readonly reviewForm = this.fb.group({
-    employeeId: ['', Validators.required],
-    cycleName: ['', [Validators.required, Validators.maxLength(100)]],
-    periodStart: ['', Validators.required],
-    periodEnd: ['', Validators.required],
-    overallScore: [3, [Validators.min(0), Validators.max(5)]],
-    managerComments: [''],
-    goalsSummary: [''],
-    goals: this.fb.array<GoalFormGroup>([]),
-    kpis: this.fb.array<KpiFormGroup>([]),
-    feedback: this.fb.array<FeedbackFormGroup>([]),
-    compensation: this.fb.group({
-      effectiveDate: [''],
-      currentBaseSalary: [null],
-      proposedBaseSalary: [null],
-      bonusRecommendation: [null],
-      currency: ['USD'],
-      notes: ['']
-    }) as CompensationFormGroup
-  });
-
-  readonly loading = signal(false);
-  readonly reviews = signal<readonly PerformanceReviewDto[]>([]);
-  readonly selectedReview = signal<PerformanceReviewDto | null>(null);
-
-  readonly filteredReviews = computed(() => {
-    const search = this.searchControl.value?.toLowerCase().trim();
-    if (!search) {
-      return this.reviews();
+  readonly filteredCycles = computed(() => {
+    const term = this.searchControl.value.toLowerCase().trim();
+    if (!term) {
+      return this.cycles();
     }
-    return this.reviews().filter((review) => {
-      return (
-        review.cycleName.toLowerCase().includes(search) ||
-        review.employeeId.toLowerCase().includes(search) ||
-        review.goalsSummary?.toLowerCase().includes(search)
-      );
-    });
+    return this.cycles().filter((cycle) =>
+      cycle.name.toLowerCase().includes(term) || cycle.description?.toLowerCase().includes(term)
+    );
   });
 
   ngOnInit(): void {
-    this.addGoal();
-    this.addKpi();
-    this.addFeedback();
-    this.loadReviews();
+    this.addSection();
+    this.loadRatingScales();
+    this.loadTemplates();
+    this.loadCycles();
   }
 
-  get goals(): FormArray<GoalFormGroup> {
-    return this.reviewForm.controls.goals;
+  get sectionControls(): FormArray<TemplateSectionFormGroup> {
+    return this.templateForm.controls.sections;
   }
 
-  get kpis(): FormArray<KpiFormGroup> {
-    return this.reviewForm.controls.kpis;
+  get selfSections(): FormArray<EvaluationSectionFormGroup> {
+    return this.selfForm.controls.sections;
   }
 
-  get feedback(): FormArray<FeedbackFormGroup> {
-    return this.reviewForm.controls.feedback;
+  get managerSections(): FormArray<EvaluationSectionFormGroup> {
+    return this.managerForm.controls.sections;
   }
 
-  get compensation(): CompensationFormGroup {
-    return this.reviewForm.controls.compensation;
-  }
-
-  addGoal(): void {
-    this.goals.push(
+  addSection(): void {
+    this.sectionControls.push(
       this.fb.group({
-        id: this.fb.control<string | null>(null),
-        title: this.fb.nonNullable.control('', Validators.required),
-        description: this.fb.nonNullable.control(''),
-        weight: this.fb.control<number | null>(null),
-        alignment: this.fb.nonNullable.control(''),
-        status: this.fb.nonNullable.control('NotStarted'),
-        parentGoalId: this.fb.control<string | null>(null)
-      }) as GoalFormGroup
-    );
-  }
-
-  removeGoal(index: number): void {
-    this.goals.removeAt(index);
-  }
-
-  addKpi(): void {
-    this.kpis.push(
-      this.fb.group({
-        id: this.fb.control<string | null>(null),
         name: this.fb.nonNullable.control('', Validators.required),
-        targetValue: this.fb.control<number | null>(null, Validators.required),
-        actualValue: this.fb.control<number | null>(null, Validators.required),
-        unitOfMeasure: this.fb.nonNullable.control(''),
-        status: this.fb.nonNullable.control('OnTrack')
-      }) as KpiFormGroup
+        weight: this.fb.control<number | null>(null, Validators.required),
+        items: this.fb.array<TemplateItemFormGroup>([])
+      }) as TemplateSectionFormGroup
     );
+    this.addTemplateItem(this.sectionControls.length - 1);
   }
 
-  removeKpi(index: number): void {
-    this.kpis.removeAt(index);
+  removeSection(index: number): void {
+    this.sectionControls.removeAt(index);
   }
 
-  addFeedback(): void {
-    this.feedback.push(
+  addTemplateItem(sectionIndex: number): void {
+    const section = this.sectionControls.at(sectionIndex);
+    if (!section) {
+      return;
+    }
+    section.controls.items.push(
       this.fb.group({
-        id: this.fb.control<string | null>(null),
-        feedbackType: this.fb.nonNullable.control('Manager', Validators.required),
-        comments: this.fb.nonNullable.control('', Validators.required),
-        submittedBy: this.fb.nonNullable.control('', Validators.required),
-        submittedAtUtc: this.fb.nonNullable.control(new Date().toISOString())
-      }) as FeedbackFormGroup
+        name: this.fb.nonNullable.control('', Validators.required),
+        description: this.fb.nonNullable.control(''),
+        defaultWeight: this.fb.control<number | null>(null, Validators.required)
+      }) as TemplateItemFormGroup
     );
   }
 
-  removeFeedback(index: number): void {
-    this.feedback.removeAt(index);
+  removeTemplateItem(sectionIndex: number, itemIndex: number): void {
+    const section = this.sectionControls.at(sectionIndex);
+    section?.controls.items.removeAt(itemIndex);
   }
 
-  loadReviews(): void {
+  addAssignmentExample(): void {
+    const exampleManager = crypto.randomUUID();
+    const exampleEmployee = crypto.randomUUID();
+    this.cycleForm.controls.includedEmployees.setValue(`${exampleEmployee},${exampleManager},Engineering`);
+  }
+
+  createTemplate(): void {
+    if (this.templateForm.invalid) {
+      this.templateForm.markAllAsTouched();
+      return;
+    }
+
+    const payload = this.buildTemplatePayload();
     this.loading.set(true);
-    this.http.get<PerformanceReviewDto[]>(this.resourceUrl).subscribe({
-      next: (reviews) => {
-        this.reviews.set(reviews);
-        const firstReview = reviews[0];
-        if (firstReview && !this.selectedReview()) {
-          this.selectedReview.set(firstReview);
-        }
+    this.http.post<EvaluationTemplateDto>(`${this.baseUrl}/templates`, payload).subscribe({
+      next: (template) => {
+        this.templates.set([template, ...this.templates()]);
+        this.templateForm.reset({
+          name: '',
+          description: '',
+          targetRole: 'Staff',
+          ratingScaleId: this.ratingScales()[0]?.id ?? ''
+        });
+        this.sectionControls.clear();
+        this.addSection();
+        this.snackbar.open('Template saved', 'Dismiss', { duration: 2500 });
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
     });
   }
 
-  selectReview(review: PerformanceReviewDto): void {
-    this.selectedReview.set(review);
-  }
-
-  createReview(): void {
-    if (this.reviewForm.invalid) {
-      this.reviewForm.markAllAsTouched();
+  createCycle(): void {
+    if (this.cycleForm.invalid) {
+      this.cycleForm.markAllAsTouched();
       return;
     }
 
-    const payload = this.buildPayload();
+    const payload = this.buildCyclePayload();
     this.loading.set(true);
-
-    this.http.post<PerformanceReviewDto>(this.resourceUrl, payload).subscribe({
-      next: (created) => {
-        this.snackbar.open('Performance review created.', 'Dismiss', { duration: 3500 });
-        this.reviewForm.reset({
-          employeeId: '',
-          cycleName: '',
+    this.http.post<PerformanceCycleDto>(`${this.baseUrl}/cycles`, payload).subscribe({
+      next: (cycle) => {
+        this.cycles.set([cycle, ...this.cycles()]);
+        this.cycleForm.reset({
+          name: '',
+          description: '',
           periodStart: '',
           periodEnd: '',
-          overallScore: 3,
-          managerComments: '',
-          goalsSummary: ''
+          selfEvaluationStart: '',
+          selfEvaluationEnd: '',
+          managerEvaluationStart: '',
+          managerEvaluationEnd: '',
+          templateId: this.templates()[0]?.id ?? '',
+          ratingScaleId: this.ratingScales()[0]?.id ?? '',
+          includedEmployees: '',
+          createdBy: '00000000-0000-0000-0000-000000000000'
         });
-        this.goals.clear();
-        this.kpis.clear();
-        this.feedback.clear();
-        this.compensation.reset({
-          effectiveDate: '',
-          currentBaseSalary: null,
-          proposedBaseSalary: null,
-          bonusRecommendation: null,
-          currency: 'USD',
-          notes: ''
-        });
-        this.addGoal();
-        this.addKpi();
-        this.addFeedback();
-        this.reviews.set([created, ...this.reviews()]);
-        this.selectedReview.set(created);
+        this.snackbar.open('Cycle created', 'Dismiss', { duration: 2500 });
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
     });
   }
 
-  deleteReview(review: PerformanceReviewDto): void {
-    if (!review?.id) {
+  activateCycle(cycle: PerformanceCycleDto): void {
+    this.loading.set(true);
+    this.http.post<PerformanceCycleDto>(`${this.baseUrl}/cycles/${cycle.id}/activate`, {}).subscribe({
+      next: (activated) => {
+        this.updateCycleState(activated);
+        this.loadEvaluations(activated.id);
+        this.snackbar.open('Cycle activated', 'Dismiss', { duration: 2500 });
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  closeCycle(cycle: PerformanceCycleDto): void {
+    this.loading.set(true);
+    this.http.post<PerformanceCycleDto>(`${this.baseUrl}/cycles/${cycle.id}/close`, {}).subscribe({
+      next: (closed) => {
+        this.updateCycleState(closed);
+        this.snackbar.open('Cycle closed', 'Dismiss', { duration: 2500 });
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  selectCycle(cycle: PerformanceCycleDto): void {
+    this.selectedCycle.set(cycle);
+    this.loadEvaluations(cycle.id);
+  }
+
+  selectEvaluation(summary: EvaluationSummaryDto): void {
+    this.loading.set(true);
+    this.http.get<EvaluationDto>(`${this.baseUrl}/evaluations/${summary.id}`).subscribe({
+      next: (evaluation) => {
+        this.selectedEvaluation.set(evaluation);
+        this.buildEvaluationForms(evaluation);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  submitSelf(): void {
+    const evaluation = this.selectedEvaluation();
+    if (!evaluation) {
       return;
     }
+
+    const payload = this.buildSubmissionPayload(this.selfForm, true);
     this.loading.set(true);
-    this.http.delete(`${this.resourceUrl}/${review.id}`).subscribe({
-      next: () => {
-        this.snackbar.open('Performance review deleted.', 'Dismiss', { duration: 3000 });
-        const updated = this.reviews().filter((item) => item.id !== review.id);
-        this.reviews.set(updated);
-        if (this.selectedReview()?.id === review.id) {
-          this.selectedReview.set(updated[0] ?? null);
+    this.http.put<EvaluationDto>(`${this.baseUrl}/evaluations/${evaluation.id}/self`, payload).subscribe({
+      next: (updated) => {
+        this.selectedEvaluation.set(updated);
+        this.snackbar.open('Self review submitted', 'Dismiss', { duration: 2500 });
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  submitManager(): void {
+    const evaluation = this.selectedEvaluation();
+    if (!evaluation) {
+      return;
+    }
+
+    const payload = this.buildSubmissionPayload(this.managerForm, false);
+    this.loading.set(true);
+    this.http.put<EvaluationDto>(`${this.baseUrl}/evaluations/${evaluation.id}/manager`, payload).subscribe({
+      next: (updated) => {
+        this.selectedEvaluation.set(updated);
+        this.snackbar.open('Manager review submitted', 'Dismiss', { duration: 2500 });
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  trackById(_: number, row: { id: string }): string {
+    return row.id;
+  }
+
+  private loadRatingScales(): void {
+    this.http.get<RatingScaleDto[]>(`${this.baseUrl}/templates/rating-scales`).subscribe((scales) => {
+      this.ratingScales.set(scales);
+      if (!this.templateForm.controls.ratingScaleId.value && scales[0]) {
+        this.templateForm.controls.ratingScaleId.setValue(scales[0].id);
+      }
+      if (!this.cycleForm.controls.ratingScaleId.value && scales[0]) {
+        this.cycleForm.controls.ratingScaleId.setValue(scales[0].id);
+      }
+    });
+  }
+
+  private loadTemplates(): void {
+    this.http.get<EvaluationTemplateDto[]>(`${this.baseUrl}/templates`).subscribe((templates) => {
+      this.templates.set(templates);
+      if (!this.cycleForm.controls.templateId.value && templates[0]) {
+        this.cycleForm.controls.templateId.setValue(templates[0].id);
+      }
+    });
+  }
+
+  private loadCycles(): void {
+    this.loading.set(true);
+    this.http.get<PerformanceCycleDto[]>(`${this.baseUrl}/cycles`).subscribe({
+      next: (cycles) => {
+        this.cycles.set(cycles);
+        const firstCycle = cycles[0];
+        if (firstCycle) {
+          this.selectedCycle.set(firstCycle);
+          this.loadEvaluations(firstCycle.id);
         }
         this.loading.set(false);
       },
@@ -398,74 +516,131 @@ export class PerformancePageComponent implements OnInit {
     });
   }
 
-  private buildPayload(): CreatePerformanceReviewRequest {
-    const formValue = this.reviewForm.getRawValue();
+  private loadEvaluations(cycleId: string): void {
+    this.loading.set(true);
+    this.http
+      .get<EvaluationSummaryDto[]>(`${this.baseUrl}/cycles/${cycleId}/evaluations`)
+      .subscribe({
+        next: (evaluations) => {
+          this.evaluations.set(evaluations);
+          this.selectedEvaluation.set(null);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+  }
 
-    const goals = this.goals.controls
-      .map((group) => ({
-        id: this.optional(group.controls.id.value),
-        title: group.controls.title.value,
-        description: group.controls.description.value,
-        weight: group.controls.weight.value ?? 0,
-        alignment: group.controls.alignment.value,
-        status: group.controls.status.value,
-        parentGoalId: this.optional(group.controls.parentGoalId.value)
-      }))
-      .filter((goal) => goal.title.trim().length > 0);
+  private updateCycleState(updatedCycle: PerformanceCycleDto): void {
+    const nextCycles = this.cycles().map((cycle) => (cycle.id === updatedCycle.id ? updatedCycle : cycle));
+    this.cycles.set(nextCycles);
+    if (this.selectedCycle()?.id === updatedCycle.id) {
+      this.selectedCycle.set(updatedCycle);
+    }
+  }
 
-    const kpis = this.kpis.controls
-      .map((group) => ({
-        id: this.optional(group.controls.id.value),
-        name: group.controls.name.value,
-        targetValue: Number(group.controls.targetValue.value ?? 0),
-        actualValue: Number(group.controls.actualValue.value ?? 0),
-        unitOfMeasure: group.controls.unitOfMeasure.value,
-        status: group.controls.status.value
-      }))
-      .filter((kpi) => kpi.name.trim().length > 0);
-
-    const feedback = this.feedback.controls
-      .map((group) => ({
-        id: this.optional(group.controls.id.value),
-        feedbackType: group.controls.feedbackType.value,
-        comments: group.controls.comments.value,
-        submittedBy: group.controls.submittedBy.value,
-        submittedAtUtc: group.controls.submittedAtUtc.value || new Date().toISOString()
-      }))
-      .filter((item) => item.comments.trim().length > 0);
-
-    const compensationRaw = formValue.compensation;
-    const compensation: CompensationReviewRequest | null = compensationRaw?.effectiveDate
-      ? {
-          effectiveDate: compensationRaw.effectiveDate,
-          currentBaseSalary: Number(compensationRaw.currentBaseSalary ?? 0),
-          proposedBaseSalary: Number(compensationRaw.proposedBaseSalary ?? 0),
-          bonusRecommendation: Number(compensationRaw.bonusRecommendation ?? 0),
-          currency: compensationRaw.currency ?? 'USD',
-          notes: compensationRaw.notes ?? ''
-        }
-      : null;
-
+  private buildTemplatePayload(): any {
+    const value = this.templateForm.getRawValue();
     return {
-      employeeId: formValue.employeeId ?? '',
-      cycleName: formValue.cycleName ?? '',
-      periodStart: formValue.periodStart ?? '',
-      periodEnd: formValue.periodEnd ?? '',
-      overallScore: Number(formValue.overallScore ?? 0),
-      managerComments: formValue.managerComments ?? '',
-      goalsSummary: formValue.goalsSummary ?? '',
-      goals,
-      keyPerformanceIndicators: kpis,
-      feedbackCycles: feedback,
-      compensationReview: compensation
+      name: value.name,
+      description: value.description,
+      targetRole: value.targetRole,
+      ratingScaleId: value.ratingScaleId,
+      isDefault: true,
+      isActive: true,
+      sections: value.sections.map((section) => ({
+        name: section.name,
+        weight: Number(section.weight ?? 0),
+        items: section.items.map((item) => ({
+          name: item.name,
+          description: item.description,
+          defaultWeight: Number(item.defaultWeight ?? 0)
+        }))
+      }))
     };
   }
 
-  private optional(value: string | null | undefined): string | undefined {
-    return value && value.trim().length > 0 ? value : undefined;
+  private buildCyclePayload(): any {
+    const value = this.cycleForm.getRawValue();
+    const includedEmployees = value.includedEmployees
+      .split(/\n|;/)
+      .map((line) => line.trim())
+      .filter((line) => !!line)
+      .map((line) => {
+        const [employeeId, managerId, department] = line.split(',').map((segment) => segment.trim());
+        return {
+          employeeId: this.parseGuid(employeeId),
+          managerId: managerId ? this.parseGuid(managerId) : undefined,
+          department: department ?? ''
+        };
+      });
+
+    return {
+      name: value.name,
+      description: value.description,
+      periodStart: value.periodStart,
+      periodEnd: value.periodEnd,
+      selfEvaluationStart: value.selfEvaluationStart,
+      selfEvaluationEnd: value.selfEvaluationEnd,
+      managerEvaluationStart: value.managerEvaluationStart,
+      managerEvaluationEnd: value.managerEvaluationEnd,
+      templateId: value.templateId,
+      ratingScaleId: value.ratingScaleId,
+      createdBy: value.createdBy,
+      includedEmployees
+    };
   }
 
-  trackByReview(_: number, review: PerformanceReviewDto): string {
-    return review.id;
+  private buildEvaluationForms(evaluation: EvaluationDto): void {
+    this.selfSections.clear();
+    this.managerSections.clear();
+
+    evaluation.sections.forEach((section) => {
+      const sectionGroup: EvaluationSectionFormGroup = this.fb.group({
+        sectionId: this.fb.nonNullable.control(section.id),
+        items: this.fb.array<EvaluationItemFormGroup>([])
+      });
+
+      section.items.forEach((item) => {
+        sectionGroup.controls.items.push(
+          this.fb.group({
+            itemId: this.fb.nonNullable.control(item.id),
+            selfScore: this.fb.control<number | null>(item.selfScore ?? null),
+            selfComment: this.fb.nonNullable.control(item.selfComment ?? ''),
+            managerScore: this.fb.control<number | null>(item.managerScore ?? null),
+            managerComment: this.fb.nonNullable.control(item.managerComment ?? '')
+          }) as EvaluationItemFormGroup
+        );
+      });
+
+      this.selfSections.push(sectionGroup);
+      this.managerSections.push(sectionGroup);
+    });
+
+    this.selfForm.controls.comments.setValue(evaluation.finalCommentsEmployee ?? '');
+    this.managerForm.controls.comments.setValue(evaluation.finalCommentsManager ?? '');
+  }
+
+  private buildSubmissionPayload(form: EvaluationForm, isSelf: boolean): any {
+    const value = form.getRawValue();
+    return {
+      comments: value.comments,
+      sections: value.sections.map((section) => ({
+        sectionId: section.sectionId,
+        items: section.items.map((item) => ({
+          itemId: item.itemId,
+          score: isSelf ? item.selfScore : item.managerScore,
+          comment: isSelf ? item.selfComment : item.managerComment
+        }))
+      }))
+    };
+  }
+
+  private parseGuid(value: string): string {
+    const trimmed = value?.trim();
+    const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (guidRegex.test(trimmed)) {
+      return trimmed;
+    }
+    return crypto.randomUUID();
   }
 }

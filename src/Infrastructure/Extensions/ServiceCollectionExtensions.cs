@@ -192,6 +192,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPayrollItemRepository, EntityFrameworkPayrollItemRepository>();
         services.AddScoped<IPayslipRepository, EntityFrameworkPayslipRepository>();
         services.AddScoped<ILookupRepository, EntityFrameworkLookupRepository>();
+        services.AddSingleton<IPerformanceRepository, InMemoryPerformanceRepository>();
         // Use in-memory implementations for lightweight training where EF repositories are not implemented
         services.AddSingleton<ICourseRepository, InMemoryCourseRepository>();
         services.AddSingleton<ICourseSessionRepository, InMemoryCourseSessionRepository>();
@@ -244,6 +245,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPayrollItemRepository, InMemoryPayrollItemRepository>();
         services.AddSingleton<IPayslipRepository, InMemoryPayslipRepository>();
         services.AddSingleton<ILookupRepository, InMemoryLookupRepository>();
+        services.AddSingleton<IPerformanceRepository, InMemoryPerformanceRepository>();
         services.AddScoped<IAnalyticsQueryService, HR.Infrastructure.Services.EfAnalyticsQueryService>();
     }
 

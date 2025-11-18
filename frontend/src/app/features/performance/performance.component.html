@@ -1,19 +1,19 @@
 <div class="performance-page">
-  <mat-card class="reviews-panel">
+  <mat-card class="cycles-panel">
     <div class="card-header">
       <div>
-        <h2>Performance reviews</h2>
-        <p>Track who has been reviewed and the health of each cycle.</p>
+        <h2>Performance cycles</h2>
+        <p>Configure the cadence, participants, and templates for structured reviews.</p>
       </div>
-      <button mat-stroked-button color="primary" type="button" (click)="loadReviews()" [disabled]="loading()">
+      <button mat-stroked-button color="primary" type="button" (click)="loadCycles()" [disabled]="loading()">
         <mat-icon>refresh</mat-icon>
         Refresh
       </button>
     </div>
 
     <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Search reviews</mat-label>
-      <input matInput placeholder="Search by cycle, employee or summary" [formControl]="searchControl" />
+      <mat-label>Search cycles</mat-label>
+      <input matInput [formControl]="searchControl" placeholder="Search by name or description" />
       <button mat-icon-button matSuffix *ngIf="searchControl.value" type="button" (click)="searchControl.setValue('')">
         <mat-icon>close</mat-icon>
       </button>
@@ -21,334 +21,324 @@
 
     <mat-progress-bar *ngIf="loading()" mode="indeterminate"></mat-progress-bar>
 
-    <table mat-table [dataSource]="filteredReviews()" class="reviews-table">
-      <ng-container matColumnDef="cycle">
+    <table mat-table [dataSource]="filteredCycles()" class="reviews-table">
+      <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Cycle</th>
-        <td mat-cell *matCellDef="let review">
+        <td mat-cell *matCellDef="let cycle">
           <div class="primary-cell">
-            <span class="title">{{ review.cycleName }}</span>
-            <small>{{ review.goalsSummary || 'No summary captured' }}</small>
+            <span class="title">{{ cycle.name }}</span>
+            <small>{{ cycle.description || 'No description provided' }}</small>
           </div>
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="employee">
-        <th mat-header-cell *matHeaderCellDef>Employee</th>
-        <td mat-cell *matCellDef="let review">{{ review.employeeId }}</td>
-      </ng-container>
-
       <ng-container matColumnDef="period">
         <th mat-header-cell *matHeaderCellDef>Period</th>
-        <td mat-cell *matCellDef="let review">
-          {{ review.periodStart | date : 'mediumDate' }} - {{ review.periodEnd | date : 'mediumDate' }}
+        <td mat-cell *matCellDef="let cycle">
+          {{ cycle.periodStart | date : 'mediumDate' }} - {{ cycle.periodEnd | date : 'mediumDate' }}
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="score">
-        <th mat-header-cell *matHeaderCellDef>Score</th>
-        <td mat-cell *matCellDef="let review">
-          <mat-chip-set aria-label="overall score">
-            <mat-chip [color]="review.overallScore >= 4 ? 'primary' : review.overallScore >= 3 ? 'accent' : undefined">
-              {{ review.overallScore | number : '1.1-1' }} / 5
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let cycle">
+          <mat-chip-set aria-label="cycle status">
+            <mat-chip [color]="cycle.status === 'Active' ? 'primary' : cycle.status === 'Draft' ? 'accent' : 'warn'">
+              {{ cycle.status }}
             </mat-chip>
           </mat-chip-set>
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="submitted">
-        <th mat-header-cell *matHeaderCellDef>Submitted</th>
-        <td mat-cell *matCellDef="let review">
-          {{ review.submittedAtUtc | date : 'medium' }}
-        </td>
+      <ng-container matColumnDef="count">
+        <th mat-header-cell *matHeaderCellDef>Evaluations</th>
+        <td mat-cell *matCellDef="let cycle">{{ cycle.evaluationCount }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let review">
-          <button mat-icon-button color="primary" type="button" (click)="selectReview(review)" [disabled]="selectedReview()?.id === review.id">
+        <td mat-cell *matCellDef="let cycle">
+          <button mat-icon-button color="primary" type="button" (click)="selectCycle(cycle)" [disabled]="selectedCycle()?.id === cycle.id">
             <mat-icon>visibility</mat-icon>
           </button>
-          <button mat-icon-button color="warn" type="button" (click)="deleteReview(review)">
-            <mat-icon>delete</mat-icon>
+          <button mat-icon-button color="primary" type="button" (click)="activateCycle(cycle)" [disabled]="cycle.status === 'Active'">
+            <mat-icon>play_circle</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" type="button" (click)="closeCycle(cycle)" [disabled]="cycle.status === 'Closed'">
+            <mat-icon>lock</mat-icon>
           </button>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByReview"></tr>
+      <tr mat-header-row *matHeaderRowDef="cycleColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: cycleColumns; trackBy: trackById"></tr>
     </table>
 
-    <div class="empty-state" *ngIf="!loading() && filteredReviews().length === 0">
-      <p>No reviews yet. Capture the first review using the form.</p>
+    <div class="empty-state" *ngIf="!loading() && filteredCycles().length === 0">
+      <p>No performance cycles yet. Create one using the setup form.</p>
     </div>
   </mat-card>
 
-  <mat-card class="form-panel">
-    <h2>Create performance review</h2>
-    <form [formGroup]="reviewForm" (ngSubmit)="createReview()">
-      <div class="form-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Employee ID</mat-label>
-          <input matInput formControlName="employeeId" placeholder="GUID or employee number" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Cycle name</mat-label>
-          <input matInput formControlName="cycleName" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Period start</mat-label>
-          <input matInput type="date" formControlName="periodStart" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Period end</mat-label>
-          <input matInput type="date" formControlName="periodEnd" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Overall score</mat-label>
-          <mat-select formControlName="overallScore">
-            <mat-option *ngFor="let score of scoreOptions" [value]="score">{{ score }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Goals summary</mat-label>
-          <textarea matInput rows="2" formControlName="goalsSummary"></textarea>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Manager comments</mat-label>
-          <textarea matInput rows="3" formControlName="managerComments"></textarea>
-        </mat-form-field>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <section class="array-section" formArrayName="goals">
-        <div class="section-header">
-          <h3>Goals</h3>
-          <button mat-stroked-button color="primary" type="button" (click)="addGoal()">
-            <mat-icon>add</mat-icon>
-            Add goal
-          </button>
-        </div>
-        <div class="array-grid" *ngFor="let goal of goals.controls; let i = index" [formGroupName]="i">
+  <div class="layout-grid">
+    <mat-card class="form-panel">
+      <h2>Cycle setup</h2>
+      <p class="helper-text">Define the timeframes and participants. Use comma separated values: employeeId,managerId,department.</p>
+      <form [formGroup]="cycleForm" (ngSubmit)="createCycle()">
+        <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Title</mat-label>
-            <input matInput formControlName="title" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status">
-              <mat-option *ngFor="let status of goalStatuses" [value]="status">{{ status }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Weight</mat-label>
-            <input matInput type="number" step="1" formControlName="weight" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Alignment</mat-label>
-            <input matInput formControlName="alignment" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="span-2">
-            <mat-label>Description</mat-label>
-            <textarea matInput rows="2" formControlName="description"></textarea>
-          </mat-form-field>
-          <button mat-icon-button color="warn" type="button" (click)="removeGoal(i)" class="remove-row">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </section>
-
-      <mat-divider></mat-divider>
-
-      <section class="array-section" formArrayName="kpis">
-        <div class="section-header">
-          <h3>Key performance indicators</h3>
-          <button mat-stroked-button color="primary" type="button" (click)="addKpi()">
-            <mat-icon>add</mat-icon>
-            Add KPI
-          </button>
-        </div>
-        <div class="array-grid" *ngFor="let kpi of kpis.controls; let i = index" [formGroupName]="i">
-          <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
+            <mat-label>Cycle name</mat-label>
             <input matInput formControlName="name" />
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status">
-              <mat-option *ngFor="let status of kpiStatuses" [value]="status">{{ status }}</mat-option>
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Period start</mat-label>
+            <input matInput type="date" formControlName="periodStart" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Period end</mat-label>
+            <input matInput type="date" formControlName="periodEnd" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Self evaluation start</mat-label>
+            <input matInput type="date" formControlName="selfEvaluationStart" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Self evaluation end</mat-label>
+            <input matInput type="date" formControlName="selfEvaluationEnd" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Manager evaluation start</mat-label>
+            <input matInput type="date" formControlName="managerEvaluationStart" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Manager evaluation end</mat-label>
+            <input matInput type="date" formControlName="managerEvaluationEnd" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Template</mat-label>
+            <mat-select formControlName="templateId">
+              <mat-option *ngFor="let template of templates()" [value]="template.id">{{ template.name }}</mat-option>
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Target</mat-label>
-            <input matInput type="number" formControlName="targetValue" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Actual</mat-label>
-            <input matInput type="number" formControlName="actualValue" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Unit</mat-label>
-            <input matInput formControlName="unitOfMeasure" />
-          </mat-form-field>
-          <button mat-icon-button color="warn" type="button" (click)="removeKpi(i)" class="remove-row">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </section>
-
-      <mat-divider></mat-divider>
-
-      <section class="array-section" formArrayName="feedback">
-        <div class="section-header">
-          <h3>Feedback</h3>
-          <button mat-stroked-button color="primary" type="button" (click)="addFeedback()">
-            <mat-icon>add</mat-icon>
-            Add feedback
-          </button>
-        </div>
-        <div class="array-grid" *ngFor="let item of feedback.controls; let i = index" [formGroupName]="i">
-          <mat-form-field appearance="outline">
-            <mat-label>Type</mat-label>
-            <mat-select formControlName="feedbackType">
-              <mat-option *ngFor="let type of feedbackTypes" [value]="type">{{ type }}</mat-option>
+            <mat-label>Rating scale</mat-label>
+            <mat-select formControlName="ratingScaleId">
+              <mat-option *ngFor="let scale of ratingScales()" [value]="scale.id">{{ scale.name }}</mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Submitted by</mat-label>
-            <input matInput formControlName="submittedBy" />
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Included employees</mat-label>
+            <textarea matInput rows="3" placeholder="employeeId,managerId,department" formControlName="includedEmployees"></textarea>
+            <button mat-icon-button matSuffix type="button" (click)="addAssignmentExample()">
+              <mat-icon>auto_fix_high</mat-icon>
+            </button>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Submitted at</mat-label>
-            <input matInput type="datetime-local" formControlName="submittedAtUtc" />
+            <mat-label>Created by</mat-label>
+            <input matInput formControlName="createdBy" />
           </mat-form-field>
-          <mat-form-field appearance="outline" class="span-2">
-            <mat-label>Comments</mat-label>
-            <textarea matInput rows="2" formControlName="comments"></textarea>
-          </mat-form-field>
-          <button mat-icon-button color="warn" type="button" (click)="removeFeedback(i)" class="remove-row">
-            <mat-icon>delete</mat-icon>
-          </button>
         </div>
-      </section>
-
-      <mat-divider></mat-divider>
-
-      <section class="array-section" [formGroup]="compensation">
-        <div class="section-header">
-          <h3>Compensation recommendations</h3>
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading()">Create cycle</button>
         </div>
+      </form>
+    </mat-card>
+
+    <mat-card class="form-panel">
+      <h2>Template builder</h2>
+      <form [formGroup]="templateForm" (ngSubmit)="createTemplate()">
         <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Effective date</mat-label>
-            <input matInput type="date" formControlName="effectiveDate" />
+            <mat-label>Template name</mat-label>
+            <input matInput formControlName="name" />
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Current base salary</mat-label>
-            <input matInput type="number" formControlName="currentBaseSalary" />
+            <mat-label>Target role</mat-label>
+            <input matInput formControlName="targetRole" />
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Proposed base salary</mat-label>
-            <input matInput type="number" formControlName="proposedBaseSalary" />
+            <mat-label>Rating scale</mat-label>
+            <mat-select formControlName="ratingScaleId">
+              <mat-option *ngFor="let scale of ratingScales()" [value]="scale.id">{{ scale.name }}</mat-option>
+            </mat-select>
           </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Bonus recommendation</mat-label>
-            <input matInput type="number" formControlName="bonusRecommendation" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Currency</mat-label>
-            <input matInput maxlength="3" formControlName="currency" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="span-2">
-            <mat-label>Notes</mat-label>
-            <textarea matInput rows="2" formControlName="notes"></textarea>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="2" formControlName="description"></textarea>
           </mat-form-field>
         </div>
-      </section>
 
-      <div class="form-actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="loading()">Save review</button>
-      </div>
-    </form>
-  </mat-card>
+        <section class="array-section" formArrayName="sections">
+          <div class="section-header">
+            <h3>Competency sections</h3>
+            <button mat-stroked-button color="primary" type="button" (click)="addSection()">
+              <mat-icon>add</mat-icon>
+              Add section
+            </button>
+          </div>
 
-  <mat-card class="details-panel" *ngIf="selectedReview() as selected">
-    <h2>Review snapshot</h2>
-    <div class="detail-grid">
+          <div class="array-grid" *ngFor="let section of sectionControls.controls; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline">
+              <mat-label>Section name</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Weight</mat-label>
+              <input matInput type="number" formControlName="weight" />
+            </mat-form-field>
+            <button mat-icon-button color="warn" type="button" (click)="removeSection(i)" class="remove-row">
+              <mat-icon>delete</mat-icon>
+            </button>
+
+            <div formArrayName="items" class="item-stack">
+              <h4>Questions</h4>
+              <div class="array-grid" *ngFor="let item of section.controls.items.controls; let j = index" [formGroupName]="j">
+                <mat-form-field appearance="outline">
+                  <mat-label>Question</mat-label>
+                  <input matInput formControlName="name" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Default weight</mat-label>
+                  <input matInput type="number" formControlName="defaultWeight" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="span-2">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput rows="2" formControlName="description"></textarea>
+                </mat-form-field>
+                <button mat-icon-button color="warn" type="button" (click)="removeTemplateItem(i, j)" class="remove-row">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <button mat-stroked-button color="primary" type="button" (click)="addTemplateItem(i)">
+                <mat-icon>playlist_add</mat-icon>
+                Add question
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading()">Save template</button>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+
+  <mat-card class="details-panel" *ngIf="selectedCycle() as cycle">
+    <div class="card-header">
       <div>
-        <h4>Cycle</h4>
-        <p>{{ selected.cycleName }}</p>
-      </div>
-      <div>
-        <h4>Employee</h4>
-        <p>{{ selected.employeeId }}</p>
-      </div>
-      <div>
-        <h4>Period</h4>
-        <p>{{ selected.periodStart | date : 'mediumDate' }} - {{ selected.periodEnd | date : 'mediumDate' }}</p>
-      </div>
-      <div>
-        <h4>Score</h4>
-        <p>{{ selected.overallScore | number : '1.1-1' }} / 5</p>
+        <h2>{{ cycle.name }} evaluations</h2>
+        <p>{{ cycle.includedEmployees.length }} participants · {{ cycle.status }}</p>
       </div>
     </div>
 
-    <section>
-      <h3>Goals</h3>
-      <ul>
-        <li *ngFor="let goal of selected.goals">
-          <strong>{{ goal.title }}</strong>
-          <span>({{ goal.status || 'Unknown' }})</span>
-          <p>{{ goal.description }}</p>
-        </li>
-      </ul>
-    </section>
+    <table mat-table [dataSource]="evaluations()" class="mini-table">
+      <ng-container matColumnDef="employee">
+        <th mat-header-cell *matHeaderCellDef>Employee</th>
+        <td mat-cell *matCellDef="let evaluation">{{ evaluation.employeeId }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let evaluation">{{ evaluation.status }}</td>
+      </ng-container>
+      <ng-container matColumnDef="score">
+        <th mat-header-cell *matHeaderCellDef>Score</th>
+        <td mat-cell *matCellDef="let evaluation">{{ evaluation.overallScore | number : '1.1-1' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let evaluation">
+          <button mat-icon-button color="primary" type="button" (click)="selectEvaluation(evaluation)">
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="evaluationColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: evaluationColumns; trackBy: trackById"></tr>
+    </table>
 
-    <section>
-      <h3>KPIs</h3>
-      <table mat-table [dataSource]="selected.keyPerformanceIndicators" class="mini-table">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let kpi">{{ kpi.name }}</td>
-        </ng-container>
-        <ng-container matColumnDef="target">
-          <th mat-header-cell *matHeaderCellDef>Target</th>
-          <td mat-cell *matCellDef="let kpi">{{ kpi.targetValue }}</td>
-        </ng-container>
-        <ng-container matColumnDef="actual">
-          <th mat-header-cell *matHeaderCellDef>Actual</th>
-          <td mat-cell *matCellDef="let kpi">{{ kpi.actualValue }}</td>
-        </ng-container>
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let kpi">{{ kpi.status }}</td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="['name', 'target', 'actual', 'status']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['name', 'target', 'actual', 'status']"></tr>
-      </table>
-    </section>
+    <div class="empty-state" *ngIf="!loading() && evaluations().length === 0">
+      <p>No evaluations have been generated yet. Activate the cycle to create them.</p>
+    </div>
+  </mat-card>
 
-    <section>
-      <h3>Feedback</h3>
-      <div class="feedback-list">
-        <article *ngFor="let item of selected.feedbackCycles">
-          <header>
-            <strong>{{ item.feedbackType }}</strong>
-            <span>{{ item.submittedAtUtc | date : 'medium' }}</span>
-          </header>
-          <p>{{ item.comments }}</p>
-        </article>
+  <mat-card class="evaluation-panel" *ngIf="selectedEvaluation() as evaluation">
+    <div class="card-header">
+      <div>
+        <h2>Evaluation {{ evaluation.id }}</h2>
+        <p>Employee {{ evaluation.employeeId }} · Score {{ evaluation.overallScore | number : '1.1-1' }}</p>
       </div>
-    </section>
+    </div>
 
-    <section *ngIf="selected.compensationReview as comp">
-      <h3>Compensation recommendation</h3>
-      <p>
-        Effective {{ comp.effectiveDate | date : 'mediumDate' }} · Proposed base
-        {{ comp.proposedBaseSalary | currency : comp.currency }}
-      </p>
-      <p>Bonus recommendation {{ comp.bonusRecommendation | currency : comp.currency }}</p>
-      <p>{{ comp.notes }}</p>
-    </section>
+    <mat-tab-group>
+      <mat-tab label="Self review">
+        <form [formGroup]="selfForm" (ngSubmit)="submitSelf()" class="evaluation-form">
+          <ng-container formArrayName="sections">
+            <div class="section" *ngFor="let section of selfSections.controls; let i = index" [formGroupName]="i">
+              <h3>{{ selectedEvaluation()?.sections[i]?.name }}</h3>
+              <div class="item-grid" formArrayName="items">
+                <div class="item" *ngFor="let item of section.controls.items.controls; let j = index" [formGroupName]="j">
+                  <div class="item-header">
+                    <strong>{{ selectedEvaluation()?.sections[i]?.items[j]?.name }}</strong>
+                    <span>Weight {{ selectedEvaluation()?.sections[i]?.items[j]?.weight }}</span>
+                  </div>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Score</mat-label>
+                    <input matInput type="number" formControlName="selfScore" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="span-2">
+                    <mat-label>Comment</mat-label>
+                    <textarea matInput rows="2" formControlName="selfComment"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Overall comments</mat-label>
+            <textarea matInput rows="2" formControlName="comments"></textarea>
+          </mat-form-field>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="loading()">Submit self review</button>
+          </div>
+        </form>
+      </mat-tab>
+
+      <mat-tab label="Manager review">
+        <form [formGroup]="managerForm" (ngSubmit)="submitManager()" class="evaluation-form">
+          <ng-container formArrayName="sections">
+            <div class="section" *ngFor="let section of managerSections.controls; let i = index" [formGroupName]="i">
+              <h3>{{ selectedEvaluation()?.sections[i]?.name }}</h3>
+              <div class="item-grid" formArrayName="items">
+                <div class="item" *ngFor="let item of section.controls.items.controls; let j = index" [formGroupName]="j">
+                  <div class="item-header">
+                    <strong>{{ selectedEvaluation()?.sections[i]?.items[j]?.name }}</strong>
+                    <span>Weight {{ selectedEvaluation()?.sections[i]?.items[j]?.weight }}</span>
+                  </div>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Score</mat-label>
+                    <input matInput type="number" formControlName="managerScore" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="span-2">
+                    <mat-label>Comment</mat-label>
+                    <textarea matInput rows="2" formControlName="managerComment"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Overall comments</mat-label>
+            <textarea matInput rows="2" formControlName="comments"></textarea>
+          </mat-form-field>
+          <div class="form-actions">
+            <button mat-raised-button color="accent" type="submit" [disabled]="loading()">Submit manager review</button>
+          </div>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
   </mat-card>
 </div>

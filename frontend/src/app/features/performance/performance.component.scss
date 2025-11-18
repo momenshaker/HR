@@ -1,10 +1,16 @@
 .performance-page {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
-.reviews-panel {
+.layout-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+}
+
+.cycles-panel {
   grid-column: span 2;
 }
 
@@ -21,16 +27,19 @@
   margin-bottom: 1rem;
 }
 
-.reviews-table {
+.reviews-table,
+.mini-table {
   width: 100%;
 }
 
 .primary-cell {
   display: flex;
   flex-direction: column;
+
   .title {
     font-weight: 600;
   }
+
   small {
     color: rgba(0, 0, 0, 0.54);
   }
@@ -43,7 +52,7 @@
 }
 
 .form-panel {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
 .form-grid {
@@ -69,7 +78,7 @@
 
 .array-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   padding: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -80,6 +89,13 @@
 
 .array-grid .span-2 {
   grid-column: span 2;
+}
+
+.item-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  grid-column: 1 / -1;
 }
 
 .remove-row {
@@ -98,31 +114,42 @@
   grid-column: span 2;
 }
 
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.feedback-list {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.feedback-list article {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  padding: 0.75rem;
-}
-
-.feedback-list header {
-  display: flex;
-  justify-content: space-between;
+.helper-text {
+  color: rgba(0, 0, 0, 0.6);
   margin-bottom: 0.5rem;
 }
 
-.mini-table {
-  width: 100%;
-  margin-top: 0.5rem;
+.evaluation-panel {
+  grid-column: span 2;
+}
+
+.evaluation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.item {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
