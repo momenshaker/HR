@@ -37,7 +37,7 @@ export class AppComponent {
 
   isLoginPage() {
     const path = this.router.url.split('?')[0];
-    return path === '/auth/login' || path === '/auth/logout';
+    return path === '/auth/login' || path === '/auth/logout' || path === '/auth/onboarding';
   }
 
   toggleSidebarCompact() {

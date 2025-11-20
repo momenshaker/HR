@@ -1,8 +1,10 @@
-import { Component, HostBinding, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostBinding, Input, OnInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { AuthStore } from '@core/auth/auth.store';
+import { UserRole } from '@core/auth/auth.models';
 
 export interface SidebarMenuItem {
   path?: string;
@@ -10,23 +12,108 @@ export interface SidebarMenuItem {
   icon: string;
   class?: string;
   children?: SidebarMenuItem[];
+  roles?: readonly UserRole[];
 }
 
 export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
-  { path: '/dashboard', title: 'Dashboard', icon: 'dashboard', class: '' },
-  { path: '/organizations', title: 'Organizations', icon: 'domain', class: '' },
-  { path: '/lookups', title: 'Lookups', icon: 'list_alt', class: '' },
-  { path: '/attendance', title: 'Attendance', icon: 'schedule', class: '' },
-  { path: '/leave', title: 'Leave', icon: 'beach_access', class: '' },
-  { path: '/self-service', title: 'Self Service', icon: 'person', class: '' },
-  { path: '/payroll', title: 'Payroll', icon: 'paid', class: '' },
-  { path: '/subscriptions', title: 'Subscriptions', icon: 'subscriptions', class: '' },
-  { path: '/plans', title: 'Plans', icon: 'card_membership', class: '' },
-  { path: '/performance', title: 'Performance', icon: 'analytics', class: '' },
-  { path: '/training', title: 'Training', icon: 'co_present', class: '' },
-  { path: '/recruitment', title: 'Recruitment', icon: 'work', class: '' },
-  { path: '/timesheets', title: 'Timesheets', icon: 'calendar_view_month', class: '' },
-  { path: '/notifications', title: 'Notifications', icon: 'notifications', class: '' }
+  {
+    path: '/dashboard',
+    title: 'Dashboard',
+    icon: 'dashboard',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager', 'Employee']
+  },
+  {
+    path: '/organizations',
+    title: 'Organizations',
+    icon: 'domain',
+    class: '',
+    roles: ['Admin', 'HR']
+  },
+  {
+    path: '/lookups',
+    title: 'Lookups',
+    icon: 'list_alt',
+    class: '',
+    roles: ['Admin', 'HR']
+  },
+  {
+    path: '/departments',
+    title: 'Departments',
+    icon: 'schedule',
+    class: '',
+    roles: ['HR', 'Manager']
+  },
+  {
+    path: '/attendance',
+    title: 'Attendance',
+    icon: 'schedule',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager', 'Employee']
+  },
+  {
+    path: '/leave',
+    title: 'Leave',
+    icon: 'beach_access',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager', 'Employee']
+  },
+  {
+    path: '/payroll',
+    title: 'Payroll',
+    icon: 'paid',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager', 'Employee']
+  },
+  {
+    path: '/subscriptions',
+    title: 'Subscriptions',
+    icon: 'subscriptions',
+    class: '',
+    roles: ['Admin', 'HR']
+  },
+  {
+    path: '/plans',
+    title: 'Plans',
+    icon: 'card_membership',
+    class: '',
+    roles: ['Admin', 'HR']
+  },
+  {
+    path: '/performance',
+    title: 'Performance',
+    icon: 'analytics',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager', 'Employee']
+  },
+  {
+    path: '/training',
+    title: 'Training',
+    icon: 'co_present',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager', 'Employee']
+  },
+  {
+    path: '/recruitment',
+    title: 'Recruitment',
+    icon: 'work',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager']
+  },
+  {
+    path: '/timesheets',
+    title: 'Timesheets',
+    icon: 'calendar_view_month',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager']
+  },
+  {
+    path: '/notifications',
+    title: 'Notifications',
+    icon: 'notifications',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager']
+  }
 ];
 
 @Component({
@@ -38,6 +125,11 @@ export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   menuItems: SidebarMenuItem[] = [];
+  private readonly authStore = inject(AuthStore);
+  private readonly menuTracker = effect(() => {
+    const roles = this.authStore.roles();
+    this.menuItems = SIDEBAR_ITEMS.filter((item) => this.hasAccess(item, roles));
+  });
   private expandedGroups = new Set<string>();
   private routerSubscription?: Subscription;
   @HostBinding('class.collapsed') collapsed = false;
@@ -48,6 +140,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   constructor(private router: Router) { }
+
+  private hasAccess(menuItem: SidebarMenuItem, roles: readonly UserRole[]): boolean {
+    const allowed = menuItem.roles ?? ['Admin', 'HR', 'Manager', 'Employee'];
+    return allowed.some((role) => roles.includes(role));
+  }
 
   ngOnInit() {
     this.menuItems = SIDEBAR_ITEMS;

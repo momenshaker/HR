@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
@@ -14,7 +15,11 @@ namespace HR.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR,Manager,Employee")]
+[Authorize]
+[RolePermission(
+    "leave",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager", "Employee" })]
 [AuditResource("Leave")]
 [FeatureRequirement(HrFeature.LeaveManagement)]
 public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRepository legacyLeaveRepo, ILeaveTypeRepository leaveTypeRepo) : ControllerBase

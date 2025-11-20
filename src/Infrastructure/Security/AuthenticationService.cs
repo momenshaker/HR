@@ -113,6 +113,7 @@ public sealed class AuthenticationService : IAuthenticationService
         string? customerId = null,
         IEnumerable<string>? roles = null,
         IDictionary<string, string>? claims = null,
+        Guid? employeeId = null,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -133,7 +134,8 @@ public sealed class AuthenticationService : IAuthenticationService
         {
             Email = normalizedEmail,
             UserName = normalizedEmail,
-            CustomerId = string.IsNullOrWhiteSpace(customerId) ? "demo-tenant" : customerId.Trim()
+            CustomerId = string.IsNullOrWhiteSpace(customerId) ? "demo-tenant" : customerId.Trim(),
+            EmployeeId = employeeId
         };
 
         var createResult = await _userManager.CreateAsync(user, password).ConfigureAwait(false);

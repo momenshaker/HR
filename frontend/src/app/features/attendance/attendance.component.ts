@@ -9,6 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { DateRangePickerComponent } from '@shared/components/date-range-picker/date-range-picker.component';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -138,6 +140,8 @@ interface EmployeeSummary {
     MatInputModule,
     MatListModule,
     MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     DataTableComponent,
     DateRangePickerComponent
   ],
@@ -171,9 +175,13 @@ export class AttendancePageComponent implements OnInit {
     status: ['InProgress', Validators.required],
     source: [''],
     remarks: [''],
+    scheduledStartDate: [''],
     scheduledStartTime: [''],
+    scheduledEndDate: [''],
     scheduledEndTime: [''],
+    checkInDate: [''],
     checkInTime: [''],
+    checkOutDate: [''],
     checkOutTime: [''],
     scheduledWorkMinutes: [0, Validators.min(0)],
     breakMinutes: [0, Validators.min(0)],
@@ -449,10 +457,14 @@ export class AttendancePageComponent implements OnInit {
       status: record.status,
       source: record.source,
       remarks: record.remarks,
-      scheduledStartTime: this.toLocal(record.scheduledStartTimeUtc),
-      scheduledEndTime: this.toLocal(record.scheduledEndTimeUtc),
-      checkInTime: this.toLocal(record.checkInTimeUtc),
-      checkOutTime: this.toLocal(record.checkOutTimeUtc),
+      scheduledStartDate: this.splitLocalDate(record.scheduledStartTimeUtc),
+      scheduledStartTime: this.splitLocalTime(record.scheduledStartTimeUtc),
+      scheduledEndDate: this.splitLocalDate(record.scheduledEndTimeUtc),
+      scheduledEndTime: this.splitLocalTime(record.scheduledEndTimeUtc),
+      checkInDate: this.splitLocalDate(record.checkInTimeUtc),
+      checkInTime: this.splitLocalTime(record.checkInTimeUtc),
+      checkOutDate: this.splitLocalDate(record.checkOutTimeUtc),
+      checkOutTime: this.splitLocalTime(record.checkOutTimeUtc),
       scheduledWorkMinutes: record.scheduledWorkMinutes,
       breakMinutes: record.breakMinutes,
       gracePeriodMinutes: record.gracePeriodMinutes,
@@ -485,9 +497,13 @@ export class AttendancePageComponent implements OnInit {
       status: 'InProgress',
       source: '',
       remarks: '',
+      scheduledStartDate: '',
       scheduledStartTime: '',
+      scheduledEndDate: '',
       scheduledEndTime: '',
+      checkInDate: '',
       checkInTime: '',
+      checkOutDate: '',
       checkOutTime: '',
       scheduledWorkMinutes: 0,
       breakMinutes: 0,
@@ -679,10 +695,10 @@ export class AttendancePageComponent implements OnInit {
       employeeId: safeString(formValue.employeeId),
       workDate: safeString(formValue.workDate),
       shiftName: safeString(formValue.shiftName),
-      scheduledStartTimeUtc: this.toIsoString(formValue.scheduledStartTime),
-      scheduledEndTimeUtc: this.toIsoString(formValue.scheduledEndTime),
-      checkInTimeUtc: this.toIsoString(formValue.checkInTime),
-      checkOutTimeUtc: this.toIsoString(formValue.checkOutTime),
+      scheduledStartTimeUtc: this.toIsoString(this.combineDateTime(formValue.scheduledStartDate, formValue.scheduledStartTime)),
+      scheduledEndTimeUtc: this.toIsoString(this.combineDateTime(formValue.scheduledEndDate, formValue.scheduledEndTime)),
+      checkInTimeUtc: this.toIsoString(this.combineDateTime(formValue.checkInDate, formValue.checkInTime)),
+      checkOutTimeUtc: this.toIsoString(this.combineDateTime(formValue.checkOutDate, formValue.checkOutTime)),
       scheduledWorkMinutes: safeNumber(formValue.scheduledWorkMinutes),
       breakMinutes: safeNumber(formValue.breakMinutes),
       gracePeriodMinutes: safeNumber(formValue.gracePeriodMinutes),
@@ -719,5 +735,29 @@ export class AttendancePageComponent implements OnInit {
       return undefined;
     }
     return date.toISOString();
+  }
+
+  private splitLocalDateTime(value?: string | null): { date: string; time: string } {
+    const local = this.toLocal(value);
+    if (!local) {
+      return { date: '', time: '' };
+    }
+    const [date, time] = local.split('T');
+    return { date: date ?? '', time: time ?? '' };
+  }
+
+  private splitLocalDate(value?: string | null): string {
+    return this.splitLocalDateTime(value).date;
+  }
+
+  private splitLocalTime(value?: string | null): string {
+    return this.splitLocalDateTime(value).time;
+  }
+
+  private combineDateTime(date?: string | null, time?: string | null): string | undefined {
+    if (!date) {
+      return undefined;
+    }
+    return time ? `${date}T${time}` : date;
   }
 }

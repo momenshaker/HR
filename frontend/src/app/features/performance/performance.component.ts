@@ -15,7 +15,7 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,8 +28,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { APP_CONFIG } from '@core/config/app-config.token';
 import { AppConfig } from '@core/config/app-config.model';
+import { PaginatedResponse } from '@core/data-access/paginated-response.model';
+import { LookupStore } from '@core/lookups/lookup.store';
 
 interface RatingScaleDto {
   id: string;
@@ -102,6 +106,19 @@ interface PerformanceCycleDto {
   evaluationCount: number;
 }
 
+interface EmployeeLookup {
+  id: string;
+  fullName: string;
+  department: string;
+}
+
+interface EmployeeLookupDto {
+  id: string;
+  firstName: string;
+  lastName: string;
+  primaryDepartmentName: string;
+}
+
 interface EvaluationSummaryDto {
   id: string;
   employeeId: string;
@@ -164,16 +181,15 @@ type TemplateItemFormGroup = FormGroup<{
 type CycleForm = FormGroup<{
   name: FormControl<string>;
   description: FormControl<string>;
-  periodStart: FormControl<string>;
-  periodEnd: FormControl<string>;
-  selfEvaluationStart: FormControl<string>;
-  selfEvaluationEnd: FormControl<string>;
-  managerEvaluationStart: FormControl<string>;
-  managerEvaluationEnd: FormControl<string>;
+  periodStart: FormControl<Date | null>;
+  periodEnd: FormControl<Date | null>;
+  selfEvaluationStart: FormControl<Date | null>;
+  selfEvaluationEnd: FormControl<Date | null>;
+  managerEvaluationStart: FormControl<Date | null>;
+  managerEvaluationEnd: FormControl<Date | null>;
   templateId: FormControl<string>;
   ratingScaleId: FormControl<string>;
-  includedEmployees: FormControl<string>;
-  createdBy: FormControl<string>;
+  includedEmployees: FormControl<string[]>;
 }>;
 
 type EvaluationItemFormGroup = FormGroup<{
@@ -194,6 +210,12 @@ type EvaluationForm = FormGroup<{
   sections: FormArray<EvaluationSectionFormGroup>;
 }>;
 
+type IncludedEmployeeEntry = {
+  employeeId: string;
+  managerId: string | undefined;
+  department: string;
+};
+
 @Component({
   selector: 'app-performance-page',
   standalone: true,
@@ -210,7 +232,9 @@ type EvaluationForm = FormGroup<{
     MatChipsModule,
     MatDividerModule,
     MatProgressBarModule,
-    MatTabsModule
+    MatTabsModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './performance.component.html',
   styleUrls: ['./performance.component.scss'],
@@ -221,6 +245,7 @@ export class PerformancePageComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly config = inject<AppConfig>(APP_CONFIG);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly lookupStore = inject(LookupStore);
 
   private readonly baseUrl = `${this.config.apiBaseUrl}/performance`;
 
@@ -231,40 +256,42 @@ export class PerformancePageComponent implements OnInit {
   readonly evaluations = signal<readonly EvaluationSummaryDto[]>([]);
   readonly selectedCycle = signal<PerformanceCycleDto | null>(null);
   readonly selectedEvaluation = signal<EvaluationDto | null>(null);
+  readonly employees = signal<EmployeeLookup[]>([]);
+  readonly weights = [1, 2, 3, 4, 5] as const;
+  readonly roles = this.lookupStore.roles;
 
   readonly cycleColumns = ['name', 'period', 'status', 'count', 'actions'] as const;
   readonly evaluationColumns = ['employee', 'status', 'score', 'actions'] as const;
 
   readonly templateForm = this.fb.group({
-    name: ['', Validators.required],
-    description: ['', Validators.maxLength(200)],
-    targetRole: ['Staff', Validators.required],
-    ratingScaleId: ['', Validators.required],
+    name: this.fb.nonNullable.control('', Validators.required),
+    description: this.fb.nonNullable.control('', Validators.maxLength(200)),
+    targetRole: this.fb.nonNullable.control('', Validators.required),
+    ratingScaleId: this.fb.nonNullable.control('', Validators.required),
     sections: this.fb.array<TemplateSectionFormGroup>([])
   });
 
   readonly cycleForm: CycleForm = this.fb.group({
-    name: ['', Validators.required],
-    description: ['', Validators.maxLength(200)],
-    periodStart: ['', Validators.required],
-    periodEnd: ['', Validators.required],
-    selfEvaluationStart: ['', Validators.required],
-    selfEvaluationEnd: ['', Validators.required],
-    managerEvaluationStart: ['', Validators.required],
-    managerEvaluationEnd: ['', Validators.required],
-    templateId: ['', Validators.required],
-    ratingScaleId: ['', Validators.required],
-    includedEmployees: ['', Validators.required],
-    createdBy: ['00000000-0000-0000-0000-000000000000', Validators.required]
-  });
+    name: this.fb.nonNullable.control('', Validators.required),
+    description: this.fb.nonNullable.control('', Validators.maxLength(200)),
+    periodStart: this.fb.control<Date | null>(null, Validators.required),
+    periodEnd: this.fb.control<Date | null>(null, Validators.required),
+    selfEvaluationStart: this.fb.control<Date | null>(null, Validators.required),
+    selfEvaluationEnd: this.fb.control<Date | null>(null, Validators.required),
+    managerEvaluationStart: this.fb.control<Date | null>(null, Validators.required),
+    managerEvaluationEnd: this.fb.control<Date | null>(null, Validators.required),
+    templateId: this.fb.nonNullable.control('', Validators.required),
+    ratingScaleId: this.fb.nonNullable.control('', Validators.required),
+    includedEmployees: this.fb.control<string[]>([], Validators.required)
+  }) as CycleForm;
 
   readonly selfForm: EvaluationForm = this.fb.group({
-    comments: [''],
+    comments: this.fb.nonNullable.control(''),
     sections: this.fb.array<EvaluationSectionFormGroup>([])
   });
 
   readonly managerForm: EvaluationForm = this.fb.group({
-    comments: [''],
+    comments: this.fb.nonNullable.control(''),
     sections: this.fb.array<EvaluationSectionFormGroup>([])
   });
 
@@ -279,9 +306,20 @@ export class PerformancePageComponent implements OnInit {
       cycle.name.toLowerCase().includes(term) || cycle.description?.toLowerCase().includes(term)
     );
   });
+  readonly evaluationRows = computed(() => [...this.evaluations()]);
 
   ngOnInit(): void {
     this.addSection();
+    this.lookupStore.loadCategory('role').subscribe({
+      next: () => {
+        const firstRole = this.roles()[0];
+        if (firstRole) {
+          this.templateForm.controls.targetRole.setValue(firstRole);
+        }
+      },
+      error: () => { }
+    });
+    this.loadOrganizationEmployees();
     this.loadRatingScales();
     this.loadTemplates();
     this.loadCycles();
@@ -333,12 +371,6 @@ export class PerformancePageComponent implements OnInit {
     section?.controls.items.removeAt(itemIndex);
   }
 
-  addAssignmentExample(): void {
-    const exampleManager = crypto.randomUUID();
-    const exampleEmployee = crypto.randomUUID();
-    this.cycleForm.controls.includedEmployees.setValue(`${exampleEmployee},${exampleManager},Engineering`);
-  }
-
   createTemplate(): void {
     if (this.templateForm.invalid) {
       this.templateForm.markAllAsTouched();
@@ -353,7 +385,7 @@ export class PerformancePageComponent implements OnInit {
         this.templateForm.reset({
           name: '',
           description: '',
-          targetRole: 'Staff',
+          targetRole: this.roles()[0] ?? '',
           ratingScaleId: this.ratingScales()[0]?.id ?? ''
         });
         this.sectionControls.clear();
@@ -379,16 +411,15 @@ export class PerformancePageComponent implements OnInit {
         this.cycleForm.reset({
           name: '',
           description: '',
-          periodStart: '',
-          periodEnd: '',
-          selfEvaluationStart: '',
-          selfEvaluationEnd: '',
-          managerEvaluationStart: '',
-          managerEvaluationEnd: '',
+          periodStart: null,
+          periodEnd: null,
+          selfEvaluationStart: null,
+          selfEvaluationEnd: null,
+          managerEvaluationStart: null,
+          managerEvaluationEnd: null,
           templateId: this.templates()[0]?.id ?? '',
           ratingScaleId: this.ratingScales()[0]?.id ?? '',
-          includedEmployees: '',
-          createdBy: '00000000-0000-0000-0000-000000000000'
+          includedEmployees: []
         });
         this.snackbar.open('Cycle created', 'Dismiss', { duration: 2500 });
         this.loading.set(false);
@@ -429,10 +460,10 @@ export class PerformancePageComponent implements OnInit {
 
   selectEvaluation(summary: EvaluationSummaryDto): void {
     this.loading.set(true);
-    this.http.get<EvaluationDto>(`${this.baseUrl}/evaluations/${summary.id}`).subscribe({
+    this.http.get<PaginatedResponse<EvaluationDto>>(`${this.baseUrl}/evaluations/${summary.id}`).subscribe({
       next: (evaluation) => {
-        this.selectedEvaluation.set(evaluation);
-        this.buildEvaluationForms(evaluation);
+        this.selectedEvaluation.set(evaluation.items[0] ?? null);
+        this.buildEvaluationForms(evaluation.items[0]);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
@@ -480,32 +511,66 @@ export class PerformancePageComponent implements OnInit {
   }
 
   private loadRatingScales(): void {
-    this.http.get<RatingScaleDto[]>(`${this.baseUrl}/templates/rating-scales`).subscribe((scales) => {
-      this.ratingScales.set(scales);
-      if (!this.templateForm.controls.ratingScaleId.value && scales[0]) {
-        this.templateForm.controls.ratingScaleId.setValue(scales[0].id);
+    this.http.get<PaginatedResponse<RatingScaleDto>>(`${this.baseUrl}/templates/rating-scales`).subscribe((scales) => {
+      this.ratingScales.set(scales.items);
+      if (!this.templateForm.controls.ratingScaleId.value && scales.items[0]) {
+        this.templateForm.controls.ratingScaleId.setValue(scales.items[0].id);
       }
-      if (!this.cycleForm.controls.ratingScaleId.value && scales[0]) {
-        this.cycleForm.controls.ratingScaleId.setValue(scales[0].id);
+      if (!this.cycleForm.controls.ratingScaleId.value && scales.items[0]) {
+        this.cycleForm.controls.ratingScaleId.setValue(scales.items[0].id);
       }
     });
   }
 
   private loadTemplates(): void {
-    this.http.get<EvaluationTemplateDto[]>(`${this.baseUrl}/templates`).subscribe((templates) => {
-      this.templates.set(templates);
-      if (!this.cycleForm.controls.templateId.value && templates[0]) {
-        this.cycleForm.controls.templateId.setValue(templates[0].id);
+    this.http.get<PaginatedResponse<EvaluationTemplateDto>>(`${this.baseUrl}/templates`).subscribe((templates) => {
+      this.templates.set(templates.items);
+      if (!this.cycleForm.controls.templateId.value && templates.items[0]) {
+        this.cycleForm.controls.templateId.setValue(templates.items[0].id);
       }
     });
   }
 
-  private loadCycles(): void {
+  private loadOrganizationEmployees(): void {
+    const params = new HttpParams().set('pageSize', '500');
+    this.http
+      .get<PaginatedResponse<EmployeeLookupDto>>(`${this.config.apiBaseUrl}/Employees`, { params })
+      .subscribe({
+        next: (response) => {
+          const employees = (response.items ?? []).map((employee) => ({
+            id: employee.id,
+            fullName: `${employee.firstName} ${employee.lastName}`,
+            department: employee.primaryDepartmentName
+          }));
+          this.employees.set(employees);
+        },
+        error: () => { }
+      });
+  }
+
+  private formatDateValue(value: string | Date | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+    if (value instanceof Date) {
+      return value.toISOString().split('T')[0] ?? '';
+    }
+    return value;
+  }
+
+  private employeeLookupMap(): Record<string, EmployeeLookup> {
+    return this.employees().reduce<Record<string, EmployeeLookup>>((acc, employee) => {
+      acc[employee.id] = employee;
+      return acc;
+    }, {});
+  }
+
+  loadCycles(): void {
     this.loading.set(true);
-    this.http.get<PerformanceCycleDto[]>(`${this.baseUrl}/cycles`).subscribe({
+    this.http.get<PaginatedResponse<PerformanceCycleDto>>(`${this.baseUrl}/cycles`).subscribe({
       next: (cycles) => {
-        this.cycles.set(cycles);
-        const firstCycle = cycles[0];
+        this.cycles.set(cycles.items);
+        const firstCycle = cycles.items[0];
         if (firstCycle) {
           this.selectedCycle.set(firstCycle);
           this.loadEvaluations(firstCycle.id);
@@ -519,10 +584,10 @@ export class PerformancePageComponent implements OnInit {
   private loadEvaluations(cycleId: string): void {
     this.loading.set(true);
     this.http
-      .get<EvaluationSummaryDto[]>(`${this.baseUrl}/cycles/${cycleId}/evaluations`)
+      .get<PaginatedResponse<EvaluationSummaryDto>>(`${this.baseUrl}/cycles/${cycleId}/evaluations`)
       .subscribe({
         next: (evaluations) => {
-          this.evaluations.set(evaluations);
+          this.evaluations.set(evaluations.items);
           this.selectedEvaluation.set(null);
           this.loading.set(false);
         },
@@ -561,63 +626,61 @@ export class PerformancePageComponent implements OnInit {
 
   private buildCyclePayload(): any {
     const value = this.cycleForm.getRawValue();
-    const includedEmployees = value.includedEmployees
-      .split(/\n|;/)
-      .map((line) => line.trim())
-      .filter((line) => !!line)
-      .map((line) => {
-        const [employeeId, managerId, department] = line.split(',').map((segment) => segment.trim());
-        return {
-          employeeId: this.parseGuid(employeeId),
-          managerId: managerId ? this.parseGuid(managerId) : undefined,
-          department: department ?? ''
-        };
-      });
+    const selectedIds = value.includedEmployees ?? [];
+    const employeeLookup = this.employeeLookupMap();
+    const includedEmployees = selectedIds
+      .map((employeeId) => employeeLookup[employeeId])
+      .filter((employee): employee is EmployeeLookup => Boolean(employee))
+      .map((employee) => ({
+        employeeId: employee.id,
+        managerId: undefined,
+        department: employee.department
+      }));
 
     return {
       name: value.name,
       description: value.description,
-      periodStart: value.periodStart,
-      periodEnd: value.periodEnd,
-      selfEvaluationStart: value.selfEvaluationStart,
-      selfEvaluationEnd: value.selfEvaluationEnd,
-      managerEvaluationStart: value.managerEvaluationStart,
-      managerEvaluationEnd: value.managerEvaluationEnd,
+      periodStart: this.formatDateValue(value.periodStart),
+      periodEnd: this.formatDateValue(value.periodEnd),
+      selfEvaluationStart: this.formatDateValue(value.selfEvaluationStart),
+      selfEvaluationEnd: this.formatDateValue(value.selfEvaluationEnd),
+      managerEvaluationStart: this.formatDateValue(value.managerEvaluationStart),
+      managerEvaluationEnd: this.formatDateValue(value.managerEvaluationEnd),
       templateId: value.templateId,
       ratingScaleId: value.ratingScaleId,
-      createdBy: value.createdBy,
       includedEmployees
     };
   }
 
-  private buildEvaluationForms(evaluation: EvaluationDto): void {
+  private buildEvaluationForms(evaluation: EvaluationDto | undefined): void {
     this.selfSections.clear();
     this.managerSections.clear();
+    if (evaluation != undefined) {
+      evaluation.sections.forEach((section) => {
+        const sectionGroup: EvaluationSectionFormGroup = this.fb.group({
+          sectionId: this.fb.nonNullable.control(section.id),
+          items: this.fb.array<EvaluationItemFormGroup>([])
+        });
 
-    evaluation.sections.forEach((section) => {
-      const sectionGroup: EvaluationSectionFormGroup = this.fb.group({
-        sectionId: this.fb.nonNullable.control(section.id),
-        items: this.fb.array<EvaluationItemFormGroup>([])
+        section.items.forEach((item) => {
+          sectionGroup.controls.items.push(
+            this.fb.group({
+              itemId: this.fb.nonNullable.control(item.id),
+              selfScore: this.fb.control<number | null>(item.selfScore ?? null),
+              selfComment: this.fb.nonNullable.control(item.selfComment ?? ''),
+              managerScore: this.fb.control<number | null>(item.managerScore ?? null),
+              managerComment: this.fb.nonNullable.control(item.managerComment ?? '')
+            }) as EvaluationItemFormGroup
+          );
+        });
+
+        this.selfSections.push(sectionGroup);
+        this.managerSections.push(sectionGroup);
       });
 
-      section.items.forEach((item) => {
-        sectionGroup.controls.items.push(
-          this.fb.group({
-            itemId: this.fb.nonNullable.control(item.id),
-            selfScore: this.fb.control<number | null>(item.selfScore ?? null),
-            selfComment: this.fb.nonNullable.control(item.selfComment ?? ''),
-            managerScore: this.fb.control<number | null>(item.managerScore ?? null),
-            managerComment: this.fb.nonNullable.control(item.managerComment ?? '')
-          }) as EvaluationItemFormGroup
-        );
-      });
-
-      this.selfSections.push(sectionGroup);
-      this.managerSections.push(sectionGroup);
-    });
-
-    this.selfForm.controls.comments.setValue(evaluation.finalCommentsEmployee ?? '');
-    this.managerForm.controls.comments.setValue(evaluation.finalCommentsManager ?? '');
+      this.selfForm.controls.comments.setValue(evaluation.finalCommentsEmployee ?? '');
+      this.managerForm.controls.comments.setValue(evaluation.finalCommentsManager ?? '');
+    }
   }
 
   private buildSubmissionPayload(form: EvaluationForm, isSelf: boolean): any {

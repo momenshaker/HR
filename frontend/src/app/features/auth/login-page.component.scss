@@ -27,3 +27,28 @@ mat-form-field {
 .spinner {
   margin-right: 0.5rem;
 }
+
+.onboarding-link {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.8);
+
+  a {
+    font-weight: 600;
+    color: #3f51b5;
+  }
+}
+
+.login-middle {
+  height: 100vh;
+  align-content: center;
+}
+.login-summary {
+  padding: 30px;
+}
+
+
+.login-form {
+  background-color: #fff;
+  padding: 30px;
+}

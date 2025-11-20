@@ -23,6 +23,7 @@ import {
 } from '@core/lookups/lookup.utils';
 import { SelfServiceApiService } from './self-service.api';
 import {
+  AttendanceRecord,
   DelegatedAuthority,
   EmployeeOrganizationSnapshot,
   LeaveRequest,
@@ -67,13 +68,14 @@ export class SelfServicePageComponent implements OnInit {
   readonly user = computed(() => this.authStore.user());
   readonly employeeId = computed(() => this.user()?.employeeId ?? null);
 
-  readonly leaveRequests = signal<LeaveRequest[]>([]);
+  readonly leaveRequests = signal<readonly LeaveRequest[]>([]);
   readonly snapshot = signal<EmployeeOrganizationSnapshot | null>(null);
   readonly authorities = signal<DelegatedAuthority[]>([]);
   readonly salarySlips = signal<SalarySlip[]>([]);
   readonly trainingCourses = signal<TrainingCourse[]>([]);
   readonly account = signal<SelfServiceAccount | null>(null);
   readonly lastAttendanceRecordId = signal<string | null>(null);
+  readonly attendanceStatus = signal('Attendance status unavailable');
   readonly loading = signal(false);
 
   private lastLoadedEmployeeId: string | null = null;
@@ -124,6 +126,18 @@ export class SelfServicePageComponent implements OnInit {
       this.lastLoadedEmployeeId = id;
       this.loadEmployeeData(id);
     });
+    effect(
+      () => {
+        const employeeId = this.employeeId();
+        if (!employeeId) {
+          this.attendanceStatus.set('Employee not linked');
+          this.lastAttendanceRecordId.set(null);
+          return;
+        }
+        this.loadAttendanceStatus(employeeId);
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   submitLeaveRequest(): void {
@@ -198,6 +212,7 @@ export class SelfServicePageComponent implements OnInit {
             duration: 3000
           });
           this.lastAttendanceRecordId.set(record.id);
+          this.loadAttendanceStatus(employeeId);
         },
         error: (error: HttpErrorResponse) => {
           this.snackbar.open(
@@ -288,7 +303,7 @@ export class SelfServicePageComponent implements OnInit {
 
   private loadLeaveRequests(employeeId: string): void {
     this.api.getLeaveRequests(employeeId).subscribe({
-      next: (requests) => this.leaveRequests.set(requests),
+      next: (requests) => this.leaveRequests.set(requests.items),
       error: () => this.snackbar.open('Failed to load leave requests.', 'Dismiss', { duration: 3000 })
     });
   }
@@ -343,6 +358,49 @@ export class SelfServicePageComponent implements OnInit {
         }
       }
     });
+  }
+
+  private loadAttendanceStatus(employeeId: string): void {
+    this.api.getAttendanceRecords().subscribe({
+      next: (records) => {
+        const employeeRecords = records.items
+          .filter((record) => record.employeeId === employeeId)
+          .sort((a, b) => new Date(b.workDate).getTime() - new Date(a.workDate).getTime());
+        if (employeeRecords.length === 0) {
+          this.attendanceStatus.set('No attendance records yet.');
+          this.lastAttendanceRecordId.set(null);
+          return;
+        }
+        const openRecord = employeeRecords.find((record) => !record.checkOutTimeUtc);
+        const reference = (openRecord ?? employeeRecords[0])!;
+        if (!reference.checkOutTimeUtc) {
+          this.attendanceStatus.set(
+            `${reference.status ?? 'Clocked in'} at ${this.formatTimestamp(reference.checkInTimeUtc)}`
+          );
+          this.lastAttendanceRecordId.set(reference.id);
+          return;
+        }
+        this.attendanceStatus.set(
+          `${reference.status ?? 'Last punch'} at ${this.formatTimestamp(reference.checkOutTimeUtc)}`
+        );
+        this.lastAttendanceRecordId.set(null);
+      },
+      error: () => {
+        this.attendanceStatus.set('Unable to load attendance status.');
+        this.lastAttendanceRecordId.set(null);
+      }
+    });
+  }
+
+  private formatTimestamp(value?: string | null): string {
+    if (!value) {
+      return 'unknown time';
+    }
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+    return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   private resetSignals(): void {

@@ -26,6 +26,7 @@ public interface IAuthenticationService
         string? customerId = null,
         IEnumerable<string>? roles = null,
         IDictionary<string, string>? claims = null,
+        Guid? employeeId = null,
         CancellationToken cancellationToken = default);
 
     Task<string?> GenerateEmailConfirmationTokenAsync(Guid userId, CancellationToken cancellationToken = default);

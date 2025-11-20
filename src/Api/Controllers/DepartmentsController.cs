@@ -1,6 +1,8 @@
+using HR.Api.Authorization;
 using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HR.Api.Controllers;
@@ -8,8 +10,14 @@ namespace HR.Api.Controllers;
 /// <summary>
 ///     Provides REST endpoints for managing departments scoped to an organization.
 /// </summary>
+
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Authorize]
+[RolePermission(
+    "departments",
+    readRoles: new[] { "Admin", "HR", "Manager" },
+    writeRoles: new[] { "Admin", "Manager" })]
 public sealed class DepartmentsController(IDepartmentService departmentService) : ControllerBase
 {
     private readonly IDepartmentService _departmentService = departmentService;

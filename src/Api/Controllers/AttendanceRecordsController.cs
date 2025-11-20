@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
@@ -15,7 +16,11 @@ namespace HR.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR,Manager")]
+[Authorize]
+[RolePermission(
+    "attendance",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager", "Employee" })]
 [AuditResource("AttendanceRecord")]
 [FeatureRequirement(HrFeature.AttendanceAndTimeTracking)]
 public sealed class AttendanceRecordsController(IAttendanceService attendanceService) : ControllerBase

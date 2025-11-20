@@ -14,6 +14,8 @@ export interface AttendanceRecord {
   status: string;
   notes: string;
   punches: AttendancePunch[];
+  checkInTimeUtc?: string | null;
+  checkOutTimeUtc?: string | null;
 }
 
 export interface LeaveRequest {

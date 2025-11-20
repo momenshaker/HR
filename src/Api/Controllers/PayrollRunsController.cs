@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Api.Middleware;
 using HR.Application.Abstractions.Services;
@@ -13,7 +14,11 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR")]
+[Authorize]
+[RolePermission(
+    "payroll",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 [AuditResource("PayrollRun")]
 [FeatureRequirement(HrFeature.PayrollManagement)]
 [RequiresSubscriptionEntitlement(HrFeature.PayrollManagement)]

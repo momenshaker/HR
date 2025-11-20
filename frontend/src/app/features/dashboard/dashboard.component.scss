@@ -22,17 +22,86 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-mat-card {
-  position: relative;
-}
-
-mat-card-header {
+.dashboard__metric-card mat-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.dashboard__metric {
+.dashboard__metric-card .dashboard__metric {
+  margin: 0;
   font-size: 2.5rem;
   font-weight: 600;
+}
+
+.dashboard__metric-change {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+  margin: 0.25rem 0;
+}
+
+.dashboard__metric-detail {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.55);
+  margin: 0;
+}
+
+.dashboard__insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard__insight-card {
+  background: #f6f7fb;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dashboard__insight-card strong {
+  font-size: 1.5rem;
+}
+
+.dashboard__insight-card p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.dashboard__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard__attendance-card .dashboard__punch-status {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.dashboard__punch-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.dashboard__punch-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.dashboard__loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
 }

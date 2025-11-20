@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,6 +14,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { EntityCrudFactory } from '@core/data-access';
+import { OrganizationContextService } from '@core/auth/organization-context.service';
 import { OrganizationSummary } from '../organizations/organizations.component';
 import { PayrollApiService, PayrollBreakdown, PayrollComponentAmount, PayrollItem, PayrollRun, PayrollStatus } from './payroll.api';
 
@@ -46,6 +47,7 @@ export class PayrollPageComponent implements OnInit {
   private readonly organizationService = inject(EntityCrudFactory).create<unknown, unknown, OrganizationSummary>(
     'organizations'
   );
+  readonly organizationContext = inject(OrganizationContextService);
 
   readonly statuses: readonly PayrollStatus[] = ['Draft', 'Calculated', 'UnderReview', 'Approved', 'Locked', 'Paid'];
   readonly organizations = signal<ReadonlyArray<OrganizationSummary>>([]);
@@ -61,6 +63,33 @@ export class PayrollPageComponent implements OnInit {
   readonly filterForm = this.fb.nonNullable.group({
     organizationId: [''],
     status: ['']
+  });
+
+  private readonly scopedOrganizationFormEffect = effect(() => {
+    if (!this.organizationContext.shouldUseScopedOrganization()) {
+      return;
+    }
+    const organizationId = this.organizationContext.organizationId();
+    if (!organizationId) {
+      return;
+    }
+    this.creationForm.controls.organizationId.setValue(organizationId);
+    this.filterForm.controls.organizationId.setValue(organizationId);
+  });
+
+  private readonly runsEffect = effect(() => {
+    const hasScopedRole = this.organizationContext.isScopedRole();
+    if (!hasScopedRole) {
+      this.loadRuns();
+      return;
+    }
+
+    const organizationId = this.organizationContext.organizationId();
+    if (!organizationId) {
+      return;
+    }
+
+    this.loadRuns();
   });
 
   readonly runs = signal<readonly PayrollRun[]>([]);
@@ -82,8 +111,10 @@ export class PayrollPageComponent implements OnInit {
   readonly itemColumns = ['employee', 'gross', 'deductions', 'net', 'currency', 'breakdown'] as const;
 
   ngOnInit(): void {
-    this.loadRuns();
-    this.loadOrganizations();
+
+    if (!this.organizationContext.isScopedRole()) {
+      this.loadOrganizations();
+    }
   }
 
   refresh(): void {
@@ -240,12 +271,30 @@ export class PayrollPageComponent implements OnInit {
     return datePart;
   }
 
+  private getFilterOrganizationId(): string | undefined {
+    if (this.organizationContext.shouldUseScopedOrganization()) {
+      return this.organizationContext.organizationId() ?? undefined;
+    }
+    const { organizationId } = this.filterForm.getRawValue();
+    return organizationId || undefined;
+  }
+
   private loadRuns(): void {
+    if (this.organizationContext.isScopedRole() && !this.organizationContext.organizationId()) {
+      return;
+    }
+
+    const organizationId = this.getFilterOrganizationId();
+    if (this.organizationContext.isScopedRole() && !organizationId) {
+      return;
+    }
+
     this.runsLoading.set(true);
-    const { organizationId, status } = this.filterForm.getRawValue();
-    const statusValue = status ? (status as PayrollStatus) : undefined;
+    const statusValue = this.filterForm.controls.status.value
+      ? (this.filterForm.controls.status.value as PayrollStatus)
+      : undefined;
     this.payrollApi
-      .listRuns({ organizationId: organizationId || undefined, status: statusValue })
+      .listRuns({ organizationId, status: statusValue })
       .subscribe({
         next: (runs) => {
           this.runs.set(runs);
@@ -274,6 +323,10 @@ export class PayrollPageComponent implements OnInit {
   }
 
   private loadOrganizations(): void {
+    if (this.organizationContext.isScopedRole()) {
+      return;
+    }
+
     this.organizationService.list({ page: 1, pageSize: 250 }).subscribe({
       next: (response) => this.organizations.set(response.items),
       error: () => this.snackbar.open('Failed to load organizations.', 'Dismiss', { duration: 3000 })

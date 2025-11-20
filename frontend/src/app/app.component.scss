@@ -12,7 +12,6 @@
 }
 
 .pcoded-main-container {
-  margin-top: -5px;
   transition: margin-left 0.3s ease;
   display: flex;
   flex-wrap: nowrap;
@@ -26,7 +25,7 @@
 .pcoded-main-side {
   height: 100hv;
   background-color: #fff;
-  padding-left: 15px;
+  padding-left: 2px;
   padding-top: 30px;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.14);
 }

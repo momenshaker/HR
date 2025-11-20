@@ -328,7 +328,7 @@ namespace HR.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId", "WorkDate")
+                    b.HasIndex("EmployeeId")
                         .IsUnique();
 
                     b.ToTable("AttendanceRecords", (string)null);

@@ -14,6 +14,8 @@ public sealed class CreateSubscriptionRequest : IValidatableRequest
     [Range(1, int.MaxValue)]
     public int Seats { get; set; }
 
+    public Guid? CustomerId { get; set; }
+
     [Range(0, 30)]
     public int? TrialPeriodDays { get; set; }
 

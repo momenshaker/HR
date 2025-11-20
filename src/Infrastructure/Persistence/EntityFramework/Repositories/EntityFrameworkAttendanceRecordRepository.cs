@@ -34,9 +34,36 @@ internal sealed class EntityFrameworkAttendanceRecordRepository : EntityFramewor
         return AddInternalAsync(attendanceRecord, cancellationToken);
     }
 
-    public Task<AttendanceRecord?> UpdateAsync(AttendanceRecord attendanceRecord, CancellationToken cancellationToken = default)
+    public async Task<AttendanceRecord?> UpdateAsync(AttendanceRecord attendanceRecord, CancellationToken cancellationToken = default)
     {
-        return UpdateInternalAsync(attendanceRecord, cancellationToken);
+        ArgumentNullException.ThrowIfNull(attendanceRecord);
+
+        var tracked = await DbContext.AttendanceRecords
+            .Include(record => record.Punches)
+            .FirstOrDefaultAsync(record => record.Id == attendanceRecord.Id, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (tracked is null)
+        {
+            return null;
+        }
+
+        var entry = DbContext.Entry(tracked);
+        entry.CurrentValues.SetValues(attendanceRecord);
+
+        tracked.Punches.Clear();
+        foreach (var punch in attendanceRecord.Punches)
+        {
+            if (!DbContext.AttendancePunches.Any(x => x.Id == punch.Id))
+            {
+                DbContext.AttendancePunches.Add(punch);
+            }
+        }
+        entry.State = EntityState.Modified;
+        await DbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        Detach(tracked);
+
+        return tracked;
     }
 
     public Task<bool> RemoveAsync(Guid attendanceRecordId, CancellationToken cancellationToken = default)

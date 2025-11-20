@@ -258,6 +258,7 @@ public sealed class AuthController : ControllerBase
             request.CustomerId,
             request.Roles ?? Array.Empty<string>(),
             claims,
+            employeeId: null,
             cancellationToken).ConfigureAwait(false);
 
         if (!result.Succeeded || userId is null)

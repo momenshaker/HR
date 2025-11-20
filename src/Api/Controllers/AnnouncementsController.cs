@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
@@ -13,7 +14,11 @@ namespace HR.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR,Manager")]
+[Authorize]
+[RolePermission(
+    "notifications",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 [AuditResource("Announcement")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
 public sealed class AnnouncementsController(ICommunicationService communicationService) : ControllerBase

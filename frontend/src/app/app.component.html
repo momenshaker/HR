@@ -1,10 +1,7 @@
 <ng-container *ngIf="!isLoginPage(); else authOnly">
   <div class="pcoded">
     <div class="pcoded-overlay-box"></div>
-    <div class="pcoded-header">
-      <app-navbar (burgerMenu)="toggleSidebarCompact()"></app-navbar>
-    </div>
-    <div class="pcoded-main-container main-panel" [class.collapsed]="sidebarCompact">
+    <div class="pcoded-main-container main-panel " [class.collapsed]="sidebarCompact">
       <div class="pcoded-main-side">
         <app-sidebar [compact]="sidebarCompact"></app-sidebar>
       </div>

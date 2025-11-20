@@ -1,6 +1,7 @@
 using HR.Api.Contracts;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
+using HR.Api.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -9,8 +10,14 @@ namespace HR.Api.Controllers;
 /// <summary>
 ///     Provides REST endpoints for managing employee resources.
 /// </summary>
+
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Authorize]
+[RolePermission(
+    "employees",
+    readRoles: new[] { "Admin", "HR", "Manager" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 public sealed class EmployeesController(
     IEmployeeService employeeService,
     IEmployeeDepartmentService employeeDepartmentService,
@@ -27,7 +34,9 @@ public sealed class EmployeesController(
     [ProducesResponseType(typeof(PaginatedResponse<EmployeeDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAsync(
         [FromQuery] Guid? orgId = null,
+        [FromQuery(Name = "search")] string? search = null,
         [FromQuery] string? q = null,
+        [FromQuery] Guid? departmentId = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
         CancellationToken cancellationToken = default)
@@ -35,7 +44,8 @@ public sealed class EmployeesController(
         var request = new EmployeeSearchRequest
         {
             OrganizationId = orgId,
-            Query = q,
+            Query = search ?? q,
+            DepartmentId = departmentId,
             PageNumber = page,
             PageSize = pageSize
         };

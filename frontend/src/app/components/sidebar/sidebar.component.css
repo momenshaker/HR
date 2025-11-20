@@ -47,22 +47,27 @@
   text-decoration: none;
   border-radius: 8px;
   transition: background 0.2s ease, color 0.2s ease, padding 0.3s ease;
-  
+
 }
 
 .pcoded-hasmenu .pcoded-mlink:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #d8a37e;
+  color: #e9bc8b;
 }
 
-.pcoded-mlink.active :hover {
-  background-color: #94694a;
-  margin-right: 15px;
+.pcoded-hasmenu .pcoded-mlink.active:hover {
+  background-color: #e9bc8b;
   color: #fff;
 }
 
+.pcoded-mlink.active :hover {
+  background-color: #e9bc8b !important;
+  margin-right: 15px;
+  color: #fff !important;
+}
+
 .pcoded-mlink.active {
-  background-color: #d8a37e;
+  background-color: #e9bc8b;
   margin-right: 15px;
   color: #fff;
 }
@@ -88,12 +93,22 @@
 
 :host(.collapsed) .pcoded-navigation-label,
 :host(.collapsed) .pcoded-mtext {
-display: none;
+  display: none;
 }
+
 :host(.collapsed) .pcoded-mlink.active {
   margin-right: 3px;
-  }
+}
+
 :host(.collapsed) .pcoded-mlink {
   justify-content: center;
   padding: 0.75rem;
+}
+
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-bottom: 22px;
 }

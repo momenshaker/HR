@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -15,6 +15,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { AppConfig } from '@core/config/app-config.model';
 import { APP_CONFIG } from '@core/config/app-config.token';
+import { OrganizationContextService } from '@core/auth/organization-context.service';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { PaginatedResponse } from '@core/data-access/paginated-response.model';
 import { DepartmentFormComponent, DepartmentFormValue } from './departments.form';
@@ -67,6 +68,7 @@ export class DepartmentsPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly config = inject<AppConfig>(APP_CONFIG);
+  private readonly organizationContext = inject(OrganizationContextService);
   private readonly baseUrl = `${this.config.apiBaseUrl}/departments`;
 
   readonly loading = signal(false);
@@ -109,9 +111,19 @@ export class DepartmentsPageComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
       this.organizationId = params.get('organizationId') ?? '';
+
+      if (this.organizationId === '') {
+        const stored = this.organizationContext.organizationId();
+        if (!stored) {
+          return;
+        }
+
+        this.organizationId = stored;
+      }
       this.pageIndex.set(0);
       this.load();
     });
+
   }
 
   applyFilters(): void {

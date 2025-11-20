@@ -38,6 +38,19 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
+.readonly-organization {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-weight: 600;
+  padding: 0.75rem 0;
+}
+
+.readonly-organization span {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
 .form-grid__full {
   grid-column: 1 / -1;
 }

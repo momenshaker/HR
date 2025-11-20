@@ -17,6 +17,7 @@ import {
   EMPLOYEE_ID_CLAIM
 } from './jwt.utils';
 import { PaginatedResponse } from '@core/data-access/paginated-response.model';
+import { OrganizationContextService } from './organization-context.service';
 
 interface LoginResponse {
   accessToken: string;
@@ -32,6 +33,7 @@ export class AuthService {
   private readonly config = inject<AppConfig>(APP_CONFIG);
   private readonly store = inject(AuthStore);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly organizationContext = inject(OrganizationContextService);
 
   initialize(): void {
     const tokens = this.tokenStorage.tokens;
@@ -75,6 +77,7 @@ export class AuthService {
         this.tokenStorage.save(tokens);
         this.store.setTokens(tokens);
         this.store.setUser(user ?? null);
+        this.organizationContext.updateFromUser(user ?? null);
       }),
       map(({ user }) => user ?? null),
       catchError((error) => this.handleError(error)),
@@ -104,7 +107,10 @@ export class AuthService {
   loadProfile(): Observable<AuthUser | null> {
     return this.http.get<PaginatedResponse<AuthUser>>(`${this.config.apiBaseUrl}/auth/me`).pipe(
       map((response) => this.unwrapResponse(response)),
-      tap((user) => this.store.setUser(user)),
+      tap((user) => {
+        this.store.setUser(user);
+        this.organizationContext.updateFromUser(user);
+      }),
       catchError((error) => {
         if (error.status === 401) {
           this.clearSession();
@@ -126,6 +132,7 @@ export class AuthService {
   private clearSession(): void {
     this.tokenStorage.clear();
     this.store.reset();
+    this.organizationContext.updateFromUser(null);
   }
 
   private handleError(error: any): Observable<never> {

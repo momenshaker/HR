@@ -1,0 +1,254 @@
+.onboarding-page {
+  height: 100vh;
+  align-content: center;
+  background-color: #ffffffc7;
+
+  .onboarding-card {
+    width: min(100%);
+    padding: 2rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .onboarding-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+
+    .eyebrow {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.25rem;
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.72);
+    }
+  }
+
+  .progress-summary {
+    flex: 1;
+    text-align: right;
+
+    span {
+      font-size: 0.85rem;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .progress-track {
+      margin-top: 0.25rem;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-value {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #3f51b5, #9c27b0);
+    }
+  }
+
+  .stepper {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.6);
+
+    &.active {
+      color: #3f51b5;
+    }
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      margin-bottom: 0.35rem;
+    }
+
+    &.active .step-circle {
+      border-color: #3f51b5;
+      background: rgba(63, 81, 181, 0.1);
+    }
+  }
+
+  .step-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .plan-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .plan-loading {
+      display: flex;
+      justify-content: center;
+      padding: 1rem 0;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  .plan-card {
+    padding: 20px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    &.selected {
+      border-color: #3f51b5;
+      box-shadow: 0 4px 12px rgba(63, 81, 181, 0.2);
+    }
+
+    .plan-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+
+      h3 {
+        margin: 0;
+      }
+
+      p {
+        margin: 0.15rem 0 0;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 0.9rem;
+      }
+    }
+
+    .plan-price {
+      text-align: right;
+
+      span {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      small {
+        display: block;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    .plan-entitlements {
+      margin-top: 1rem;
+      position: relative;
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      li {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.9rem;
+      }
+
+      strong {
+        font-weight: 600;
+      }
+    }
+
+    .plan-selected-icon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0.5rem;
+      color: #3f51b5;
+    }
+  }
+
+  .summary {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: #f5f5f5;
+    font-size: 0.95rem;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .button-spinner {
+    margin-inline-end: 0.5rem;
+  }
+
+  .error-banner {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: #fbe9e7;
+    color: #c62828;
+    font-weight: 600;
+  }
+}
+
+.login-middle {
+  height: 100vh;
+  align-content: center;
+}
+
+.login-summary {
+  padding: 30px;
+}
+
+
+.login-form {
+  background-color: #fff;
+  padding: 30px;
+}

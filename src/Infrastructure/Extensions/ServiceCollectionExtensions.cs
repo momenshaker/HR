@@ -65,6 +65,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IDepartmentTreeService, DepartmentTreeService>();
         services.AddScoped<IOrganizationService, OrganizationService>();
+        services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IOnboardingService, OnboardingService>();
         services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
         services.AddScoped<IPositionService, PositionService>();
         services.AddScoped<IReportingRelationshipService, ReportingRelationshipService>();
@@ -162,6 +164,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmployeeDepartmentRepository, EntityFrameworkEmployeeDepartmentRepository>();
         services.AddScoped<IDepartmentRepository, EntityFrameworkDepartmentRepository>();
         services.AddScoped<IOrganizationRepository, EntityFrameworkOrganizationRepository>();
+        services.AddScoped<ICustomerRepository, EntityFrameworkCustomerRepository>();
         services.AddScoped<IOrganizationUnitRepository, EntityFrameworkOrganizationUnitRepository>();
         services.AddScoped<IPositionRepository, EntityFrameworkPositionRepository>();
         services.AddScoped<IReportingRelationshipRepository, EntityFrameworkReportingRelationshipRepository>();
@@ -210,6 +213,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEmployeeDepartmentRepository, InMemoryEmployeeDepartmentRepository>();
         services.AddSingleton<IDepartmentRepository, InMemoryDepartmentRepository>();
         services.AddSingleton<IOrganizationRepository, InMemoryOrganizationRepository>();
+        services.AddSingleton<ICustomerRepository, InMemoryCustomerRepository>();
         services.AddSingleton<IOrganizationUnitRepository, InMemoryOrganizationUnitRepository>();
         services.AddSingleton<IPositionRepository, InMemoryPositionRepository>();
         services.AddSingleton<IReportingRelationshipRepository, InMemoryReportingRelationshipRepository>();

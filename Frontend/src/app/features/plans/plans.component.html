@@ -6,8 +6,8 @@
         <p class="card-category">Create, edit, and delete the plans that power subscriptions.</p>
       </div>
       <div class="card-body">
-        <div class="plans-grid">
-          <section class="plans-panel">
+        <div class="row">
+          <div class="col-sm-3">
             <header>
               <h5>{{ isEditMode() ? 'Edit plan' : 'Create plan' }}</h5>
             </header>
@@ -37,14 +37,15 @@
                 <textarea matInput rows="4" formControlName="entitlements"></textarea>
               </mat-form-field>
               <div class="form-actions">
-                <button mat-raised-button color="primary" type="button" (click)="isEditMode() ? updatePlan() : createPlan()">
+                <button class="btn btn-primary" type="button"
+                  (click)="isEditMode() ? updatePlan() : createPlan()">
                   {{ isEditMode() ? 'Update plan' : 'Create plan' }}
                 </button>
-                <button mat-stroked-button type="button" (click)="cancelEdit()" *ngIf="isEditMode()">Cancel</button>
+                <button class="btn btn-warning" (click)="cancelEdit()" *ngIf="isEditMode()">Cancel</button>
               </div>
             </form>
-          </section>
-          <section class="plans-panel plans-panel--list">
+          </div>
+          <div class="col-sm-9">
             <header>
               <h5>Existing plans</h5>
             </header>
@@ -83,7 +84,7 @@
                 <tr mat-row *matRowDef="let row; columns: ['code', 'name', 'price', 'interval', 'actions']"></tr>
               </table>
             </div>
-          </section>
+          </div>
         </div>
       </div>
     </div>

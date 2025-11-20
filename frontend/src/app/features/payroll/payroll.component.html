@@ -24,16 +24,25 @@
               </div>
 
               <form [formGroup]="creationForm" (ngSubmit)="createRun()" class="form-grid">
-                <mat-form-field appearance="outline">
-                  <mat-label>Organization</mat-label>
-                  <mat-select formControlName="organizationId">
-                    <mat-option value="" disabled>Select organization</mat-option>
-                    <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
-                      {{ organization.name }} ({{ organization.code }})
-                    </mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="creationForm.controls.organizationId.hasError('required')">Organization is required</mat-error>
-                </mat-form-field>
+                <ng-container *ngIf="organizationContext.shouldUseScopedOrganization(); else organizationSelectField">
+                  <div class="readonly-organization">
+                    <span>Organization</span>
+                    <strong>{{ organizationContext.organization()?.name || organizationContext.organization()?.code || 'Assigned organization' }}</strong>
+                  </div>
+                  <input type="hidden" formControlName="organizationId" />
+                </ng-container>
+                <ng-template #organizationSelectField>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Organization</mat-label>
+                    <mat-select formControlName="organizationId">
+                      <mat-option value="" disabled>Select organization</mat-option>
+                      <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
+                        {{ organization.name }} ({{ organization.code }})
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="creationForm.controls.organizationId.hasError('required')">Organization is required</mat-error>
+                  </mat-form-field>
+                </ng-template>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Period start</mat-label>
@@ -77,15 +86,24 @@
               </div>
 
               <form [formGroup]="filterForm" class="filter-grid" (ngSubmit)="applyFilters()">
-                <mat-form-field appearance="outline">
-                  <mat-label>Organization</mat-label>
-                  <mat-select formControlName="organizationId">
-                    <mat-option value="">All organizations</mat-option>
-                    <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
-                      {{ organization.name }} ({{ organization.code }})
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <ng-container *ngIf="organizationContext.shouldUseScopedOrganization(); else organizationFilterSelect">
+                  <div class="readonly-organization">
+                    <span>Organization</span>
+                    <strong>{{ organizationContext.organization()?.name || organizationContext.organization()?.code || 'Assigned organization' }}</strong>
+                  </div>
+                  <input type="hidden" formControlName="organizationId" />
+                </ng-container>
+                <ng-template #organizationFilterSelect>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Organization</mat-label>
+                    <mat-select formControlName="organizationId">
+                      <mat-option value="">All organizations</mat-option>
+                      <mat-option *ngFor="let organization of organizations()" [value]="organization.id">
+                        {{ organization.name }} ({{ organization.code }})
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-template>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Status</mat-label>

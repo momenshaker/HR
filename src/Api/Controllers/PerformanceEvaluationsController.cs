@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Api.Middleware;
 using HR.Application.Abstractions.Services;
@@ -14,7 +15,11 @@ namespace HR.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/performance/evaluations")]
-[Authorize(Roles = "Admin,HR,Manager,Employee")]
+[Authorize]
+[RolePermission(
+    "performance",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 [AuditResource("PerformanceEvaluation")]
 [FeatureRequirement(HrFeature.PerformanceManagement)]
 [RequiresSubscriptionEntitlement(HrFeature.PerformanceManagement)]

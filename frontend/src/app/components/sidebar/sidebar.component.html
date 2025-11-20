@@ -1,29 +1,20 @@
 <div class="pcoded-inner-navbar">
+  <a [routerLink]="['/dashboard']" class="b-brand logo">
+    <img id="main-logo" src="assets/img/logo-dark.03d7eb6b.png" style="    width: 150px;" alt="logo-img" class="logo" />
+  </a>
   <div class="pcoded-navigation-label">Navigation</div>
   <ul class="pcoded-item pcoded-left-item">
-    <li
-      *ngFor="let menuItem of menuItems"
-      class="pcoded-hasmenu"
-      [ngClass]="{ 'pcoded-trigger': isGroupExpanded(menuItem) }"
-    >
-      <a
-        *ngIf="!menuItem.children?.length"
-        [routerLink]="[menuItem.path]"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="pcoded-mlink"
-      >
+    <li *ngFor="let menuItem of menuItems" class="pcoded-hasmenu"
+      [ngClass]="{ 'pcoded-trigger': isGroupExpanded(menuItem) }">
+      <a *ngIf="!menuItem.children?.length" [routerLink]="[menuItem.path]" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }" class="pcoded-mlink">
         <span class="pcoded-micon">
           <i class="material-icons">{{ menuItem.icon }}</i>
         </span>
         <span class="pcoded-mtext">{{ menuItem.title }}</span>
       </a>
-      <a
-        *ngIf="menuItem.children?.length"
-        href="javascript:void(0)"
-        class="pcoded-mlink"
-        (click)="toggleGroup(menuItem); $event.preventDefault();"
-      >
+      <a *ngIf="menuItem.children?.length" href="javascript:void(0)" class="pcoded-mlink"
+        (click)="toggleGroup(menuItem); $event.preventDefault();">
         <span class="pcoded-micon">
           <i class="material-icons">{{ menuItem.icon }}</i>
         </span>
@@ -32,12 +23,8 @@
       </a>
       <ul class="pcoded-submenu" *ngIf="isGroupExpanded(menuItem)">
         <li *ngFor="let child of menuItem.children">
-          <a
-            [routerLink]="[child.path]"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="pcoded-mlink"
-          >
+          <a [routerLink]="[child.path]" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="pcoded-mlink">
             <span class="pcoded-micon">
               <i class="material-icons">{{ child.icon }}</i>
             </span>

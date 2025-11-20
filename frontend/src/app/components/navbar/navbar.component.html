@@ -19,36 +19,36 @@
     <ul class="navbar-nav ms-auto align-items-center">
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['/dashboard']">
-          <i class="feather icon-home"></i>
+          <i class="material-icons">home</i>
         </a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link" href="javascript:void(0)">
-          <i class="feather icon-bell"></i>
+          <i class="material-icons">notifications</i>
           <span class="badge bg-danger">0</span>
         </a>
       </li>
       <li class="nav-item">
-        <button mat-icon-button class="nav-link" [matMenuTriggerFor]="userMenu" aria-label="User menu">
-          <i class="feather icon-user"></i>
+        <button class="nav-link" [matMenuTriggerFor]="userMenu" aria-label="User menu">
+          <i class="material-icons">person</i>
         </button>
         <mat-menu #userMenu="matMenu">
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link" [routerLink]="'/profile'">
-                <i class="feather icon-user"></i>
+                <i class="material-icons">person</i>
                 <span>My Profile</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" [routerLink]="'/change-password'">
-                <i class="feather icon-lock"></i>
+                <i class="material-icons">lock</i>
                 <span>Change Password</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" (click)="logout()">
-                <i class="feather icon-log-out"></i>
+                <i class="material-icons">logout</i>
                 <span>Logout</span>
               </a>
             </li>

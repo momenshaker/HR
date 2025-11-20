@@ -1,61 +1,73 @@
-<div class="main-content" style="min-height: 100vh;background-size: cover;background-image: url(../../assets/img/Gemini_Generated_Image_9ubcfw9ubcfw9ubc.png);">
+<div class="main-content"
+  style="min-height: 100vh;background-size: cover;background-image: url(../../assets/img/Gemini_Generated_Image_9ubcfw9ubcfw9ubc.png);">
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md-12" style="display:flex; justify-content:center;">
-        <div class="card" style="max-width:700px; width:100%; margin:3rem auto;">
-          <div class="row">
-            <div class="col-md-7">
-              <div class="card-header card-header-danger">
-                <h4 class="card-title">Sign In</h4>
-                <p class="card-category">Access your HRS</p>
-              </div>
-              <div class="card-body">
-                <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-                  <mat-form-field appearance="outline" class="example-full-width">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email" required />
-                    <mat-error *ngIf="emailControl.invalid && (emailControl.dirty || emailControl.touched)">
-                      {{ emailControl.errors?.['required'] ? 'Required' : 'Invalid email' }}
-                    </mat-error>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="example-full-width">
-                    <mat-label>Password</mat-label>
-                    <input matInput formControlName="password" type="password" required />
-                    <mat-error *ngIf="passwordControl.invalid && (passwordControl.dirty || passwordControl.touched)">
-                      Required
-                    </mat-error>
-                  </mat-form-field>
-                 
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                    <a routerLink="/forgot-password">Forgot password?</a>
-                    <button mat-flat-button class="btn btn-primary" type="submit" [disabled]="busy()">
-                      <mat-icon>login</mat-icon>
-                      {{ busy() ? 'Signing in...' : 'Sign In' }}
-                    </button>
-                  </div>
-                </form>
-                <div *ngIf="error()" class="error-banner" aria-live="assertive">{{error()}}</div>
-              </div>
-            </div>
-            <div class="col-md-5">
-              <img style="width: 250px;
-    padding-top: 15px;" src="../../assets/img/logo-dark.03d7eb6b.png">
-              <div class="tim-typo">
-                <h3>
-                  <span class="tim-note">Customer Engagement Hub</span>
-                </h3>
-              </div>
-              <div class="tim-typo">
-                <p style="padding-right: 15px;">
-                  <span class="tim-note">Experience</span>
-                   a powerful platform engineered to support your sales, service, and operational teams. Gain
-                  clarity, improve efficiency, and deliver exceptional customer value through intelligent automation and
-                  unified data.
-                </p>
-              </div>
-            </div>
+      <div class="col-md-8 login-middle login-summary">
+        <div style="    background-color: rgb(255 255 255 / 65%);
+    border-radius: 15px;
+    padding: 15px;">
+          <div class="tim-typo">
+            <h3>
+              <span class="tim-note">Human Resources Excellence Hub</span>
+            </h3>
+          </div>
+          <div class="tim-typo">
+            <p style="padding-right: 15px;">
+              <span class="tim-note">Experience</span>
+              unified HR platform engineered to empower your People & Operations teams. Centralize employee data,
+              streamline workflows, and enhance workforce performance with intelligent automation and real-time
+              insights.
+              Strengthen organizational productivity, improve decision-making, and deliver an exceptional employee
+              experience from onboarding to offboarding — all within one powerful solution.
+            </p>
+          </div>
+
+          <div class="tim-typo">
+            <h3>
+              <span class="tim-note">Onboard with Confidence</span>
+            </h3>
+          </div>
+          <div class="tim-typo">
+            <p style="padding-right: 15px;">
+              <span class="tim-note">Create</span>
+              meaningful first days with automated workflows, clear tasks, and guided setup for new employees.
+              Reduce manual effort and let your team focus on people, not paperwork.
+            </p>
+             <a class="btn btn-primary" href="/auth/onboarding">
+                <span>Start onboarding</span>
+             </a>
           </div>
         </div>
+      </div>
+      <div class="col-md-4 login-middle login-form">
+        <img style="width: 250px;
+    padding-bottom: 45px;" src="../../assets/img/logo-dark.03d7eb6b.png">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <mat-form-field appearance="outline" class="example-full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" required />
+            <mat-error *ngIf="emailControl.invalid && (emailControl.dirty || emailControl.touched)">
+              {{ emailControl.errors?.['required'] ? 'Required' : 'Invalid email' }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="example-full-width">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" required />
+            <mat-error *ngIf="passwordControl.invalid && (passwordControl.dirty || passwordControl.touched)">
+              Required
+            </mat-error>
+          </mat-form-field>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <a routerLink="/forgot-password">Forgot password?</a>
+            <button class="btn btn-warning" type="submit" [disabled]="busy()">
+              <mat-icon>login</mat-icon>
+              {{ busy() ? 'Signing in...' : 'Sign In' }}
+            </button>
+          </div>
+        </form>
+
+        <div *ngIf="error()" class="error-banner" aria-live="assertive">{{error()}}</div>
       </div>
     </div>
   </div>

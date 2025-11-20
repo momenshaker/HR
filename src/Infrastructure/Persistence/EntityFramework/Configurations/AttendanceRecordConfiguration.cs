@@ -75,7 +75,5 @@ internal sealed class AttendanceRecordConfiguration : IEntityTypeConfiguration<A
 
         builder.Property(record => record.Remarks)
             .HasMaxLength(1024);
-
-        builder.HasIndex(record => new { record.EmployeeId, record.WorkDate }).IsUnique();
     }
 }

@@ -30,6 +30,8 @@ export class LookupStore {
   readonly regions = computed(() => this.toLabels('region'));
   readonly timeZones = computed(() => this.toLabels('timeZone'));
   readonly leaveTypes = computed(() => this.toLabels('leaveType'));
+  readonly roles = computed(() => this.toLabels('role'));
+  readonly ratingScales = computed(() => this.toLabels('ratingScale'));
 
   load(force = false): Observable<void> {
     if (this.loadingSignal()) {

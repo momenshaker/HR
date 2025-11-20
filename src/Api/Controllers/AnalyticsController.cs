@@ -9,7 +9,7 @@ namespace HR.Api.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR")]
+[Authorize(Roles = "Admin,Manager,HR")]
 [AuditResource("Analytics")]
 [FeatureRequirement(HrFeature.HrAnalytics)]
 public sealed class AnalyticsController(IAnalyticsQueryService analytics) : ControllerBase

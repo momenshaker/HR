@@ -35,7 +35,7 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: 'attendance',
-    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
     loadChildren: () => import('./features/attendance/attendance.routes').then((m) => m.ATTENDANCE_ROUTES)
   },
   {
@@ -60,17 +60,17 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: 'payroll',
-    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
     loadChildren: () => import('./features/payroll/payroll.routes').then((m) => m.PAYROLL_ROUTES)
   },
   {
     path: 'performance',
-    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
     loadChildren: () => import('./features/performance/performance.routes').then((m) => m.PERFORMANCE_ROUTES)
   },
   {
     path: 'recruitment',
-    canMatch: [authGuard, roleGuard(['Admin', 'HR'])],
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
     loadChildren: () => import('./features/recruitment/recruitment.routes').then((m) => m.RECRUITMENT_ROUTES)
   },
   {
@@ -80,7 +80,7 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: 'training',
-    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager'])],
+    canMatch: [authGuard, roleGuard(['Admin', 'HR', 'Manager', 'Employee'])],
     loadChildren: () => import('./features/training/training.routes').then((m) => m.TRAINING_ROUTES)
   },
   {

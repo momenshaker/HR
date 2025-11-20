@@ -52,9 +52,10 @@ public sealed class AttendanceService : IAttendanceService
         }
 
         var updatedEntity = request.ApplyUpdates(existing);
-        var persisted = await _attendanceRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
 
-        return persisted?.ToDto();
+            var persisted = await _attendanceRepository.UpdateAsync(updatedEntity, cancellationToken).ConfigureAwait(false);
+            return persisted?.ToDto();
+        
     }
 
     /// <inheritdoc />

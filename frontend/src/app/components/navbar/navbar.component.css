@@ -49,3 +49,13 @@ mat-menu .nav-link {
   color: #fff;
   margin-right: 0.5rem;
 }
+
+.nav-item > a > i {
+  color: #000;
+  position: relative;
+  margin-left: 0.35rem;
+}.nav-item > a > span {
+  color: #000;
+  position: relative;
+  margin-left: 0.35rem;
+}

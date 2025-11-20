@@ -18,6 +18,7 @@ public sealed class PlansController(IPlanService planService) : ControllerBase
     private readonly IPlanService _planService = planService;
 
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(IReadOnlyCollection<PlanDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken = default)
     {

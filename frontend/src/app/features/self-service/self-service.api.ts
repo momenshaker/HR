@@ -16,6 +16,7 @@ import {
   SelfServiceAccountUpdatePayload,
   TrainingCourse
 } from './self-service.models';
+import { PaginatedResponse } from '@app/core/data-access';
 
 @Injectable({ providedIn: 'root' })
 export class SelfServiceApiService {
@@ -23,11 +24,11 @@ export class SelfServiceApiService {
   private readonly config = inject<AppConfig>(APP_CONFIG);
 
   private base(employeeId: string): string {
-    return `${this.config.apiBaseUrl}/employees/${employeeId}/self-service`;
+    return `${this.config.apiBaseUrl}/EmployeeSelfService/${employeeId}`;
   }
 
   getLeaveRequests(employeeId: string) {
-    return this.http.get<LeaveRequest[]>(`${this.base(employeeId)}/leave-requests`);
+    return this.http.get<PaginatedResponse<LeaveRequest>>(`${this.base(employeeId)}/leave-requests`);
   }
 
   submitLeaveRequest(employeeId: string, payload: LeaveRequestPayload) {
@@ -63,6 +64,14 @@ export class SelfServiceApiService {
 
   getAccount(employeeId: string) {
     return this.http.get<SelfServiceAccount>(`${this.base(employeeId)}/account`);
+  }
+
+  getAttendanceRecords() {
+    return this.http.get<PaginatedResponse<AttendanceRecord>>(`${this.config.apiBaseUrl}/attendanceRecords`);
+  }
+
+  getAttendanceHistory(employeeId: string) {
+    return this.http.get<PaginatedResponse<AttendanceRecord>>(`${this.base(employeeId)}/attendance-records`);
   }
 
   createAccount(employeeId: string, payload: SelfServiceAccountPayload) {

@@ -106,13 +106,15 @@
                   <h5>Leave requests</h5>
                   <p>Review requests and perform approvals or cancellations.</p>
                 </div>
-                <mat-form-field appearance="outline" class="leave-filter">
-                  <mat-label>Status</mat-label>
-                  <mat-select formControlName="status">
-                    <mat-option value="">All</mat-option>
-                    <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <form [formGroup]="filterForm" class="leave-filter-form">
+                  <mat-form-field appearance="outline" class="leave-filter">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status">
+                      <mat-option value="">All</mat-option>
+                      <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </form>
               </div>
               <div class="leave-table-wrapper">
                 <app-data-table

@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
@@ -12,7 +13,11 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR,Manager,Employee")]
+[Authorize]
+[RolePermission(
+    "notifications",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 [AuditResource("CommsAnnouncement")]
 [FeatureRequirement(HrFeature.InternalCommunication)]
 public sealed class CommsAnnouncementsController(ICommsService commsService, TimeProvider clock) : ControllerBase

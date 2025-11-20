@@ -66,20 +66,44 @@
                   <input matInput formControlName="remarks" />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                  <mat-label>Scheduled start</mat-label>
-                  <input matInput type="datetime-local" formControlName="scheduledStartTime" />
+                  <mat-label>Scheduled start date</mat-label>
+                  <input matInput [matDatepicker]="scheduledStartDatePicker" formControlName="scheduledStartDate" />
+                  <mat-datepicker-toggle matSuffix [for]="scheduledStartDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #scheduledStartDatePicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                  <mat-label>Scheduled end</mat-label>
-                  <input matInput type="datetime-local" formControlName="scheduledEndTime" />
+                  <mat-label>Scheduled start time</mat-label>
+                  <input matInput type="time" formControlName="scheduledStartTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Scheduled end date</mat-label>
+                  <input matInput [matDatepicker]="scheduledEndDatePicker" formControlName="scheduledEndDate" />
+                  <mat-datepicker-toggle matSuffix [for]="scheduledEndDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #scheduledEndDatePicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Scheduled end time</mat-label>
+                  <input matInput type="time" formControlName="scheduledEndTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Check-in date</mat-label>
+                  <input matInput [matDatepicker]="checkInDatePicker" formControlName="checkInDate" />
+                  <mat-datepicker-toggle matSuffix [for]="checkInDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #checkInDatePicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Check-in time</mat-label>
-                  <input matInput type="datetime-local" formControlName="checkInTime" />
+                  <input matInput type="time" formControlName="checkInTime" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Check-out date</mat-label>
+                  <input matInput [matDatepicker]="checkOutDatePicker" formControlName="checkOutDate" />
+                  <mat-datepicker-toggle matSuffix [for]="checkOutDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #checkOutDatePicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Check-out time</mat-label>
-                  <input matInput type="datetime-local" formControlName="checkOutTime" />
+                  <input matInput type="time" formControlName="checkOutTime" />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Scheduled work (minutes)</mat-label>

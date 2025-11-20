@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
@@ -13,7 +14,11 @@ namespace HR.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR")]
+[Authorize]
+[RolePermission(
+    "recruitment",
+    readRoles: new[] { "Admin", "HR", "Manager" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 [AuditResource("Vacancy")]
 [FeatureRequirement(HrFeature.RecruitmentAndAts)]
 public sealed class VacanciesController(IRecruitmentService recruitmentService) : ControllerBase

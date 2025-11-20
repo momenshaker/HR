@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.DTOs;
@@ -13,8 +14,12 @@ namespace HR.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Employee")]
+[Route("api/v{version:apiVersion}/[controller]/{employeeId:guid}")]
+[Authorize]
+[RolePermission(
+    "selfservice",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager", "Employee" })]
 [AuditResource("EmployeeSelfService")]
 [FeatureRequirement(HrFeature.EmployeeManagement)]
 [FeatureRequirement(HrFeature.LeaveManagement)]
@@ -72,6 +77,20 @@ public sealed class EmployeeSelfServiceController(IEmployeeSelfService selfServi
                 Status = StatusCodes.Status400BadRequest
             });
         }
+    }
+
+    /// <summary>
+    ///     Retrieves attendance records for the employee.
+    /// </summary>
+    [HttpGet("attendance-records")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AttendanceRecordDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAttendanceHistoryAsync(Guid employeeId, CancellationToken cancellationToken)
+    {
+        var records = await _selfService
+            .GetAttendanceHistoryAsync(employeeId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok(records);
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using HR.Api.Authorization;
 using HR.Api.Filters;
 using HR.Application.Abstractions.Services;
 using HR.Application.Configuration;
@@ -14,7 +15,11 @@ namespace HR.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin,HR,Manager")]
+[Authorize]
+[RolePermission(
+    "training",
+    readRoles: new[] { "Admin", "HR", "Manager", "Employee" },
+    writeRoles: new[] { "Admin", "HR", "Manager" })]
 [AuditResource("TrainingCourse")]
 [FeatureRequirement(HrFeature.TrainingAndDevelopment)]
 public sealed class TrainingCoursesController(ITrainingService trainingService) : ControllerBase

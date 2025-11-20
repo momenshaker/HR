@@ -3,45 +3,89 @@
     <div class="row">
       <div class="col-md-12">
         <div class="card">
+          <div class="card-header card-header-danger">
+            <div>
+              <h4 class="card-title">Welcome back, {{ user()?.fullName ?? 'Team Member' }}!</h4>
+              <p class="card-category">Review workforce metrics and manage your HR operations.</p>
+            </div>
+          </div>
           <div class="card-body">
             <div class="page dashboard">
-              <header class="page__header">
-                <div>
-                  <p class="eyebrow">Executive dashboard</p>
-                  <h1>Welcome back, {{ user()?.fullName ?? 'Team Member' }}!</h1>
-                  <p>Review workforce metrics and manage your HR operations.</p>
+              <div class="dashboard__grid" *ngIf="!loading(); else loadingState">
+                <mat-card *ngFor="let metric of metrics()" class="dashboard__metric-card">
+                  <mat-card-header>
+                    <mat-card-title>{{ metric.title }}</mat-card-title>
+                    <mat-icon>{{ metric.icon }}</mat-icon>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="dashboard__metric">{{ metric.value }}</div>
+                    <p class="dashboard__metric-change">{{ metric.change }}</p>
+                    <p class="dashboard__metric-detail">{{ metric.description }}</p>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              <ng-template #loadingState>
+                <div class="dashboard__loading">
+                  <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
                 </div>
-              </header>
-              <div class="dashboard__grid">
-                <mat-card>
+              </ng-template>
+
+              <div class="dashboard__insights" *ngIf="insights().length">
+                <div *ngFor="let insight of insights()" class="dashboard__insight-card">
+                  <strong>{{ insight.value }}</strong>
+                  <p>{{ insight.label }}</p>
+                  <small>{{ insight.detail }}</small>
+                </div>
+              </div>
+
+              <div class="dashboard__actions">
+                <mat-card class="dashboard__attendance-card">
                   <mat-card-header>
-                    <mat-card-title>Total Employees</mat-card-title>
-                    <mat-icon>groups</mat-icon>
+                    <mat-card-title>Quick punches</mat-card-title>
+                    <mat-icon>access_time</mat-icon>
                   </mat-card-header>
                   <mat-card-content>
-                    <div class="dashboard__metric">--</div>
-                    <p>Powered by live analytics from the HR API.</p>
+                    <div class="dashboard__punch-actions">
+                      <button class="btn btn-primary" (click)="clockIn()">Clock In</button>
+                      <button class="btn btn-warning" (click)="clockOut()">Clock Out</button>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div  class="dashboard__insight-card" style="margin-top: 10px;">
+                      <div *ngIf="!punchHistory().length" class="placeholder">No punches tracked yet</div>
+                      <div *ngFor="let entry of punchHistory()">
+                        <span *ngIf="entry && entry.includes('ClockOut')" style="font-weight: bold;">
+                          {{ entry.replace('ClockOut at', 'Check Out : ') }}</span>
+                        <span *ngIf="entry && entry.includes('ClockIn')" style="font-weight: bold;">
+                          {{ entry.replace('ClockIn at', 'Check In : ') }}</span>
+                      </div>
+                    </div>
                   </mat-card-content>
                 </mat-card>
+
                 <mat-card>
                   <mat-card-header>
-                    <mat-card-title>Open Positions</mat-card-title>
-                    <mat-icon>work_outline</mat-icon>
+                    <mat-card-title>Leave management</mat-card-title>
+                    <mat-icon>today</mat-icon>
                   </mat-card-header>
                   <mat-card-content>
-                    <div class="dashboard__metric">--</div>
-                    <p>Track recruitment funnel performance.</p>
+                    <p>Submit a leave request directly from the dashboard without navigating elsewhere.</p>
                   </mat-card-content>
+                  <mat-card-actions>
+                    <button class="btn btn-primary" (click)="openLeaveDialog()">New leave request</button>
+                  </mat-card-actions>
                 </mat-card>
+
                 <mat-card>
                   <mat-card-header>
-                    <mat-card-title>Pending Leave Requests</mat-card-title>
-                    <mat-icon>event_note</mat-icon>
+                    <mat-card-title>Today's focus</mat-card-title>
+                    <mat-icon>flag</mat-icon>
                   </mat-card-header>
-                  <mat-card-content>
-                    <div class="dashboard__metric">--</div>
-                    <p>Approve or decline leave with a single click.</p>
-                  </mat-card-content>
+                  <mat-list>
+                    <mat-list-item *ngFor="let item of focusItems()">
+                      <mat-icon matListIcon>chevron_right</mat-icon>
+                      <span>{{ item }}</span>
+                    </mat-list-item>
+                  </mat-list>
                 </mat-card>
               </div>
             </div>

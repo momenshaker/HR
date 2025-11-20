@@ -49,9 +49,10 @@ public sealed class SubscriptionService : ISubscriptionService
             .Where(feature => feature != HrFeature.PlatformServices)
             .Select(feature => feature.ToString());
 
+        var customerId = request.CustomerId ?? Guid.Empty;
         var subscription = new Subscription(
             id: Guid.NewGuid(),
-            customerId: Guid.Empty,
+            customerId: customerId,
             planId: request.PlanId,
             planCode: string.Empty,
             status: SubscriptionStatus.Active,

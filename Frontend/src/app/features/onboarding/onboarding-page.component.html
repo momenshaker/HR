@@ -1,0 +1,237 @@
+<div class="main-content"
+  style="min-height: 100vh;background-size: cover;background-image: url(../../assets/img/Gemini_Generated_Image_9ubcfw9ubcfw9ubc.png);">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12 onboarding-page">
+        <div class="onboarding-card">
+          <div class="onboarding-header">
+            <div>
+              <p class="eyebrow">New customer onboarding</p>
+              <h1>Launch your workspace</h1>
+              <p>Share a few details and we'll provision your tenant before you log in.</p>
+            </div>
+            <div class="progress-summary">
+              <span>Step {{ currentStep() + 1 }} of {{ stepLabels.length }}</span>
+              <div class="progress-track">
+                <div class="progress-value" [style.width.%]="((currentStep() + 1) / stepLabels.length) * 100"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stepper">
+            <div class="step" *ngFor="let label of stepLabels; let index = index"
+              [class.active]="currentStep() === index">
+              <div class="step-circle">{{ index + 1 }}</div>
+              <span>{{ label }}</span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <section *ngIf="currentStep() === 0" class="step-section">
+            <h2>Account information</h2>
+            <form [formGroup]="accountForm" class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Full name</mat-label>
+                <input matInput formControlName="fullName" />
+                <mat-error *ngIf="accountForm.controls.fullName.invalid && accountForm.controls.fullName.touched">
+                  Full name is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Email address</mat-label>
+                <input matInput formControlName="email" type="email" />
+                <mat-error *ngIf="accountForm.controls.email.invalid && accountForm.controls.email.touched">
+                  {{ accountForm.controls.email.hasError('required') ? 'Email is required.' : 'Invalid email address.'
+                  }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Password</mat-label>
+                <input matInput formControlName="password" type="password" />
+                <mat-error *ngIf="accountForm.controls.password.invalid && accountForm.controls.password.touched">
+                  Password must be at least 8 characters.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Phone number (optional)</mat-label>
+                <input matInput formControlName="phoneNumber" type="tel" />
+              </mat-form-field>
+            </form>
+          </section>
+
+          <section *ngIf="currentStep() === 1" class="step-section">
+            <h2>Organization details</h2>
+            <form [formGroup]="organizationForm" class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Organization name</mat-label>
+                <input matInput formControlName="name" />
+                <mat-error *ngIf="organizationForm.controls.name.invalid && organizationForm.controls.name.touched">
+                  A name is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Organization code</mat-label>
+                <input matInput formControlName="code" />
+                <mat-error *ngIf="organizationForm.controls.code.invalid && organizationForm.controls.code.touched">
+                  A unique code is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Headquarters address</mat-label>
+                <textarea matInput formControlName="headquartersAddress" rows="2"></textarea>
+                <mat-error
+                  *ngIf="organizationForm.controls.headquartersAddress.invalid && organizationForm.controls.headquartersAddress.touched">
+                  Headquarters address is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Time zone</mat-label>
+                <input matInput formControlName="timeZone" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Primary contact email</mat-label>
+                <input matInput formControlName="primaryContactEmail" />
+                <mat-error
+                  *ngIf="organizationForm.controls.primaryContactEmail.invalid && organizationForm.controls.primaryContactEmail.touched">
+                  Invalid email address.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Website URL</mat-label>
+                <input matInput formControlName="websiteUrl" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Billing address line 1</mat-label>
+                <input matInput formControlName="billingAddressLine1" />
+                <mat-error
+                  *ngIf="organizationForm.controls.billingAddressLine1.invalid && organizationForm.controls.billingAddressLine1.touched">
+                  Billing address is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Billing address line 2</mat-label>
+                <input matInput formControlName="billingAddressLine2" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="billingCity" />
+                <mat-error
+                  *ngIf="organizationForm.controls.billingCity.invalid && organizationForm.controls.billingCity.touched">
+                  City is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>State</mat-label>
+                <input matInput formControlName="billingState" />
+                <mat-error
+                  *ngIf="organizationForm.controls.billingState.invalid && organizationForm.controls.billingState.touched">
+                  State is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Postal code</mat-label>
+                <input matInput formControlName="billingPostalCode" />
+                <mat-error
+                  *ngIf="organizationForm.controls.billingPostalCode.invalid && organizationForm.controls.billingPostalCode.touched">
+                  Postal code is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Country</mat-label>
+                <input matInput formControlName="billingCountry" />
+                <mat-error
+                  *ngIf="organizationForm.controls.billingCountry.invalid && organizationForm.controls.billingCountry.touched">
+                  Country is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Billing phone</mat-label>
+                <input matInput formControlName="billingPhone" type="tel" />
+              </mat-form-field>
+            </form>
+          </section>
+
+          <section *ngIf="currentStep() === 2" class="step-section plan-section">
+            <h2>Choose a subscription</h2>
+
+            <div *ngIf="loadingPlans()" class="plan-loading">
+              <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+            </div>
+
+            <div *ngIf="!loadingPlans()" class="plans-grid">
+              <mat-card class="plan-card" *ngFor="let plan of plans()" [class.selected]="selectedPlanId() === plan.id"
+                (click)="selectPlan(plan)">
+                <div class="plan-card-header">
+                  <div>
+                    <h3>{{ plan.name }}</h3>
+                    <p>{{ plan.description }}</p>
+                  </div>
+                  <div class="plan-price">
+                    <span>{{ plan.price === 0 ? 'Free' : (plan.price | currency:'USD':'symbol') }}</span>
+                    <small>/{{ plan.billingInterval }}</small>
+                  </div>
+                </div>
+                <div class="plan-entitlements">
+                  <div class="plan-selected-icon" *ngIf="selectedPlanId() === plan.id">
+                    <mat-icon>check_circle</mat-icon>
+                  </div>
+                  <ul>
+                    <li *ngFor="let entitlement of plan.entitlements">
+                      <strong>{{ entitlement.displayName }}</strong>
+                      <span>{{ entitlement.description }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </mat-card>
+            </div>
+            <div class="summary" *ngIf="selectedPlan()">
+              <p>
+                Ready to start with
+                <strong>{{ selectedPlan()?.name }}</strong> and
+                <strong>{{ selectedPlanSeats() }}</strong> seats.
+              </p>
+            </div>
+          </section>
+
+          <div class="actions">
+            <a *ngIf="currentStep() === 0" class="btn btn-warning" href="/auth/login" >
+              Back
+            </a>
+            <button *ngIf="currentStep() != 0" class="btn btn-warning" (click)="previousStep()">
+              Back
+            </button>
+
+            <button class="btn btn-primary" *ngIf="currentStep() < stepLabels.length - 1" (click)="nextStep()">
+              Continue
+            </button>
+
+            <button class="btn btn-primary" *ngIf="currentStep() === stepLabels.length - 1" (click)="submit()"
+              [disabled]="busy() || subscriptionForm.invalid">
+              <mat-progress-spinner *ngIf="busy()" diameter="20" mode="indeterminate" class="button-spinner">
+              </mat-progress-spinner>
+              {{ busy() ? 'Finalizing workspace...' : 'Start free trial' }}
+            </button>
+          </div>
+
+          <div *ngIf="error()" class="error-banner">{{ error() }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

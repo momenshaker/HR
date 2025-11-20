@@ -72,5 +72,15 @@ export const DEFAULT_LOOKUP_SEED: LookupDictionary = {
     { id: '5897d8d7-8eb8-4612-a123-3f8d7f5d24c8', category: 'leaveType', code: 'VACATION', displayName: 'Vacation', description: null, sortOrder: 1, isActive: true, updatedAtUtc: seedTimestamp },
     { id: '65a1f6c3-9e6a-4d5f-901f-3b4e7c1f0e3f', category: 'leaveType', code: 'SICK', displayName: 'Sick', description: null, sortOrder: 2, isActive: true, updatedAtUtc: seedTimestamp },
     { id: 'b6b1c9e2-3d44-4c01-9f21-a9c9475c6f4f', category: 'leaveType', code: 'PERSONAL', displayName: 'Personal', description: null, sortOrder: 3, isActive: true, updatedAtUtc: seedTimestamp }
+  ],
+  ratingScale: [
+    { id: 'd1c7b9f9-4b97-4f11-92b8-2d67320b6a81', category: 'ratingScale', code: 'FIVE_POINT', displayName: 'Five-point scale', description: 'Standard 1-5 rating scale', sortOrder: 1, isActive: true, updatedAtUtc: seedTimestamp },
+    { id: '7f5c4d20-1d66-4db2-959f-8c4b7c08d42a', category: 'ratingScale', code: 'FOUR_POINT', displayName: 'Four-point scale', description: '4-point rating scale with no neutral', sortOrder: 2, isActive: true, updatedAtUtc: seedTimestamp },
+    { id: '4f8bdb5c-9b6e-4c70-beb9-052ac5c67f22', category: 'ratingScale', code: 'THREE_POINT', displayName: 'Three-point scale', description: 'Simple 3-point rating scale', sortOrder: 3, isActive: true, updatedAtUtc: seedTimestamp }
+  ],
+  role: [
+    { id: '6b3d5a72-29a5-4b8c-8380-a6a59f1e3f12', category: 'role', code: 'ADMIN', displayName: 'Administrator', description: 'Full system access', sortOrder: 1, isActive: true, updatedAtUtc: seedTimestamp },
+    { id: 'bb5fabd6-5b4d-4cb4-b89c-8c5c583a872d', category: 'role', code: 'MANAGER', displayName: 'Manager', description: 'Approval and managerial duties', sortOrder: 2, isActive: true, updatedAtUtc: seedTimestamp },
+    { id: 'a1d2c3b4-0f56-4eba-8c4d-7c0d9e3f4a8b', category: 'role', code: 'STAFF', displayName: 'Staff', description: 'Individual contributor', sortOrder: 3, isActive: true, updatedAtUtc: seedTimestamp }
   ]
 };

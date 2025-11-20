@@ -63,10 +63,18 @@ internal abstract class EntityFrameworkRepository<TEntity>
         DbContext.Entry(existing).State = EntityState.Detached;
 
         DbSet.Update(entity);
-        await DbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        Detach(entity);
+        try
+        {
+            await DbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            Detach(entity);
 
-        return entity;
+            return entity;
+        }
+        catch (Exception ex)
+        {
+            var s = ex;
+        }
+        return null;
     }
 
     protected async Task<bool> RemoveInternalAsync(Guid id, CancellationToken cancellationToken)
@@ -82,7 +90,7 @@ internal abstract class EntityFrameworkRepository<TEntity>
         return true;
     }
 
-    private void Detach(TEntity entity)
+    protected void Detach(TEntity entity)
     {
         var entry = DbContext.Entry(entity);
         if (entry.State != EntityState.Detached)

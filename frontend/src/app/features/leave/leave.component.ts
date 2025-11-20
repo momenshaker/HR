@@ -22,9 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { AuthStore } from '@core/auth/auth.store';
 import { EntityCrudFactory } from '@core/data-access';
-import { LookupStore } from '@core/lookups/lookup.store';
-import { LEAVE_TYPE_LOOKUP_CATEGORY, LeaveTypeLookupOption, normalizeLeaveTypeOptions } from '@core/lookups/lookup.utils';
-import { LeaveApiService, LeaveBalance, LeaveRequest, LeaveRequestFilters } from './leave.api';
+import { LeaveApiService, LeaveBalance, LeaveRequest, LeaveRequestFilters, LeaveType } from './leave.api';
 import { LeaveActionDialogComponent } from './leave-action-dialog.component';
 
 type DisplayedLeaveStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Rejected' | 'Cancelled';
@@ -63,7 +61,6 @@ export class LeaveRequestsPageComponent implements OnInit {
   private readonly leaveApi = inject(LeaveApiService);
   private readonly authStore = inject(AuthStore);
   private readonly employeeRequester = inject(EntityCrudFactory).create<never, never, EmployeeSummary>('employees');
-  private readonly lookupStore = inject(LookupStore);
 
   readonly requestForm = this.fb.nonNullable.group({
     typeId: ['', Validators.required],
@@ -84,9 +81,7 @@ export class LeaveRequestsPageComponent implements OnInit {
   readonly requests = signal<ReadonlyArray<LeaveRequest>>([]);
   readonly total = signal(0);
   readonly balances = signal<ReadonlyArray<LeaveBalance>>([]);
-  readonly leaveTypes = computed<LeaveTypeLookupOption[]>(() =>
-    normalizeLeaveTypeOptions(this.lookupStore.getValues(LEAVE_TYPE_LOOKUP_CATEGORY))
-  );
+  readonly leaveTypes = signal<readonly LeaveType[]>([]);
   readonly selectedRequest = signal<LeaveRequest | null>(null);
   readonly employeeNames = signal<Record<string, string>>({});
   readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
@@ -110,11 +105,21 @@ export class LeaveRequestsPageComponent implements OnInit {
   );
   readonly currentEmployeeId = computed(() => this.authStore.user()?.employeeId ?? null);
   readonly leaveTypeMap = computed(() =>
-    this.leaveTypes().reduce<Record<string, LeaveTypeLookupOption>>((map, type) => {
+    this.leaveTypes().reduce<Record<string, LeaveType>>((map, type) => {
       map[type.id] = type;
       return map;
     }, {})
   );
+
+  private readonly balanceFetcher = effect(() => {
+    const employeeId = this.currentEmployeeId();
+    const year = this.balanceYear();
+    if (!employeeId) {
+      this.balances.set([]);
+      return;
+    }
+    this.loadBalances(employeeId, year);
+  });
 
   ngOnInit(): void {
     this.loadLeaveTypes();
@@ -122,15 +127,6 @@ export class LeaveRequestsPageComponent implements OnInit {
     this.filterForm.valueChanges.subscribe(() => {
       this.querySignal.set({ ...this.querySignal(), pageIndex: 0 });
       this.loadRequests(this.querySignal());
-    });
-    effect(() => {
-      const employeeId = this.currentEmployeeId();
-      const year = this.balanceYear();
-      if (!employeeId) {
-        this.balances.set([]);
-        return;
-      }
-      this.loadBalances(employeeId, year);
     });
     this.loadRequests(this.querySignal());
   }
@@ -305,7 +301,8 @@ export class LeaveRequestsPageComponent implements OnInit {
   }
 
   private loadLeaveTypes(): void {
-    this.lookupStore.loadCategory(LEAVE_TYPE_LOOKUP_CATEGORY).subscribe({
+    this.leaveApi.getTypes().subscribe({
+      next: (types) => this.leaveTypes.set(types),
       error: () => this.snackbar.open('Failed to load leave types.', 'Dismiss', { duration: 3000 })
     });
   }
@@ -371,8 +368,8 @@ export class LeaveRequestsPageComponent implements OnInit {
     return {
       employeeId,
       leaveTypeId: form.typeId,
-      startDate: form.startDate,
-      endDate: form.endDate,
+      startDate: this.toIsoDate(form.startDate),
+      endDate: this.toIsoDate(form.endDate),
       reason: form.reason?.trim() ?? undefined,
       draft
     };
@@ -388,4 +385,16 @@ export class LeaveRequestsPageComponent implements OnInit {
       this.loadBalances(employeeId, this.balanceYear());
     }
   }
+
+  private toIsoDate(value: string | Date | null | undefined): string {
+    const parsed = value instanceof Date ? value : new Date(value ?? '');
+    if (Number.isNaN(parsed.getTime())) {
+      throw new Error('Invalid date value');
+    }
+    const iso = parsed.toISOString();
+    const [datePart] = iso.split('T');
+    return datePart ?? iso;
+  }
+
 }
+

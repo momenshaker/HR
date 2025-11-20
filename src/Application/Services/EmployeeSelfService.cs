@@ -200,12 +200,7 @@ public sealed class EmployeeSelfService(
         var updated = await _attendanceService.UpdateAsync(attendanceRecordId, updateRequest, cancellationToken)
             .ConfigureAwait(false);
 
-        if (updated is null)
-        {
-            throw new InvalidOperationException("Failed to update attendance record during clock-out.");
-        }
-
-        return updated;
+        return updated is null ? throw new InvalidOperationException("Failed to update attendance record during clock-out.") : updated;
     }
 
     /// <inheritdoc />

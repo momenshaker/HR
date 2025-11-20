@@ -10,16 +10,17 @@
             </div>
           </div>
           <div class="card-body self-service__body">
-            <section class="self-service-hero">
-              <div>
-                <p class="eyebrow">Employee self-service</p>
-                <h5>{{ user()?.fullName ?? 'Self-service hub' }}</h5>
-                <p class="muted" *ngIf="employeeId()">Employee ID #{{ employeeId() }}</p>
-              </div>
-              <div *ngIf="lastAttendanceRecordId()" class="hero-hint">
-                <p>Last record</p>
-                <strong>{{ lastAttendanceRecordId() }}</strong>
-              </div>
+              <section class="self-service-hero">
+                <div>
+                  <p class="eyebrow">Employee self-service</p>
+                  <h5>{{ user()?.fullName ?? 'Self-service hub' }}</h5>
+                  <p class="muted" *ngIf="employeeId()">Employee ID #{{ employeeId() }}</p>
+                </div>
+                <div class="hero-hint">
+                  <p>Attendance status</p>
+                  <strong>{{ attendanceStatus() }}</strong>
+                  <small *ngIf="lastAttendanceRecordId()">Record ID: {{ lastAttendanceRecordId() }}</small>
+                </div>
             </section>
 
             <div *ngIf="isAdmin()" class="admin-config-card">
