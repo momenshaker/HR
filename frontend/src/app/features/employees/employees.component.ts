@@ -86,6 +86,10 @@ export class EmployeesPageComponent implements OnInit {
     });
   }
 
+  viewHierarchy(): void {
+    this.router.navigate(['/employees/hierarchy']);
+  }
+
   view(item: EmployeeSummary): void {
     this.router.navigate(['/employees', item.id]);
   }

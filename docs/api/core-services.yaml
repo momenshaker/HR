@@ -774,6 +774,19 @@ paths:
           description: Employee email already exists
         '422':
           description: Validation failure
+  /api/employees/hierarchy:
+    get:
+      summary: Retrieve the employee reporting hierarchy
+      tags: [Employees]
+      responses:
+        '200':
+          description: Employee hierarchy rooted at top-level managers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeHierarchyNodeDto'
   /api/employees/{id}:
     get:
       summary: Retrieve an employee by id
@@ -2785,6 +2798,18 @@ components:
         selfServiceAccount:
           $ref: '#/components/schemas/SelfServiceAccountDto'
       required: [employeeId, reportingLines, delegatedAuthorities]
+    EmployeeHierarchyNodeDto:
+      type: object
+      properties:
+        position:
+          $ref: '#/components/schemas/PositionDto'
+        employee:
+          $ref: '#/components/schemas/EmployeeDto'
+        directReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeHierarchyNodeDto'
+      required: [position, directReports]
     EmployeeDto:
       type: object
       properties:

@@ -58,6 +58,17 @@ public sealed class EmployeesController(
     }
 
     /// <summary>
+    ///     Retrieves the reporting hierarchy for occupied positions.
+    /// </summary>
+    [HttpGet("hierarchy")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<EmployeeHierarchyNodeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetHierarchyAsync(CancellationToken cancellationToken)
+    {
+        var hierarchy = await _employeeService.GetHierarchyAsync(cancellationToken).ConfigureAwait(false);
+        return Ok(hierarchy);
+    }
+
+    /// <summary>
     ///     Creates a new employee record.
     /// </summary>
     [HttpPost]

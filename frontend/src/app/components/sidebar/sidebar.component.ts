@@ -45,6 +45,13 @@ export const SIDEBAR_ITEMS: SidebarMenuItem[] = [
     roles: ['HR', 'Manager']
   },
   {
+    path: '/employees',
+    title: 'Employees',
+    icon: 'people',
+    class: '',
+    roles: ['Admin', 'HR', 'Manager']
+  },
+  {
     path: '/attendance',
     title: 'Attendance',
     icon: 'schedule',

@@ -1,0 +1,70 @@
+.hierarchy {
+  &__loading,
+  &__empty,
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #555;
+  }
+
+  &__loading {
+    justify-content: flex-start;
+  }
+
+  &__error {
+    color: #c62828;
+    font-weight: 600;
+  }
+
+  &__tree {
+    margin-top: 12px;
+  }
+
+  &__node {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    gap: 12px;
+  }
+
+  &__node-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__node-title {
+    font-weight: 600;
+  }
+
+  &__node-subtitle {
+    color: #666;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  &__meta {
+    background: #eef2ff;
+    color: #3f51b5;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  &__node-icon {
+    color: #3f51b5;
+  }
+
+  &__children {
+    border-left: 2px solid #e0e0e0;
+    margin-left: 18px;
+    padding-left: 12px;
+  }
+
+  &__toggle {
+    cursor: pointer;
+    color: #757575;
+  }
+}
