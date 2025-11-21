@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
@@ -14,6 +15,8 @@ public sealed class EmployeeServiceTests
 {
     private readonly Mock<IEmployeeRepository> _repositoryMock = new();
     private readonly Mock<IDepartmentRepository> _departmentRepositoryMock = new();
+    private readonly Mock<IPositionRepository> _positionRepositoryMock = new();
+    private readonly Mock<IReportingRelationshipRepository> _reportingRelationshipRepositoryMock = new();
     private readonly Mock<ISelfServiceAccountService> _selfServiceAccountServiceMock = new();
     private readonly EmployeeService _sut;
 
@@ -22,6 +25,8 @@ public sealed class EmployeeServiceTests
         _sut = new EmployeeService(
             _repositoryMock.Object,
             _departmentRepositoryMock.Object,
+            _positionRepositoryMock.Object,
+            _reportingRelationshipRepositoryMock.Object,
             _selfServiceAccountServiceMock.Object);
     }
 
@@ -127,6 +132,86 @@ public sealed class EmployeeServiceTests
 
         // Assert
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetHierarchyAsync_ReturnsTreeBasedOnReportingLines()
+    {
+        // Arrange
+        var managerEmployee = new Employee
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Manager",
+            LastName = "One",
+            Email = "manager@example.com",
+            EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            JobTitle = "Manager",
+            Departments = new List<EmployeeDepartment>()
+        };
+
+        var reportEmployee = new Employee
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Report",
+            LastName = "One",
+            Email = "report@example.com",
+            EmploymentStartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            JobTitle = "Engineer",
+            Departments = new List<EmployeeDepartment>()
+        };
+
+        var managerPosition = new Position
+        {
+            Id = Guid.NewGuid(),
+            Title = "Engineering Manager",
+            JobCode = "ENG-MGR",
+            OrganizationUnitId = Guid.NewGuid(),
+            OccupiedByEmployeeId = managerEmployee.Id,
+            Grade = "G8",
+            EmploymentType = "FullTime"
+        };
+
+        var reportPosition = new Position
+        {
+            Id = Guid.NewGuid(),
+            Title = "Software Engineer",
+            JobCode = "SWE",
+            OrganizationUnitId = managerPosition.OrganizationUnitId,
+            ReportsToPositionId = managerPosition.Id,
+            OccupiedByEmployeeId = reportEmployee.Id,
+            Grade = "G6",
+            EmploymentType = "FullTime"
+        };
+
+        var reportingRelationship = new ReportingRelationship
+        {
+            Id = Guid.NewGuid(),
+            ManagerPositionId = managerPosition.Id,
+            ReportPositionId = reportPosition.Id,
+            RelationshipType = "Line",
+            IsPrimary = true
+        };
+
+        _repositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Employee> { managerEmployee, reportEmployee });
+
+        _positionRepositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Position> { managerPosition, reportPosition });
+
+        _reportingRelationshipRepositoryMock
+            .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ReportingRelationship> { reportingRelationship });
+
+        // Act
+        var hierarchy = await _sut.GetHierarchyAsync(CancellationToken.None);
+
+        // Assert
+        var root = Assert.Single(hierarchy);
+        Assert.Equal(managerEmployee.Id, root.Employee?.Id);
+        var child = Assert.Single(root.DirectReports);
+        Assert.Equal(reportEmployee.Id, child.Employee?.Id);
     }
 
     [Fact]

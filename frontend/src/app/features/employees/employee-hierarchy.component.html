@@ -1,0 +1,68 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-info">
+            <div>
+              <h4 class="card-title">Employee hierarchy</h4>
+              <p class="card-category">Visualize reporting lines for occupied positions.</p>
+            </div>
+            <div class="card-header__actions">
+              <button mat-stroked-button color="primary" (click)="goToEmployees()" aria-label="Back to employees">
+                <mat-icon>arrow_back</mat-icon>
+                Back to employees
+              </button>
+            </div>
+          </div>
+          <div class="card-body hierarchy">
+            <div *ngIf="loading()" class="hierarchy__loading" aria-live="polite">
+              <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
+              <p>Loading hierarchy...</p>
+            </div>
+
+            <p *ngIf="error()" class="hierarchy__error" role="alert">{{ error() }}</p>
+
+            <ng-container *ngIf="!loading() && !error()">
+              <p *ngIf="!dataSource.data.length" class="hierarchy__empty">No occupied positions to display.</p>
+
+              <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="hierarchy__tree" *ngIf="dataSource.data.length">
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                  <div class="hierarchy__node">
+                    <mat-icon class="hierarchy__node-icon">person</mat-icon>
+                    <div class="hierarchy__node-content">
+                      <div class="hierarchy__node-title">{{ employeeName(node) }}</div>
+                      <div class="hierarchy__node-subtitle">
+                        <span>{{ jobTitle(node) }}</span>
+                        <span class="hierarchy__meta">{{ node.position.title }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-tree-node>
+
+                <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+                  <div class="hierarchy__node" matTreeNodePadding matTreeNodeToggle>
+                    <mat-icon class="hierarchy__toggle" [class.expanded]="treeControl.isExpanded(node)">
+                      {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+                    </mat-icon>
+                    <mat-icon class="hierarchy__node-icon">person</mat-icon>
+                    <div class="hierarchy__node-content">
+                      <div class="hierarchy__node-title">{{ employeeName(node) }}</div>
+                      <div class="hierarchy__node-subtitle">
+                        <span>{{ jobTitle(node) }}</span>
+                        <span class="hierarchy__meta">{{ node.position.title }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hierarchy__children" [class.expanded]="treeControl.isExpanded(node)">
+                    <ng-container matTreeNodeOutlet></ng-container>
+                  </div>
+                </mat-nested-tree-node>
+              </mat-tree>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

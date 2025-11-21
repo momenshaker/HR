@@ -9,6 +9,7 @@
 
 **Endpoints**
 - GET `/api/employees` – List employees (paginated)
+- GET `/api/employees/hierarchy` – Retrieve reporting hierarchy for occupied positions
 - POST `/api/employees` – Create employee
 - GET `/api/employees/{id}` – Get employee by id
 - PUT `/api/employees/{id}` – Update employee (policy `EmployeeSelf`)
@@ -20,11 +21,13 @@
 
 **Object Schemas**
 - Requests: `CreateEmployeeRequest`, `UpdateEmployeeRequest`, `AssignEmployeeDepartmentRequest`, `ReplaceEmployeeDepartmentsRequest`
-- Responses: `EmployeeDto`, `PaginatedResponse<EmployeeDto>`, `IReadOnlyCollection<DepartmentDto>`
+- Responses: `EmployeeDto`, `PaginatedResponse<EmployeeDto>`, `IReadOnlyCollection<DepartmentDto>`, `IReadOnlyCollection<EmployeeHierarchyNodeDto>`
 
 **cURL Examples**
 - List employees
   - curl -X GET "$BASE_URL/api/employees" -H "Authorization: Bearer <token>" -H "Accept: application/json"
+- Get hierarchy
+  - curl -X GET "$BASE_URL/api/employees/hierarchy" -H "Authorization: Bearer <token>" -H "Accept: application/json"
 - Create employee
   - curl -X POST "$BASE_URL/api/employees" \
         -H "Authorization: Bearer <token>" \

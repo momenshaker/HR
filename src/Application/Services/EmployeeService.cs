@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using HR.Application.Abstractions.Repositories;
 using HR.Application.Abstractions.Services;
 using HR.Application.Common.Exceptions;
@@ -12,6 +15,8 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentRepository;
+    private readonly IPositionRepository _positionRepository;
+    private readonly IReportingRelationshipRepository _reportingRelationshipRepository;
     private readonly ISelfServiceAccountService _selfServiceAccountService;
 
     private static readonly IReadOnlyCollection<string> DefaultSelfServiceFeatures = new[]
@@ -24,10 +29,14 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
     public EmployeeService(
         IEmployeeRepository employeeRepository,
         IDepartmentRepository departmentRepository,
+        IPositionRepository positionRepository,
+        IReportingRelationshipRepository reportingRelationshipRepository,
         ISelfServiceAccountService selfServiceAccountService)
     {
         _employeeRepository = employeeRepository;
         _departmentRepository = departmentRepository;
+        _positionRepository = positionRepository;
+        _reportingRelationshipRepository = reportingRelationshipRepository;
         _selfServiceAccountService = selfServiceAccountService;
     }
 
@@ -100,6 +109,83 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
         return employees
             .Where(employee => employee.DepartmentIds.Contains(departmentId))
             .Select(employee => employee.ToDto())
+            .ToArray();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyCollection<EmployeeHierarchyNodeDto>> GetHierarchyAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var employees = await _employeeRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var positions = await _positionRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var reportingLines = await _reportingRelationshipRepository
+            .GetAllAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var employeesById = employees.ToDictionary(employee => employee.Id);
+        var positionsById = positions.ToDictionary(position => position.Id);
+
+        var occupiedPositions = positions
+            .Where(position => position.OccupiedByEmployeeId.HasValue &&
+                employeesById.ContainsKey(position.OccupiedByEmployeeId.Value))
+            .ToArray();
+
+        var incomingReports = reportingLines
+            .Where(relationship => positionsById.ContainsKey(relationship.ReportPositionId))
+            .ToLookup(relationship => relationship.ReportPositionId, relationship => relationship.ManagerPositionId);
+
+        var childrenByManager = reportingLines
+            .Where(relationship => positionsById.ContainsKey(relationship.ManagerPositionId))
+            .GroupBy(relationship => relationship.ManagerPositionId)
+            .ToDictionary(group => group.Key, group => group
+                .Select(relationship => relationship.ReportPositionId)
+                .Where(positionsById.ContainsKey)
+                .Distinct()
+                .ToArray());
+
+        var visited = new HashSet<Guid>();
+
+        EmployeeHierarchyNodeDto? BuildNode(Guid positionId)
+        {
+            if (!positionsById.TryGetValue(positionId, out var position) ||
+                !position.OccupiedByEmployeeId.HasValue ||
+                !employeesById.TryGetValue(position.OccupiedByEmployeeId.Value, out var employee))
+            {
+                return null;
+            }
+
+            if (!visited.Add(positionId))
+            {
+                return null;
+            }
+
+            var directReports = childrenByManager.TryGetValue(positionId, out var reportPositionIds)
+                ? reportPositionIds
+                    .Select(BuildNode)
+                    .Where(child => child is not null)
+                    .Select(child => child!)
+                    .ToArray()
+                : Array.Empty<EmployeeHierarchyNodeDto>();
+
+            return new EmployeeHierarchyNodeDto(position.ToDto(), employee.ToDto(), directReports);
+        }
+
+        var roots = occupiedPositions
+            .Where(position => !incomingReports.Contains(position.Id))
+            .Select(position => BuildNode(position.Id))
+            .Where(node => node is not null)
+            .Select(node => node!)
+            .ToArray();
+
+        if (roots.Length > 0)
+        {
+            return roots;
+        }
+
+        return occupiedPositions
+            .Select(position => BuildNode(position.Id))
+            .Where(node => node is not null)
+            .Select(node => node!)
             .ToArray();
     }
 
