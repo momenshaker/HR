@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { AppConfig } from '@core/config/app-config.model';
 import { APP_CONFIG } from '@core/config/app-config.token';
+import { PaginatedResponse } from '@core/data-access/paginated-response.model';
 
 export interface PositionSummaryDto {
   readonly id: string;
@@ -10,7 +11,6 @@ export interface PositionSummaryDto {
   readonly jobCode: string;
   readonly organizationUnitId: string;
   readonly reportsToPositionId?: string | null;
-  readonly occupiedByEmployeeId?: string | null;
   readonly grade: string;
   readonly employmentType: string;
   readonly effectiveFrom?: string | null;
@@ -25,6 +25,8 @@ export interface EmployeeSummaryDto {
   readonly lastName: string;
   readonly email: string;
   readonly jobTitle: string;
+  readonly positionId?: string | null;
+  readonly reportsToEmployeeId?: string | null;
   readonly phoneNumber: string;
   readonly employmentType: string;
   readonly primaryDepartmentId: string;
@@ -48,5 +50,16 @@ export class EmployeesApiService {
 
   getHierarchy(): Observable<EmployeeHierarchyNode[]> {
     return this.http.get<EmployeeHierarchyNode[]>(`${this.config.apiBaseUrl}/employees/hierarchy`);
+  }
+
+  getPositions(): Observable<PositionSummaryDto[]> {
+    return this.http.get<PositionSummaryDto[]>(`${this.config.apiBaseUrl}/positions`);
+  }
+
+  getEmployees(pageSize = 200): Observable<EmployeeSummaryDto[]> {
+    const params = new HttpParams().set('page', 1).set('pageSize', pageSize);
+    return this.http
+      .get<PaginatedResponse<EmployeeSummaryDto>>(`${this.config.apiBaseUrl}/employees`, { params })
+      .pipe(map((response) => response.items));
   }
 }

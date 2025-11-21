@@ -9,6 +9,8 @@ public sealed record EmployeeDto(
     string LastName,
     string Email,
     string JobTitle,
+    Guid? PositionId,
+    Guid? ReportsToEmployeeId,
     string PhoneNumber,
     string EmploymentType,
     Guid PrimaryDepartmentId,

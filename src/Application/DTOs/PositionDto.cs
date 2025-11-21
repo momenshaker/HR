@@ -9,7 +9,6 @@ public sealed record PositionDto(
     string JobCode,
     Guid OrganizationUnitId,
     Guid? ReportsToPositionId,
-    Guid? OccupiedByEmployeeId,
     string Grade,
     string EmploymentType,
     DateOnly? EffectiveFrom,

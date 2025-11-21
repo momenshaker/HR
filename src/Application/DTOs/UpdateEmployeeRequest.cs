@@ -33,6 +33,10 @@ public sealed class UpdateEmployeeRequest : IValidatableRequest
     [MaxLength(40)]
     public string EmploymentType { get; init; } = string.Empty;
 
+    public Guid? PositionId { get; init; }
+
+    public Guid? ReportsToEmployeeId { get; init; }
+
     public DateOnly? EmploymentEndDate { get; init; }
 
     public DateOnly? DateOfBirth { get; init; }

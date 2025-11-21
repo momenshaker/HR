@@ -10,6 +10,7 @@ public sealed class EmployeeSelfService(
     ILeaveManagementService leaveService,
     IAttendanceService attendanceService,
     IPayrollService payrollService,
+    IEmployeeService employeeService,
     ITrainingService trainingService,
     IPositionService positionService,
     IOrganizationUnitService organizationUnitService,
@@ -20,6 +21,7 @@ public sealed class EmployeeSelfService(
     private readonly IAttendanceService _attendanceService = attendanceService;
     private readonly IDelegatedAuthorityService _delegatedAuthorityService = delegatedAuthorityService;
     private readonly ILeaveManagementService _leaveService = leaveService;
+    private readonly IEmployeeService _employeeService = employeeService;
     private readonly IOrganizationUnitService _organizationUnitService = organizationUnitService;
     private readonly IPayrollService _payrollService = payrollService;
     private readonly IPositionService _positionService = positionService;
@@ -229,7 +231,10 @@ public sealed class EmployeeSelfService(
         Guid employeeId,
         CancellationToken cancellationToken = default)
     {
-        var position = await _positionService.GetByEmployeeIdAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        var employee = await _employeeService.GetByIdAsync(employeeId, cancellationToken).ConfigureAwait(false);
+        var position = employee?.PositionId is Guid positionId
+            ? await _positionService.GetByIdAsync(positionId, cancellationToken).ConfigureAwait(false)
+            : null;
 
         OrganizationUnitDto? organizationUnit = null;
         if (position is not null)

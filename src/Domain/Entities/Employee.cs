@@ -21,6 +21,10 @@ public sealed class Employee
 
     public string JobTitle { get; init; } = string.Empty;
 
+    public Guid? PositionId { get; init; }
+
+    public Guid? ReportsToEmployeeId { get; init; }
+
     public string PhoneNumber { get; init; } = string.Empty;
 
     public string EmploymentType { get; init; } = string.Empty;

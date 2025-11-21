@@ -34,12 +34,6 @@ public sealed class InMemoryPositionRepository : IPositionRepository
         return Task.FromResult<IReadOnlyCollection<Position>>(results);
     }
 
-    public Task<Position?> GetByEmployeeIdAsync(Guid employeeId, CancellationToken cancellationToken = default)
-    {
-        var position = _positions.Values.FirstOrDefault(p => p.OccupiedByEmployeeId == employeeId);
-        return Task.FromResult(position);
-    }
-
     public Task<Position> AddAsync(Position position, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(position);

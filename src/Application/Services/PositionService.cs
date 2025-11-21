@@ -42,13 +42,6 @@ public sealed class PositionService : IPositionService
     }
 
     /// <inheritdoc />
-    public async Task<PositionDto?> GetByEmployeeIdAsync(Guid employeeId, CancellationToken cancellationToken = default)
-    {
-        var position = await _positionRepository.GetByEmployeeIdAsync(employeeId, cancellationToken).ConfigureAwait(false);
-        return position?.ToDto();
-    }
-
-    /// <inheritdoc />
     public async Task<PositionDto> CreateAsync(CreatePositionRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);

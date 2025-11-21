@@ -36,6 +36,5 @@ internal sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
 
         builder.HasIndex(position => position.OrganizationUnitId);
         builder.HasIndex(position => position.ReportsToPositionId);
-        builder.HasIndex(position => position.OccupiedByEmployeeId);
     }
 }

@@ -17,8 +17,6 @@ public sealed class Position
 
     public Guid? ReportsToPositionId { get; init; }
 
-    public Guid? OccupiedByEmployeeId { get; init; }
-
     public string Grade { get; init; } = string.Empty;
 
     public string EmploymentType { get; init; } = string.Empty;
