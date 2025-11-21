@@ -8,7 +8,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DataTableComponent, DataTableQuery } from '@shared/components/data-table/data-table.component';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { EntityCrudFactory } from '@core/data-access';
-import { EmployeeFormComponent, EmployeeFormValue } from './employees.form';
+import { EmployeeFormComponent, EmployeeFormDialogData, EmployeeFormValue } from './employees.form';
+import { EmployeeSummaryDto, EmployeesApiService, PositionSummaryDto } from './employees.api';
 
 interface EmployeeSummary {
   id: string;
@@ -34,6 +35,8 @@ interface EmployeeDetail {
   lastName: string;
   email: string;
   jobTitle?: string;
+  positionId?: string | null;
+  reportsToEmployeeId?: string | null;
   phoneNumber?: string;
   employmentType?: 'FullTime' | 'PartTime' | 'Contractor';
   employmentStartDate?: string;
@@ -57,12 +60,15 @@ export class EmployeesPageComponent implements OnInit {
   private readonly snackbar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(EmployeesApiService);
   private readonly service = inject(EntityCrudFactory).create<EmployeeFormValue, EmployeeFormValue, EmployeeSummary>('employees');
   private readonly detailService = inject(EntityCrudFactory).create<never, never, EmployeeDetail>('employees');
 
   readonly loading = signal(false);
   readonly items = signal<ReadonlyArray<EmployeeSummary>>([]);
   readonly total = signal(0);
+  readonly positions = signal<PositionSummaryDto[]>([]);
+  readonly employeeOptions = signal<EmployeeSummaryDto[]>([]);
   private readonly querySignal = signal<DataTableQuery>({ pageIndex: 0, pageSize: 10 });
   private departmentFilter?: string;
 
@@ -78,6 +84,7 @@ export class EmployeesPageComponent implements OnInit {
   readonly displayedColumns = Object.keys(this.columns);
 
   ngOnInit(): void {
+    this.loadLookups();
     this.route.queryParamMap.subscribe((params) => {
       const departmentId = params.get('departmentId');
       this.departmentFilter = departmentId ?? undefined;
@@ -139,7 +146,7 @@ export class EmployeesPageComponent implements OnInit {
   }
 
   private openForm(employeeId?: string, payload?: EmployeeFormValue): void {
-    const dialogData = this.buildDialogData(payload);
+    const dialogData = this.buildDialogData(payload, employeeId);
     if (!dialogData) {
       return;
     }
@@ -161,6 +168,7 @@ export class EmployeesPageComponent implements OnInit {
           next: () => {
             this.snackbar.open(employeeId ? 'Employee updated' : 'Employee created', 'Dismiss', { duration: 3000 });
             this.load(this.querySignal());
+            this.loadLookups();
           },
           error: () => this.loading.set(false)
         });
@@ -173,6 +181,8 @@ export class EmployeesPageComponent implements OnInit {
       lastName: employee.lastName,
       email: employee.email,
       jobTitle: employee.jobTitle,
+      positionId: employee.positionId,
+      reportsToEmployeeId: employee.reportsToEmployeeId,
       phoneNumber: employee.phoneNumber,
       employmentType: employee.employmentType,
       employmentStartDate: employee.employmentStartDate,
@@ -214,9 +224,25 @@ export class EmployeesPageComponent implements OnInit {
     });
   }
 
-  private buildDialogData(payload?: EmployeeFormValue): Partial<EmployeeFormValue> | null {
+  private loadLookups(): void {
+    this.api.getPositions().subscribe({
+      next: (positions) => this.positions.set(positions),
+      error: () => this.positions.set([])
+    });
+
+    this.api.getEmployees(500).subscribe({
+      next: (employees) => this.employeeOptions.set(employees),
+      error: () => this.employeeOptions.set([])
+    });
+  }
+
+  private buildDialogData(payload?: EmployeeFormValue, currentEmployeeId?: string): EmployeeFormDialogData | null {
     if (payload) {
-      return payload;
+      return {
+        ...payload,
+        positions: this.positions(),
+        employees: this.filteredEmployees(currentEmployeeId)
+      };
     }
     if (!this.departmentFilter) {
       this.snackbar.open('Select a department before adding employees.', 'Dismiss', { duration: 3000 });
@@ -226,7 +252,17 @@ export class EmployeesPageComponent implements OnInit {
       departmentAssignment: {
         primaryDepartmentId: this.departmentFilter,
         secondaryDepartmentIds: []
-      }
+      },
+      positions: this.positions(),
+      employees: this.filteredEmployees(currentEmployeeId)
     };
+  }
+
+  private filteredEmployees(currentEmployeeId?: string): EmployeeSummaryDto[] {
+    const employees = this.employeeOptions();
+    if (!currentEmployeeId) {
+      return employees;
+    }
+    return employees.filter((employee) => employee.id !== currentEmployeeId);
   }
 }

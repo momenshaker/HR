@@ -82,6 +82,19 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(employee => employee.CreatedAtUtc)
             .HasColumnType("datetime2");
 
+        builder.HasIndex(employee => employee.PositionId);
+        builder.HasIndex(employee => employee.ReportsToEmployeeId);
+
+        builder.HasOne<Position>()
+            .WithMany()
+            .HasForeignKey(employee => employee.PositionId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne<Employee>()
+            .WithMany()
+            .HasForeignKey(employee => employee.ReportsToEmployeeId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.ComplexProperty(employee => employee.JobArchitecture, architecture =>
         {
             architecture.Property(job => job.JobFamily)

@@ -21,8 +21,6 @@ public sealed class CreatePositionRequest : IValidatableRequest
 
     public Guid? ReportsToPositionId { get; init; }
 
-    public Guid? OccupiedByEmployeeId { get; init; }
-
     [MaxLength(20)]
     public string Grade { get; init; } = string.Empty;
 

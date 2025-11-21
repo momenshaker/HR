@@ -13,8 +13,6 @@ public interface IPositionService
 
     Task<IReadOnlyCollection<PositionDto>> GetByOrganizationUnitAsync(Guid organizationUnitId, CancellationToken cancellationToken = default);
 
-    Task<PositionDto?> GetByEmployeeIdAsync(Guid employeeId, CancellationToken cancellationToken = default);
-
     Task<PositionDto> CreateAsync(CreatePositionRequest request, CancellationToken cancellationToken = default);
 
     Task<PositionDto?> UpdateAsync(Guid id, UpdatePositionRequest request, CancellationToken cancellationToken = default);

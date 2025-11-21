@@ -122,13 +122,12 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
             .GetAllAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var employeesById = employees.ToDictionary(employee => employee.Id);
         var positionsById = positions.ToDictionary(position => position.Id);
 
-        var occupiedPositions = positions
-            .Where(position => position.OccupiedByEmployeeId.HasValue &&
-                employeesById.ContainsKey(position.OccupiedByEmployeeId.Value))
-            .ToArray();
+        var employeesByPosition = employees
+            .Where(employee => employee.PositionId.HasValue && positionsById.ContainsKey(employee.PositionId.Value))
+            .GroupBy(employee => employee.PositionId!.Value)
+            .ToDictionary(group => group.Key, group => group.ToArray());
 
         var incomingReports = reportingLines
             .Where(relationship => positionsById.ContainsKey(relationship.ReportPositionId))
@@ -143,38 +142,37 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
                 .Distinct()
                 .ToArray());
 
-        var visited = new HashSet<Guid>();
-
-        EmployeeHierarchyNodeDto? BuildNode(Guid positionId)
+        EmployeeHierarchyNodeDto[] BuildNodes(Guid positionId, HashSet<Guid> path)
         {
-            if (!positionsById.TryGetValue(positionId, out var position) ||
-                !position.OccupiedByEmployeeId.HasValue ||
-                !employeesById.TryGetValue(position.OccupiedByEmployeeId.Value, out var employee))
+            if (!positionsById.TryGetValue(positionId, out var position))
             {
-                return null;
+                return Array.Empty<EmployeeHierarchyNodeDto>();
             }
 
-            if (!visited.Add(positionId))
+            if (path.Contains(positionId))
             {
-                return null;
+                return Array.Empty<EmployeeHierarchyNodeDto>();
             }
 
-            var directReports = childrenByManager.TryGetValue(positionId, out var reportPositionIds)
+            var childPath = new HashSet<Guid>(path) { positionId };
+            var directReportPositions = childrenByManager.TryGetValue(positionId, out var reportPositionIds)
                 ? reportPositionIds
-                    .Select(BuildNode)
-                    .Where(child => child is not null)
-                    .Select(child => child!)
+                    .SelectMany(childId => BuildNodes(childId, childPath))
                     .ToArray()
                 : Array.Empty<EmployeeHierarchyNodeDto>();
 
-            return new EmployeeHierarchyNodeDto(position.ToDto(), employee.ToDto(), directReports);
+            return employeesByPosition.TryGetValue(positionId, out var positionEmployees)
+                ? positionEmployees
+                    .Select(employee => new EmployeeHierarchyNodeDto(position.ToDto(), employee.ToDto(), directReportPositions))
+                    .ToArray()
+                : Array.Empty<EmployeeHierarchyNodeDto>();
         }
 
-        var roots = occupiedPositions
-            .Where(position => !incomingReports.Contains(position.Id))
-            .Select(position => BuildNode(position.Id))
-            .Where(node => node is not null)
-            .Select(node => node!)
+        var positionsWithEmployees = employeesByPosition.Keys.ToArray();
+
+        var roots = positionsWithEmployees
+            .Where(positionId => !incomingReports.Contains(positionId))
+            .SelectMany(positionId => BuildNodes(positionId, new HashSet<Guid>()))
             .ToArray();
 
         if (roots.Length > 0)
@@ -182,10 +180,8 @@ public sealed class EmployeeService : IEmployeeService, IEmployeeSearchService
             return roots;
         }
 
-        return occupiedPositions
-            .Select(position => BuildNode(position.Id))
-            .Where(node => node is not null)
-            .Select(node => node!)
+        return positionsWithEmployees
+            .SelectMany(positionId => BuildNodes(positionId, new HashSet<Guid>()))
             .ToArray();
     }
 

@@ -47,18 +47,6 @@ public sealed class PositionsController(IPositionService positionService) : Cont
     }
 
     /// <summary>
-    ///     Retrieves the position occupied by the specified employee, when available.
-    /// </summary>
-    [HttpGet("employee/{employeeId:guid}")]
-    [ProducesResponseType(typeof(PositionDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByEmployeeAsync(Guid employeeId, CancellationToken cancellationToken)
-    {
-        var position = await _positionService.GetByEmployeeIdAsync(employeeId, cancellationToken).ConfigureAwait(false);
-        return position is null ? NotFound() : Ok(position);
-    }
-
-    /// <summary>
     ///     Retrieves a position by identifier.
     /// </summary>
     [HttpGet("{id:guid}")]

@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormActionsComponent } from '@shared/components/form-actions/form-actions.component';
+import { EmployeeSummaryDto, PositionSummaryDto } from './employees.api';
 
 export interface EmployeeProfileDocumentInput {
   fileName: string;
@@ -21,6 +22,8 @@ export interface EmployeeFormValue {
   lastName: string;
   email: string;
   jobTitle?: string;
+  positionId?: string | null;
+  reportsToEmployeeId?: string | null;
   phoneNumber?: string;
   employmentType?: 'FullTime' | 'PartTime' | 'Contractor';
   employmentStartDate?: string;
@@ -31,6 +34,11 @@ export interface EmployeeFormValue {
     secondaryDepartmentIds: string[];
   };
   profileDocuments: EmployeeProfileDocumentInput[];
+}
+
+export interface EmployeeFormDialogData extends Partial<EmployeeFormValue> {
+  positions?: PositionSummaryDto[];
+  employees?: EmployeeSummaryDto[];
 }
 
 @Component({
@@ -77,6 +85,26 @@ export interface EmployeeFormValue {
         <mat-form-field appearance="outline">
           <mat-label>Job title</mat-label>
           <input matInput formControlName="jobTitle" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Position</mat-label>
+          <mat-select formControlName="positionId">
+            <mat-option [value]="''">Unassigned</mat-option>
+            <mat-option *ngFor="let position of positions" [value]="position.id">
+              {{ position.title }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Reports to</mat-label>
+          <mat-select formControlName="reportsToEmployeeId">
+            <mat-option [value]="''">No reporting manager</mat-option>
+            <mat-option *ngFor="let employee of employees" [value]="employee.id">
+              {{ employee.firstName }} {{ employee.lastName }}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -181,6 +209,8 @@ export class EmployeeFormComponent {
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: [''],
     jobTitle: [''],
+    positionId: [''],
+    reportsToEmployeeId: [''],
     employmentType: ['FullTime'],
     departmentId: ['', Validators.required],
     startDate: [''],
@@ -189,10 +219,18 @@ export class EmployeeFormComponent {
     profileDocuments: this.fb.array<FormGroup>([])
   });
 
-  constructor(@Inject(MAT_DIALOG_DATA) readonly data: Partial<EmployeeFormValue> | null) {
+  constructor(@Inject(MAT_DIALOG_DATA) readonly data: EmployeeFormDialogData | null) {
     if (data) {
       this.patchData(data);
     }
+  }
+
+  get positions(): PositionSummaryDto[] {
+    return this.data?.positions ?? [];
+  }
+
+  get employees(): EmployeeSummaryDto[] {
+    return this.data?.employees ?? [];
   }
 
   get profileDocumentControls(): FormArray {
@@ -229,6 +267,8 @@ export class EmployeeFormComponent {
       lastName: raw.lastName.trim(),
       email: raw.email.trim(),
       jobTitle: raw.jobTitle?.trim(),
+      positionId: raw.positionId || null,
+      reportsToEmployeeId: raw.reportsToEmployeeId || null,
       phoneNumber: raw.phoneNumber?.trim(),
       employmentType: raw.employmentType,
       employmentStartDate: raw.startDate,
@@ -252,6 +292,8 @@ export class EmployeeFormComponent {
       phoneNumber: data.phoneNumber ?? '',
       jobTitle: data.jobTitle ?? '',
       employmentType: data.employmentType ?? 'FullTime',
+      positionId: data.positionId ?? '',
+      reportsToEmployeeId: data.reportsToEmployeeId ?? '',
       startDate: data.employmentStartDate ?? '',
       endDate: data.employmentEndDate ?? '',
       dateOfBirth: data.dateOfBirth ?? ''

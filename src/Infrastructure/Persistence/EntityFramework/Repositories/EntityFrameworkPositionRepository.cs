@@ -31,13 +31,6 @@ internal sealed class EntityFrameworkPositionRepository : EntityFrameworkReposit
             .ConfigureAwait(false);
     }
 
-    public async Task<Position?> GetByEmployeeIdAsync(Guid employeeId, CancellationToken cancellationToken = default)
-    {
-        return await DbSet.AsNoTracking()
-            .FirstOrDefaultAsync(position => position.OccupiedByEmployeeId == employeeId, cancellationToken)
-            .ConfigureAwait(false);
-    }
-
     public Task<Position> AddAsync(Position position, CancellationToken cancellationToken = default)
     {
         return AddInternalAsync(position, cancellationToken);
