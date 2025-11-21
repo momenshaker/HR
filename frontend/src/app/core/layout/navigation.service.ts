@@ -13,6 +13,7 @@ export class NavigationService {
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', roles: ['Admin', 'HR', 'Manager', 'Employee'] },
     { label: 'Organizations', icon: 'domain', route: '/organizations', roles: ['Admin', 'HR'] },
     { label: 'Departments', icon: 'account_tree', route: '/departments', roles: ['Admin', 'HR', 'Manager'] },
+    { label: 'Positions', icon: 'badge', route: '/positions', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Employees', icon: 'people', route: '/employees', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Attendance', icon: 'schedule', route: '/attendance', roles: ['Admin', 'HR', 'Manager'] },
     { label: 'Leave', icon: 'beach_access', route: '/leave', roles: ['Admin', 'HR', 'Manager', 'Employee'] },

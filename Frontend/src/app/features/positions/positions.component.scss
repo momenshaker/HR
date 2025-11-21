@@ -1,0 +1,10 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-field {
+  min-width: 240px;
+}

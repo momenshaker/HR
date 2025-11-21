@@ -1,0 +1,61 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-info">
+            <div>
+              <h4 class="card-title">Positions</h4>
+              <p class="card-category">Define and manage the roles that keep the organisation running.</p>
+            </div>
+            <div class="card-header__actions">
+              <button
+                mat-flat-button
+                class="btn btn-primary"
+                (click)="openCreate()"
+                aria-label="Create position"
+              >
+                <mat-icon>add</mat-icon>
+                New position
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="filters">
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Organization unit</mat-label>
+                <mat-select
+                  [(ngModel)]="organizationUnitFilter"
+                  (selectionChange)="applyOrganizationFilter($event.value)"
+                >
+                  <mat-option value="">All units</mat-option>
+                  <mat-option *ngFor="let unit of organizationUnits()" [value]="unit.id">
+                    {{ unit.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <app-data-table
+              [columns]="columns"
+              [displayedColumns]="displayedColumns"
+              [data]="items()"
+              [total]="total()"
+              [loading]="loading()"
+              [pageSizeOptions]="pageSizeOptions"
+              (queryChange)="onQueryChange($event)"
+            >
+              <ng-template #actions let-item>
+                <button mat-icon-button color="primary" aria-label="Edit position" (click)="openEdit(item)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" aria-label="Delete position" (click)="remove(item)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </ng-template>
+            </app-data-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
