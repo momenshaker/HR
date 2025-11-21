@@ -21,4 +21,6 @@ public interface ILeaveService
     Task<LeaveRequestDto> CancelAsync(Guid requestId, Guid employeeId, CancellationToken cancellationToken = default);
 
     Task<PagedLeaveRequestsDto> GetRequestsAsync(Guid? employeeId, Guid? managerId, string? status, int page, int pageSize, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<LeaveApprovalStepDto>> CreateApprovalWorkflowAsync(CreateLeaveApprovalWorkflowRequest request, CancellationToken cancellationToken = default);
 }

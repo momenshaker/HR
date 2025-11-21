@@ -175,6 +175,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmployeeScheduleRepository, EntityFrameworkEmployeeScheduleRepository>();
         services.AddScoped<IHolidayRepository, EntityFrameworkHolidayRepository>();
         services.AddScoped<ILeaveRequestRepository, EntityFrameworkLeaveRequestRepository>();
+        services.AddScoped<IApprovalStepRepository, EntityFrameworkApprovalStepRepository>();
         services.AddScoped<IPayrollRunRepository, EntityFrameworkPayrollRunRepository>();
         services.AddScoped<IPerformanceReviewRepository, EntityFrameworkPerformanceReviewRepository>();
         services.AddScoped<ICandidateRepository, EntityFrameworkCandidateRepository>();
@@ -224,6 +225,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEmployeeScheduleRepository, InMemoryEmployeeScheduleRepository>();
         services.AddSingleton<IHolidayRepository, InMemoryHolidayRepository>();
         services.AddSingleton<ILeaveRequestRepository, InMemoryLeaveRequestRepository>();
+        services.AddSingleton<IApprovalStepRepository, InMemoryApprovalStepRepository>();
         services.AddSingleton<IPayrollRunRepository, InMemoryPayrollRunRepository>();
         services.AddSingleton<IPerformanceReviewRepository, InMemoryPerformanceReviewRepository>();
         services.AddSingleton<ICandidateRepository, InMemoryCandidateRepository>();
