@@ -15,11 +15,13 @@ namespace HR.Application.Services;
 /// </summary>
 public sealed class LeaveService(
     ILeaveRequestRepository leaveRequestRepository,
+    IApprovalStepRepository approvalStepRepository,
     ILeaveTypeRepository leaveTypeRepository,
     ILeaveBalanceRepository leaveBalanceRepository,
     IWorkdayCalendar calendar) : ILeaveService
 {
     private readonly ILeaveRequestRepository _leaveRequests = leaveRequestRepository;
+    private readonly IApprovalStepRepository _approvalSteps = approvalStepRepository;
     private readonly ILeaveTypeRepository _leaveTypes = leaveTypeRepository;
     private readonly ILeaveBalanceRepository _leaveBalances = leaveBalanceRepository;
     private readonly IWorkdayCalendar _calendar = calendar;
@@ -253,6 +255,55 @@ public sealed class LeaveService(
         return created.ToDto();
     }
 
+    public async Task<IReadOnlyCollection<LeaveApprovalStepDto>> CreateApprovalWorkflowAsync(CreateLeaveApprovalWorkflowRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.Steps is null || request.Steps.Count == 0)
+        {
+            throw new ArgumentException("Provide at least one approver to build a workflow.", nameof(request.Steps));
+        }
+
+        var leaveRequest = await _leaveRequests.GetByIdAsync(request.LeaveRequestId, cancellationToken).ConfigureAwait(false)
+                           ?? throw new InvalidOperationException("Leave request not found.");
+
+        if (leaveRequest.Status.Equals(LeaveRequestStatus.Cancelled, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Cannot create a workflow for a cancelled request.");
+        }
+
+        var orderedSteps = request.Steps
+            .Select((s, index) => new
+            {
+                s.ApproverId,
+                Order = s.StepOrder ?? index + 1
+            })
+            .OrderBy(s => s.Order)
+            .ToList();
+
+        if (orderedSteps.Select(s => s.Order).Distinct().Count() != orderedSteps.Count)
+        {
+            throw new InvalidOperationException("Duplicate step orders are not allowed in a workflow.");
+        }
+
+        var workflow = orderedSteps
+            .Select((s, index) => new ApprovalStep
+            {
+                Id = Guid.NewGuid(),
+                LeaveRequestId = request.LeaveRequestId,
+                StepOrder = s.Order,
+                ApproverId = s.ApproverId,
+                Status = index == 0 ? ApprovalStepStatus.Pending : ApprovalStepStatus.NotStarted,
+                Comment = string.Empty
+            })
+            .ToArray();
+
+        var persisted = await _approvalSteps.ReplaceWorkflowAsync(request.LeaveRequestId, workflow, cancellationToken)
+            .ConfigureAwait(false);
+
+        return persisted.Select(x => x.ToDto()).ToArray();
+    }
+
     public async Task<LeaveRequestDto> ApproveAsync(Guid requestId, Guid managerId, CancellationToken cancellationToken = default)
     {
         var request = await _leaveRequests.GetByIdAsync(requestId, cancellationToken).ConfigureAwait(false)
@@ -260,6 +311,56 @@ public sealed class LeaveService(
         if (!string.Equals(request.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Only pending requests can be approved.");
+        }
+
+        var workflowSteps = await _approvalSteps.GetByLeaveRequestIdAsync(requestId, cancellationToken).ConfigureAwait(false);
+        if (workflowSteps.Count > 0)
+        {
+            var orderedSteps = workflowSteps.OrderBy(s => s.StepOrder).ToList();
+            var pendingStep = orderedSteps.FirstOrDefault(s => s.Status.Equals(ApprovalStepStatus.Pending, StringComparison.OrdinalIgnoreCase));
+
+            if (pendingStep is null)
+            {
+                throw new InvalidOperationException("No pending approval step is available for this request.");
+            }
+
+            if (pendingStep.ApproverId != managerId)
+            {
+                throw new InvalidOperationException("This leave request is not assigned to the specified approver.");
+            }
+
+            var approvedStep = new ApprovalStep
+            {
+                Id = pendingStep.Id,
+                LeaveRequestId = pendingStep.LeaveRequestId,
+                StepOrder = pendingStep.StepOrder,
+                ApproverId = pendingStep.ApproverId,
+                Status = ApprovalStepStatus.Approved,
+                ActionAtUtc = DateTime.UtcNow,
+                Comment = pendingStep.Comment
+            };
+
+            await _approvalSteps.UpdateAsync(approvedStep, cancellationToken).ConfigureAwait(false);
+
+            var nextStep = orderedSteps
+                .FirstOrDefault(s => s.StepOrder > pendingStep.StepOrder && s.Status.Equals(ApprovalStepStatus.NotStarted, StringComparison.OrdinalIgnoreCase));
+
+            if (nextStep is not null)
+            {
+                var pendingNext = new ApprovalStep
+                {
+                    Id = nextStep.Id,
+                    LeaveRequestId = nextStep.LeaveRequestId,
+                    StepOrder = nextStep.StepOrder,
+                    ApproverId = nextStep.ApproverId,
+                    Status = ApprovalStepStatus.Pending,
+                    Comment = nextStep.Comment
+                };
+
+                await _approvalSteps.UpdateAsync(pendingNext, cancellationToken).ConfigureAwait(false);
+
+                return request.ToDto();
+            }
         }
 
         // Confirm deduction
@@ -324,6 +425,36 @@ public sealed class LeaveService(
         if (!string.Equals(request.Status, LeaveRequestStatus.PendingApproval, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Only pending requests can be rejected.");
+        }
+
+        var workflowSteps = await _approvalSteps.GetByLeaveRequestIdAsync(requestId, cancellationToken).ConfigureAwait(false);
+        if (workflowSteps.Count > 0)
+        {
+            var orderedSteps = workflowSteps.OrderBy(s => s.StepOrder).ToList();
+            var pendingStep = orderedSteps.FirstOrDefault(s => s.Status.Equals(ApprovalStepStatus.Pending, StringComparison.OrdinalIgnoreCase));
+
+            if (pendingStep is null)
+            {
+                throw new InvalidOperationException("No pending approval step is available for this request.");
+            }
+
+            if (pendingStep.ApproverId != managerId)
+            {
+                throw new InvalidOperationException("This leave request is not assigned to the specified approver.");
+            }
+
+            var rejectedStep = new ApprovalStep
+            {
+                Id = pendingStep.Id,
+                LeaveRequestId = pendingStep.LeaveRequestId,
+                StepOrder = pendingStep.StepOrder,
+                ApproverId = pendingStep.ApproverId,
+                Status = ApprovalStepStatus.Rejected,
+                ActionAtUtc = DateTime.UtcNow,
+                Comment = string.IsNullOrWhiteSpace(reason) ? pendingStep.Comment : reason.Trim()
+            };
+
+            await _approvalSteps.UpdateAsync(rejectedStep, cancellationToken).ConfigureAwait(false);
         }
 
         var updated = new LeaveRequest
@@ -424,12 +555,22 @@ public sealed class LeaveService(
         pageSize = Math.Clamp(pageSize, 1, 200);
 
         var requests = await _leaveRequests.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var managerAssignments = managerId is null
+            ? Array.Empty<ApprovalStep>()
+            : await _approvalSteps.GetByApproverAsync(managerId.Value, cancellationToken).ConfigureAwait(false);
 
         var filtered = requests.AsEnumerable();
         if (employeeId is not null)
             filtered = filtered.Where(r => r.EmployeeId == employeeId);
         if (managerId is not null)
-            filtered = filtered.Where(r => r.ApproverId == managerId);
+        {
+            var managerPendingRequestIds = managerAssignments
+                .Where(s => s.Status.Equals(ApprovalStepStatus.Pending, StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.LeaveRequestId)
+                .ToHashSet();
+
+            filtered = filtered.Where(r => r.ApproverId == managerId || managerPendingRequestIds.Contains(r.Id));
+        }
         if (!string.IsNullOrWhiteSpace(status))
             filtered = filtered.Where(r => string.Equals(r.Status, status, StringComparison.OrdinalIgnoreCase));
 

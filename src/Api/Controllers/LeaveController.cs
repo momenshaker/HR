@@ -110,6 +110,24 @@ public sealed class LeaveController(ILeaveService leaveService, ILeaveRequestRep
         }
     }
 
+    [HttpPost("requests/{id:guid}/workflow")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<LeaveApprovalStepDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateWorkflow(Guid id, [FromBody] CreateLeaveApprovalWorkflowRequest request, CancellationToken cancellationToken)
+    {
+        if (request is null)
+        {
+            return BadRequest("Request body is required.");
+        }
+
+        var workflow = await _leaveService.CreateApprovalWorkflowAsync(new CreateLeaveApprovalWorkflowRequest
+        {
+            LeaveRequestId = id,
+            Steps = request.Steps
+        }, cancellationToken).ConfigureAwait(false);
+
+        return Ok(workflow);
+    }
+
     [HttpGet("requests")] 
     [ProducesResponseType(typeof(PagedLeaveRequestsDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRequests([FromQuery] Guid? employeeId, [FromQuery] Guid? managerId, [FromQuery] string? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken cancellationToken = default)
